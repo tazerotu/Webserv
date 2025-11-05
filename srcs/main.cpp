@@ -6,11 +6,13 @@
 /*   By: ttas <ttas@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/05 09:31:11 by ttas              #+#    #+#             */
-/*   Updated: 2025/11/05 10:10:56 by ttas             ###   ########.fr       */
+/*   Updated: 2025/11/05 13:42:27 by ttas             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../includes/Webserv.hpp"
+// #include "../includes/Webserv.hpp"
+
+#include <iostream>
 
 int main(int argc, char **argv)
 {

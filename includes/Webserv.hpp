@@ -3,5 +3,7 @@
 # define WEBSERV_HPP
 
 #include <iostream>
+#include <ServerConfig.hpp>
+
 
 #endif
