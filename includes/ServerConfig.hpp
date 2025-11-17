@@ -15,6 +15,7 @@ class ServerConfig
 	int			_port;
 	std::string _root;
 	std::string _index;
+	int			_autoindex;
 	std::string _error_page;
 	std::string *_allowed_methods;
 	int			_maxClientBodySize;
@@ -22,14 +23,13 @@ class ServerConfig
 	std::string _cgi_ext;
 
 	public:
-	// Constructors
-	ServerConfig();
+	// Constructor
 	ServerConfig(std::string conf);
 
-	// Destructors
+	// Destructor
 	~ServerConfig();
 
-	// Methods
+	// Getters
 	std::string const &getName(void) const;
 	std::string const &getHost(void) const;
 	int                getPort(void) const;
@@ -40,6 +40,19 @@ class ServerConfig
 	int                getMaxClientBodySize(void) const;
 	std::string const &getCgiPath(void) const;
 	std::string const &getCgiExt(void) const;
+
+	// Setters
+	void 				setName(std::string const &name);
+	void 				setHost(std::string const &host);
+	void 				setPort(int port);
+	void 				setRoot(std::string const &root);
+	void 				setIndex(std::string const &index);
+	void 				setErrorPage(std::string const &error_page);
+	void 				setAllowedMethods(std::string *allowed_methods);
+	void 				setMaxClientBodySize(int size);
+	void 				setCgiPath(std::string const &cgi_path);
+	void 				setCgiExt(std::string const &cgi_ext);
+	
 };
 
 #endif
