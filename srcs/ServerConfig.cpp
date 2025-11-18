@@ -6,7 +6,7 @@
 /*   By: ttas <ttas@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/05 13:31:12 by ttas              #+#    #+#             */
-/*   Updated: 2025/11/18 10:14:36 by ttas             ###   ########.fr       */
+/*   Updated: 2025/11/18 11:23:57 by ttas             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,97 +14,136 @@
 
 #include <cstdlib> 
 
-static void error_message(std::string message)
+// ---------------- Static Helper ----------------
+
+static void error_message(const std::string &message)
 {
-	std::cout << message << std::endl;
-	exit(0);
+    std::cout << message << std::endl;
+    exit(1);
 }
 
-
-bool isRegularFile(const std::string &path)
+static bool isRegularFile(const std::string &path)
 {
     struct stat st;
-
-    // stat() returns 0 on success
     if (stat(path.c_str(), &st) != 0)
         return false;
-
-    // S_ISREG tests for a regular file
     return S_ISREG(st.st_mode);
 }
 
+// ---------------- Constructor ----------------
+
 ServerConfig::ServerConfig(std::string conf)
+    : _port(0), _autoindex(0), _error_page(NULL), _allowed_methods(NULL), _maxClientBodySize(0)
 {
-	// void		(ServerConfig::*ptr_key[11])(void) = {};
-	std::fstream file;
-	std::string line;
+    if (conf.size() < 5 || conf.substr(conf.size() - 5) != ".conf")
+        error_message("Invalid config file extension. Expected .conf");
 
-	if((conf.size() < 5) || (conf.substr(conf.size() - 5) != ".conf"))
-		error_message("Invalid config file extension. Expected .conf");
+    if (!isRegularFile(conf))
+        error_message("Config path must be a regular file");
 
-	file.open(conf.c_str(), std::ios::in);
-	
-	if(!file.is_open())
-		error_message("Empty or non existant config file");
-	
-	if (!isRegularFile(conf))
-        error_message("Config path must be a regular file, not a folder");
-	
+    std::ifstream file(conf.c_str());
+    if (!file.is_open())
+        error_message("Empty or non-existent config file");
 
-	while (std::getline(file, line))
-	{
-		std::cout << line << std::endl;
-		if(line.empty() || line[0] == '#')
-			continue;
-		int pos = line.find_first_of(" ");
-		if(!pos)
-		{
-			std::string msg = "Error : Invalid Config for line : " + line;
-			error_message(msg);
-		}
+    std::string line;
+    while (std::getline(file, line))
+    {
+        if (line.empty() || line[0] == '#')
+            continue;
 
-		std::string key = line.substr(0, pos);
-		std::string value = line.substr(pos + 1);
-		if(key.empty() || value.empty())
-		{
-			error_message("Error: Key or Value is empty");
-		}
-		
-		std::cout << "Key: " << key << " | Value: " << value << "\n\n" << std::endl;
-		
-		
-	}
-	
-	file.close();	
-		
+        int pos = line.find_first_of(" ");
+        if (pos <= 0)
+            error_message("Invalid config line: " + line);
+
+        std::string key = line.substr(0, pos);
+        std::string value = line.substr(pos + 1);
+
+        if (key.empty() || value.empty())
+            error_message("Key or value is empty in line: " + line);
+
+        assign(key, value);
+    }
+    file.close();
 }
 
+// ---------------- Destructor ----------------
+
 ServerConfig::~ServerConfig()
-{}
+{
+    if (_error_page)
+        delete _error_page;
+    if (_allowed_methods)
+        delete _allowed_methods;
+}
 
-// Getters
-const std::string &ServerConfig::getName() const 		{return (this->_name);}
-const std::string &ServerConfig::getHost() const 		{return (this->_host);}
-int ServerConfig::getPort() const 						{return (this->_port);}
-const std::string &ServerConfig::getRoot() const 		{return (this->_root);}
-const std::string &ServerConfig::getIndex() const 		{return (this->_index);}
-int ServerConfig::getAutoindex() const 					{return (this->_autoindex);}
-std::string *ServerConfig::getErrorPage() const 		{return (this->_error_page);}
-std::string *ServerConfig::getAllowedMethods() const 	{return (this->_allowed_methods);}
-int ServerConfig::getMaxClientBodySize() const 			{return (this->_maxClientBodySize);}
-const std::string &ServerConfig::getCgiPath() const 	{return (this->_cgi_path);}
-const std::string &ServerConfig::getCgiExt() const 		{return (this->_cgi_ext);}
+// ---------------- Getters ----------------
 
+const std::string &ServerConfig::getName() const { return _name; }
+const std::string &ServerConfig::getHost() const { return _host; }
+int ServerConfig::getPort() const { return _port; }
+const std::string &ServerConfig::getRoot() const { return _root; }
+const std::string &ServerConfig::getIndex() const { return _index; }
+int ServerConfig::getAutoindex() const { return _autoindex; }
+std::string *ServerConfig::getErrorPage() const { return _error_page; }
+std::string *ServerConfig::getAllowedMethods() const { return _allowed_methods; }
+int ServerConfig::getMaxClientBodySize() const { return _maxClientBodySize; }
+const std::string &ServerConfig::getCgiPath() const { return _cgi_path; }
+const std::string &ServerConfig::getCgiExt() const { return _cgi_ext; }
 
-// Setters
-void ServerConfig::setName(const std::string &name) 			{this->_name = name;}
-void ServerConfig::setHost(const std::string &host) 			{this->_host = host;}
-void ServerConfig::setPort(const std::string port) 				{this->_port = atoi(port.c_str());}
-void ServerConfig::setRoot(const std::string &root)				{this->_root = root;}
-void ServerConfig::setIndex(const std::string &index) 			{this->_index = index;}
-void ServerConfig::setAutoindex(const std::string autoindex) 	{this->_autoindex = atoi(autoindex.c_str());}
-void ServerConfig::setErrorPage(std::string *errorPage) 		{this->_error_page = errorPage;}
-void ServerConfig::setAllowedMethods(std::string *methods) 		{this->_allowed_methods = methods;}
-void ServerConfig::setMaxClientBodySize(const std::string size) {this->_maxClientBodySize = atoi(size.c_str());}
-void ServerConfig::setCgiPath(const std::string &cgiPath)		{this->_cgi_path = cgiPath;}
-void ServerConfig::setCgiExt(const std::string &cgiExt) 		{this->_cgi_ext = cgiExt;}
+// ---------------- Setters ----------------
+
+void ServerConfig::setName(const std::string &name) { _name = name; }
+void ServerConfig::setHost(const std::string &host) { _host = host; }
+void ServerConfig::setPort(const std::string &port) { _port = atoi(port.c_str()); }
+void ServerConfig::setRoot(const std::string &root) { _root = root; }
+void ServerConfig::setIndex(const std::string &index) { _index = index; }
+void ServerConfig::setAutoindex(const std::string &autoindex) { _autoindex = atoi(autoindex.c_str()); }
+void ServerConfig::setErrorPage(const std::string &errorPage)
+{
+    if (!_error_page)
+        _error_page = new std::string(errorPage);
+    else
+        *_error_page = errorPage;
+}
+void ServerConfig::setAllowedMethods(const std::string &methods)
+{
+    if (!_allowed_methods)
+        _allowed_methods = new std::string(methods);
+    else
+        *_allowed_methods = methods;
+}
+void ServerConfig::setMaxClientBodySize(const std::string &size) { _maxClientBodySize = atoi(size.c_str()); }
+void ServerConfig::setCgiPath(const std::string &cgiPath) { _cgi_path = cgiPath; }
+void ServerConfig::setCgiExt(const std::string &cgiExt) { _cgi_ext = cgiExt; }
+
+// ---------------- Map Initialization ----------------
+
+std::map<std::string, ServerConfig::Setter> ServerConfig::initMap()
+{
+    std::map<std::string, Setter> m;
+    m["name"] = &ServerConfig::setName;
+    m["host"] = &ServerConfig::setHost;
+    m["port"] = &ServerConfig::setPort;
+    m["root"] = &ServerConfig::setRoot;
+    m["index"] = &ServerConfig::setIndex;
+    m["autoindex"] = &ServerConfig::setAutoindex;
+    m["error_page"] = &ServerConfig::setErrorPage;
+    m["allowed_methods"] = &ServerConfig::setAllowedMethods;
+    m["client_max_body"] = &ServerConfig::setMaxClientBodySize;
+    m["cgi_path"] = &ServerConfig::setCgiPath;
+    m["cgi_ext"] = &ServerConfig::setCgiExt;
+    return m;
+}
+
+const std::map<std::string, ServerConfig::Setter> ServerConfig::_setters = ServerConfig::initMap();
+
+// ---------------- assign() ----------------
+
+void ServerConfig::assign(const std::string &key, const std::string &value)
+{
+    std::map<std::string, Setter>::const_iterator it = _setters.find(key);
+    if (it != _setters.end())
+        (this->*(it->second))(value);
+    else
+        error_message("Unknown config key: " + key);
+}
