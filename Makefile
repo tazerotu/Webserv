@@ -6,20 +6,21 @@
 #    By: ttas <ttas@student.42.fr>                  +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/11/05 09:31:15 by ttas              #+#    #+#              #
-#    Updated: 2025/11/05 13:42:06 by ttas             ###   ########.fr        #
+#    Updated: 2025/11/18 09:54:01 by ttas             ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 EXE = webserv
 
-SRC =	./srcs/main.cpp
+SRC =	./srcs/main.cpp \
+		./srcs/ServerConfig.cpp
 
 
 SOURCES = ${SRC}
 
 
 OBJDIR = obj
-OBJECTS = $(patsubst ./srcs/%, $(OBJDIR)/srcs/%, $(SOURCES:.c=.o))
+OBJECTS = $(patsubst ./srcs/%, $(OBJDIR)/srcs/%, $(SOURCES:.cpp=.o))
 
 
 FLAGS = -Wall -Werror -Wextra -Includes -std=c++98
@@ -27,7 +28,7 @@ RM = rm -f
 CC = c++
 
 
-$(OBJDIR)/%.o: ./%.c
+$(OBJDIR)/%.o: ./%.cpp
 	@mkdir -p $(dir $@)
 	$(CC) $(FLAGS) -c $< -o $@
 

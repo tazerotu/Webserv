@@ -5,6 +5,8 @@
 #include <fstream>
 #include <cstring>
 #include <errno.h>
+#include <sys/stat.h>
+#include <map>
 
 class ServerConfig
 {
@@ -16,7 +18,7 @@ class ServerConfig
 	std::string _root;
 	std::string _index;
 	int			_autoindex;
-	std::string _error_page;
+	std::string *_error_page;
 	std::string *_allowed_methods;
 	int			_maxClientBodySize;
 	std::string _cgi_path;
@@ -30,28 +32,31 @@ class ServerConfig
 	~ServerConfig();
 
 	// Getters
-	std::string const &getName(void) const;
-	std::string const &getHost(void) const;
-	int                getPort(void) const;
-	std::string const &getRoot(void) const;
-	std::string const &getIndex(void) const;
-	std::string const &getErrorPage(void) const;
-	std::string const *getAllowedMethods(void) const;
-	int                getMaxClientBodySize(void) const;
-	std::string const &getCgiPath(void) const;
-	std::string const &getCgiExt(void) const;
+	const std::string &getName() const;
+	const std::string &getHost() const;
+	int getPort() const;
+	const std::string &getRoot() const;
+	const std::string &getIndex() const;
+	int getAutoindex() const;
+	std::string *getErrorPage() const;
+	std::string *getAllowedMethods() const;
+	int getMaxClientBodySize() const;
+	const std::string &getCgiPath() const;
+	const std::string &getCgiExt() const;
 
-	// Setters
-	void 				setName(std::string const &name);
-	void 				setHost(std::string const &host);
-	void 				setPort(int port);
-	void 				setRoot(std::string const &root);
-	void 				setIndex(std::string const &index);
-	void 				setErrorPage(std::string const &error_page);
-	void 				setAllowedMethods(std::string *allowed_methods);
-	void 				setMaxClientBodySize(int size);
-	void 				setCgiPath(std::string const &cgi_path);
-	void 				setCgiExt(std::string const &cgi_ext);
+	// Setters 
+	void setName(const std::string &name);
+	void setHost(const std::string &host);
+	void setPort(const std::string port);
+	void setRoot(const std::string &root);
+	void setIndex(const std::string &index);
+	void setAutoindex(const std::string autoindex);
+	void setErrorPage(std::string *errorPage);
+	void setAllowedMethods(std::string *methods);
+	void setMaxClientBodySize(const std::string size);
+	void setCgiPath(const std::string &cgiPath);
+	void setCgiExt(const std::string &cgiExt);
+
 	
 };
 
