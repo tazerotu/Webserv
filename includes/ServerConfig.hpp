@@ -7,6 +7,7 @@
 #include <errno.h>
 #include <sys/stat.h>
 #include <map>
+#include <vector>
 
 class ServerConfig
 {
@@ -27,8 +28,8 @@ public:
     const std::string &getRoot() const;
     const std::string &getIndex() const;
     int getAutoindex() const;
-    std::string *getErrorPage() const;
-    std::string *getAllowedMethods() const;
+    const std::map<std::string, std::string> &getErrorPages() const;
+    const std::vector<std::string> &getAllowedMethods() const;
     int getMaxClientBodySize() const;
     const std::string &getCgiPath() const;
     const std::string &getCgiExt() const;
@@ -54,8 +55,8 @@ private:
     std::string _root;
     std::string _index;
     int         _autoindex;
-    std::string *_error_page;
-    std::string *_allowed_methods;
+    std::map<std::string, std::string> _error_pages;
+    std::vector<std::string> _allowed_methods;
     int         _maxClientBodySize;
     std::string _cgi_path;
     std::string _cgi_ext;

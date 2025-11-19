@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ttas <ttas@student.42.fr>                  +#+  +:+       +#+        */
+/*   By: marvin <marvin@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/05 09:31:11 by ttas              #+#    #+#             */
-/*   Updated: 2025/11/18 11:27:28 by ttas             ###   ########.fr       */
+/*   Updated: 2025/11/19 11:25:23 by marvin           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,15 +31,41 @@ int main(int argc, char **argv)
     std::cout << "Index: " << serverConfig.getIndex() << std::endl;
     std::cout << "Autoindex: " << serverConfig.getAutoindex() << std::endl;
 
-    if (serverConfig.getErrorPage())
-        std::cout << "Error page: " << *(serverConfig.getErrorPage()) << std::endl;
+    // ---- Error pages ----
+    const std::map<std::string, std::string> &errors = serverConfig.getErrorPages();
+    std::cout << "Error pages: ";
+    if (errors.empty())
+        std::cout << "(none)";
     else
-        std::cout << "Error page: (none)" << std::endl;
+    {
+        bool first = true;
+        for (std::map<std::string, std::string>::const_iterator it = errors.begin();
+            it != errors.end(); ++it)
+        {
+            if (!first)
+                std::cout << ", ";
+            std::cout << it->first << ": " << it->second;
+            first = false;
+        }
+    }
+    std::cout << std::endl;
 
-    if (serverConfig.getAllowedMethods())
-        std::cout << "Allowed methods: " << *(serverConfig.getAllowedMethods()) << std::endl;
+    // ---- Allowed methods ----
+    const std::vector<std::string> &methods = serverConfig.getAllowedMethods();
+    std::cout << "Allowed methods: ";
+    if (methods.empty())
+        std::cout << "(none)";
     else
-        std::cout << "Allowed methods: (none)" << std::endl;
+    {
+        for (std::vector<std::string>::const_iterator it = methods.begin();
+            it != methods.end(); ++it)
+        {
+            std::cout << *it;
+            if (it + 1 != methods.end())
+                std::cout << ", ";
+        }
+    }
+    std::cout << std::endl;
 
     std::cout << "Max client body size: " << serverConfig.getMaxClientBodySize() << std::endl;
     std::cout << "CGI path: " << serverConfig.getCgiPath() << std::endl;

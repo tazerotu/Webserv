@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ServerConfig.cpp                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ttas <ttas@student.42.fr>                  +#+  +:+       +#+        */
+/*   By: marvin <marvin@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/05 13:31:12 by ttas              #+#    #+#             */
-/*   Updated: 2025/11/18 11:23:57 by ttas             ###   ########.fr       */
+/*   Updated: 2025/11/19 11:23:30 by marvin           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,7 +33,6 @@ static bool isRegularFile(const std::string &path)
 // ---------------- Constructor ----------------
 
 ServerConfig::ServerConfig(std::string conf)
-    : _port(0), _autoindex(0), _error_page(NULL), _allowed_methods(NULL), _maxClientBodySize(0)
 {
     if (conf.size() < 5 || conf.substr(conf.size() - 5) != ".conf")
         error_message("Invalid config file extension. Expected .conf");
@@ -70,10 +69,6 @@ ServerConfig::ServerConfig(std::string conf)
 
 ServerConfig::~ServerConfig()
 {
-    if (_error_page)
-        delete _error_page;
-    if (_allowed_methods)
-        delete _allowed_methods;
 }
 
 // ---------------- Getters ----------------
@@ -84,8 +79,8 @@ int ServerConfig::getPort() const { return _port; }
 const std::string &ServerConfig::getRoot() const { return _root; }
 const std::string &ServerConfig::getIndex() const { return _index; }
 int ServerConfig::getAutoindex() const { return _autoindex; }
-std::string *ServerConfig::getErrorPage() const { return _error_page; }
-std::string *ServerConfig::getAllowedMethods() const { return _allowed_methods; }
+const std::map<std::string, std::string> &ServerConfig::getErrorPages() const { return _error_pages; }
+const std::vector<std::string> &ServerConfig::getAllowedMethods() const { return _allowed_methods; }
 int ServerConfig::getMaxClientBodySize() const { return _maxClientBodySize; }
 const std::string &ServerConfig::getCgiPath() const { return _cgi_path; }
 const std::string &ServerConfig::getCgiExt() const { return _cgi_ext; }
@@ -100,17 +95,26 @@ void ServerConfig::setIndex(const std::string &index) { _index = index; }
 void ServerConfig::setAutoindex(const std::string &autoindex) { _autoindex = atoi(autoindex.c_str()); }
 void ServerConfig::setErrorPage(const std::string &errorPage)
 {
-    if (!_error_page)
-        _error_page = new std::string(errorPage);
-    else
-        *_error_page = errorPage;
+    this->_error_pages[errorPage.substr(0, errorPage.find(' '))] = errorPage.substr(errorPage.find(' ') + 1);
 }
+
 void ServerConfig::setAllowedMethods(const std::string &methods)
 {
-    if (!_allowed_methods)
-        _allowed_methods = new std::string(methods);
-    else
-        *_allowed_methods = methods;
+    _allowed_methods.clear();
+    std::string method;
+    for (size_t i = 0; i < methods.size(); ++i)
+    {
+        if (methods[i] == ' ')
+        {
+            if (!method.empty())
+                _allowed_methods.push_back(method);
+            method.clear();
+        }
+        else
+            method += methods[i];
+    }
+    if (!method.empty())
+        _allowed_methods.push_back(method);
 }
 void ServerConfig::setMaxClientBodySize(const std::string &size) { _maxClientBodySize = atoi(size.c_str()); }
 void ServerConfig::setCgiPath(const std::string &cgiPath) { _cgi_path = cgiPath; }
