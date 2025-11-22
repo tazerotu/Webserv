@@ -6,7 +6,7 @@
 /*   By: marvin <marvin@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/05 13:31:12 by ttas              #+#    #+#             */
-/*   Updated: 2025/11/19 11:23:30 by marvin           ###   ########.fr       */
+/*   Updated: 2025/11/22 08:43:07 by marvin           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,7 +32,34 @@ static bool isRegularFile(const std::string &path)
 
 // ---------------- Constructor ----------------
 
+void ServerConfig::verify_validity()
+{
+    if (_name.empty())
+        error_message("Server name is not set");
+    if (_host.empty())
+        error_message("Server host is not set");
+    if (_port <= 0 || _port > 65535)
+        error_message("Server port is invalid");
+    if (_root.empty())
+        error_message("Server root is not set");
+    if (_index.empty())
+        error_message("Server index is not set");
+    if (_autoindex != 0 && _autoindex != 1)
+        error_message("Autoindex must be 0 or 1");
+    if (_allowed_methods.empty())
+        error_message("Allowed methods are not set");
+    if (_maxClientBodySize < 0)
+        error_message("Max client body size is invalid");
+}
+
 ServerConfig::ServerConfig(std::string conf)
+    : _name(""),
+      _host(""),
+      _port(0),
+      _root(""),
+      _index(""),
+      _autoindex(-1),
+      _maxClientBodySize(-1)
 {
     if (conf.size() < 5 || conf.substr(conf.size() - 5) != ".conf")
         error_message("Invalid config file extension. Expected .conf");
@@ -62,6 +89,7 @@ ServerConfig::ServerConfig(std::string conf)
 
         assign(key, value);
     }
+    verify_validity();
     file.close();
 }
 
@@ -87,12 +115,42 @@ const std::string &ServerConfig::getCgiExt() const { return _cgi_ext; }
 
 // ---------------- Setters ----------------
 
-void ServerConfig::setName(const std::string &name) { _name = name; }
-void ServerConfig::setHost(const std::string &host) { _host = host; }
-void ServerConfig::setPort(const std::string &port) { _port = atoi(port.c_str()); }
-void ServerConfig::setRoot(const std::string &root) { _root = root; }
-void ServerConfig::setIndex(const std::string &index) { _index = index; }
-void ServerConfig::setAutoindex(const std::string &autoindex) { _autoindex = atoi(autoindex.c_str()); }
+void ServerConfig::setName(const std::string &name) 
+{
+    if(!_name.empty())
+        error_message("Duplicate: Server name already set to: " + _name);
+    _name = name; 
+}
+void ServerConfig::setHost(const std::string &host) 
+{ 
+    if(!_host.empty())
+        error_message("Duplicate: Server host already set to: " + _host);
+    _host = host; 
+}
+void ServerConfig::setPort(const std::string &port) 
+{ 
+    if(_port != 0)
+        error_message("Duplicate: Server port already set");
+    _port = atoi(port.c_str()); 
+}
+void ServerConfig::setRoot(const std::string &root) 
+{ 
+    if(!_root.empty())
+        error_message("Duplicate: Server root already set to: " + _root);
+    _root = root; 
+}
+void ServerConfig::setIndex(const std::string &index) 
+{ 
+    if(!_index.empty())
+        error_message("Duplicate: Server index already set to: " + _index);
+    _index = index; 
+}
+void ServerConfig::setAutoindex(const std::string &autoindex) 
+{ 
+    if(_autoindex != -1)
+        error_message("Duplicate: Server autoindex already set");
+    _autoindex = atoi(autoindex.c_str()); 
+}
 void ServerConfig::setErrorPage(const std::string &errorPage)
 {
     this->_error_pages[errorPage.substr(0, errorPage.find(' '))] = errorPage.substr(errorPage.find(' ') + 1);
