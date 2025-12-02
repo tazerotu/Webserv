@@ -1,9 +1,0 @@
-#pragma once
-#ifndef WEBSERV_HPP
-# define WEBSERV_HPP
-
-#include <iostream>
-#include <ServerConfig.hpp>
-
-
-#endif
