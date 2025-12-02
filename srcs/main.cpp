@@ -6,7 +6,7 @@
 /*   By: ttas <ttas@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/05 09:31:11 by ttas              #+#    #+#             */
-/*   Updated: 2025/12/02 10:21:56 by ttas             ###   ########.fr       */
+/*   Updated: 2025/12/02 11:04:25 by ttas             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,13 +15,13 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
+#include <cstdlib>
 #include <string>
 
-static void print_config_data(ServerConfig serverConfig)
+static void print_config_data(ServerConfig serverConfig, int n)
 {
-	std::cout << "------------------Data in class---------------------\n" << std::endl; 
+	std::cout << "------------------Data in class " << n << " ---------------------\n" << std::endl; 
 
-	std::cout << "ServerConfig values:" << std::endl;
     std::cout << "Name: " << serverConfig.getName() << std::endl;
     std::cout << "Host: " << serverConfig.getHost() << std::endl;
     std::cout << "Port: " << serverConfig.getPort() << std::endl;
@@ -71,21 +71,20 @@ static void print_config_data(ServerConfig serverConfig)
 }
 
 
-int main(int argc, char **argv)
+static void parse_config(std::vector<ServerConfig> *Configs, std::string config_file)
 {
-	if(argc != 2)
+	if (config_file.size() < 5 || config_file.substr(config_file.size() - 5) != ".conf")
 	{
-		std::cout << "Wrong amount of arguments!" << std::endl << "correct syntax : ./webserv [path/to/file.conf]" << std::endl;
-		return(0);	
+		perror("Invalid config file extension. Expected .conf");
+		exit(1);
 	}
 
-	std::ifstream file(argv[1]);
+	std::ifstream file(config_file.c_str());
     if (!file) {
         std::cerr << "Cannot open file\n";
-        return 1;
+        exit(1);
     }
 
-	std::vector<ServerConfig> Configs;
     std::stringstream block;
     std::string line;
     bool inside = false;
@@ -115,19 +114,32 @@ int main(int argc, char **argv)
             // Stop if block ended
             if (braceCount == 0) {
                 inside = false;
-				Configs.push_back(ServerConfig(block));
+				(*Configs).push_back(ServerConfig(block));
                 continue; // don't include the closing brace
             }
 
             // Save content inside server block
             block << line << "\n";
         }
+		// // Now you can use block like any stringstream
+    	// std::cout << "--- Extracted server block ---\n";
+    	// std::cout << block.str() << std::endl;
     }
+}
 
-    // Now you can use block like any stringstream
-    std::cout << "--- Extracted server block ---\n";
-    std::cout << block.str() << std::endl;
+int main(int argc, char **argv)
+{
+	if(argc != 2)
+	{
+		std::cout << "Wrong amount of arguments!" << std::endl << "correct syntax : ./webserv [path/to/file.conf]" << std::endl;
+		return(0);	
+	}
 
+	std::vector<ServerConfig> Configs;
+	std::string file = argv[1];
+	parse_config(&Configs, file);
+
+	int n = 1;
 	if (Configs.empty())
         return(0);
     else
@@ -135,7 +147,8 @@ int main(int argc, char **argv)
         for (std::vector<ServerConfig>::const_iterator it = Configs.begin();
             it != Configs.end(); ++it)
         {
-            print_config_data(*it);
+            print_config_data(*it, n);
+			n++;
             if (it + 1 != Configs.end())
 				std::cout << std::endl;
         }
