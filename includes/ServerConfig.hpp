@@ -16,6 +16,7 @@ class ServerConfig
 
         // Constructor / Destructor
         ServerConfig(std::string conf);
+		ServerConfig(std::istream& stream);
         ~ServerConfig();
 
         // Assign from key/value

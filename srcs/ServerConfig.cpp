@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ServerConfig.cpp                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: marvin <marvin@student.42.fr>              +#+  +:+       +#+        */
+/*   By: ttas <ttas@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/05 13:31:12 by ttas              #+#    #+#             */
-/*   Updated: 2025/11/22 08:43:07 by marvin           ###   ########.fr       */
+/*   Updated: 2025/12/02 09:38:15 by ttas             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -52,6 +52,7 @@ void ServerConfig::verify_validity()
         error_message("Max client body size is invalid");
 }
 
+// file constructor
 ServerConfig::ServerConfig(std::string conf)
     : _name(""),
       _host(""),
@@ -91,6 +92,39 @@ ServerConfig::ServerConfig(std::string conf)
     }
     verify_validity();
     file.close();
+}
+
+// stringstream constructor
+ServerConfig::ServerConfig(std::istream& stream)
+    : _name(""),
+      _host(""),
+      _port(0),
+      _root(""),
+      _index(""),
+      _autoindex(-1),
+      _maxClientBodySize(-1)
+{
+    std::string line;
+
+    while (std::getline(stream, line))
+    {
+        if (line.empty() || line[0] == '#')
+            continue;
+
+        int pos = line.find_first_of(' ');
+        if (pos <= 0)
+            error_message("Invalid config line: " + line);
+
+        std::string key = line.substr(0, pos);
+        std::string value = line.substr(pos + 1);
+
+        if (key.empty() || value.empty())
+            error_message("Key or value is empty in line: " + line);
+
+        assign(key, value);
+    }
+
+    verify_validity();
 }
 
 // ---------------- Destructor ----------------

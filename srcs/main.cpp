@@ -3,25 +3,23 @@
 /*                                                        :::      ::::::::   */
 /*   main.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: marvin <marvin@student.42.fr>              +#+  +:+       +#+        */
+/*   By: ttas <ttas@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/05 09:31:11 by ttas              #+#    #+#             */
-/*   Updated: 2025/11/22 08:35:17 by marvin           ###   ########.fr       */
+/*   Updated: 2025/12/02 10:21:56 by ttas             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../includes/ServerConfig.hpp"
 
-// #include <iostream>
+#include <iostream>
+#include <fstream>
+#include <sstream>
+#include <string>
 
-int main(int argc, char **argv)
+static void print_config_data(ServerConfig serverConfig)
 {
-	if(argc != 2)
-	{
-		std::cout << "Wrong amount of arguments!" << std::endl << "correct syntax : ./webserv [path/to/file.conf]" << std::endl;
-		return(0);	
-	}
-	class ServerConfig serverConfig(argv[1]);
+	std::cout << "------------------Data in class---------------------\n" << std::endl; 
 
 	std::cout << "ServerConfig values:" << std::endl;
     std::cout << "Name: " << serverConfig.getName() << std::endl;
@@ -70,6 +68,79 @@ int main(int argc, char **argv)
     std::cout << "Max client body size: " << serverConfig.getMaxClientBodySize() << std::endl;
     std::cout << "CGI path: " << serverConfig.getCgiPath() << std::endl;
     std::cout << "CGI extension: " << serverConfig.getCgiExt() << std::endl;
+}
+
+
+int main(int argc, char **argv)
+{
+	if(argc != 2)
+	{
+		std::cout << "Wrong amount of arguments!" << std::endl << "correct syntax : ./webserv [path/to/file.conf]" << std::endl;
+		return(0);	
+	}
+
+	std::ifstream file(argv[1]);
+    if (!file) {
+        std::cerr << "Cannot open file\n";
+        return 1;
+    }
+
+	std::vector<ServerConfig> Configs;
+    std::stringstream block;
+    std::string line;
+    bool inside = false;
+    int braceCount = 0;
+
+    while (std::getline(file, line)) {
+        // Detect start of block
+        if (!inside) {
+            // Allow variations: "server {", "server{", "server   {", etc.
+            if (line.find("server") != std::string::npos &&
+                line.find("{") != std::string::npos) {
+                inside = true;
+                braceCount = 1; // found the first '{'
+				block.str("");  // clear previous content
+                block.clear();  // reset flags
+                continue;       // don't include this line
+            }
+        } 
+        else {
+            // Already inside block
+            if (line.find("{") != std::string::npos)
+                braceCount++;
+
+            if (line.find("}") != std::string::npos)
+                braceCount--;
+
+            // Stop if block ended
+            if (braceCount == 0) {
+                inside = false;
+				Configs.push_back(ServerConfig(block));
+                continue; // don't include the closing brace
+            }
+
+            // Save content inside server block
+            block << line << "\n";
+        }
+    }
+
+    // Now you can use block like any stringstream
+    std::cout << "--- Extracted server block ---\n";
+    std::cout << block.str() << std::endl;
+
+	if (Configs.empty())
+        return(0);
+    else
+    {
+        for (std::vector<ServerConfig>::const_iterator it = Configs.begin();
+            it != Configs.end(); ++it)
+        {
+            print_config_data(*it);
+            if (it + 1 != Configs.end())
+				std::cout << std::endl;
+        }
+    }
 
 	return (0);
 }
+
