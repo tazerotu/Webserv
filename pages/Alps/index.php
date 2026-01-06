@@ -33,7 +33,7 @@
             <div class="container-fluid">
                 <span class="navbar-brand">🏔️ Alpine Cottage</span>
                 <a href="/home" class="nav-link text-light">Home</a>
-                <a href="/cookies.php" class="nav-link text-light">Cookies</a>
+                <a href="/cgi.php" class="nav-link text-light">Test</a>
             </div>
         </nav>
     </header>
