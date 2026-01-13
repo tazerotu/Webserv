@@ -63,6 +63,7 @@ class ServerConfig
         int         _maxClientBodySize;
         std::string _cgi_path;
         std::string _cgi_ext;
+		std::vector<...> _routes;
 
         // Map for assign()
         static std::map<std::string, Setter> initMap();

@@ -1,9 +1,11 @@
+#include "../includes/CGI.hpp"
+
 CGI::CGI(const std::string& scriptPath, const std::map<std::string, std::string>& envVars, const std::string& inputData)
 	: scriptPath(scriptPath), envVars(envVars), inputData(inputData)
 {
 }
 
-~CGI()
+CGI::~CGI()
 {
 }
 

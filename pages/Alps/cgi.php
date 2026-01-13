@@ -42,16 +42,16 @@
     <main class="container-fluid">
 		<h1 class="text-center my-5">CGI Test Page</h1>
 		<div class="text-center">
-			<form action="/cgi-bin/test.cgi" method="post" class="d-inline-block">
+			<form action="/cgi-bin/test.cgi" method="get" class="d-inline-block">
 				<div class="mb-3">
 					<label for="inputData" class="form-label">Enter some data:</label>
 					<input type="text" class="form-control" id="inputData" name="inputData" required>
 				</div>
 				<button type="submit" class="btn btn-primary">Submit</button>
 			</form>
-			<?php if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['inputData'])): ?>
+			<?php if ($_SERVER['REQUEST_METHOD'] === 'get' && isset($_GET['inputData'])): ?>
 				<div class="mt-3">
-					<p><strong>You entered:</strong> <?php echo htmlspecialchars($_POST['inputData']); ?></p>
+					<p><strong>You entered:</strong> <?php echo htmlspecialchars($_GET['inputData']); ?></p>
 				</div>
 			<?php endif; ?>
 		</div>
