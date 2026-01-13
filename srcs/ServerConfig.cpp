@@ -6,7 +6,7 @@
 /*   By: ttas <ttas@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/05 13:31:12 by ttas              #+#    #+#             */
-/*   Updated: 2026/01/13 12:16:15 by ttas             ###   ########.fr       */
+/*   Updated: 2026/01/13 13:51:26 by ttas             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -115,13 +115,20 @@ ServerConfig::ServerConfig(std::istream& stream)
         if (pos <= 0)
             error_message("Invalid config line: " + line);
 
-        std::string key = line.substr(0, pos);
-        std::string value = line.substr(pos + 1);
-
-        if (key.empty() || value.empty())
-            error_message("Key or value is empty in line: " + line);
-
-        assign(key, value);
+		if(line.find("route"))
+		{
+			// cut route block out and execute the parsing from std::vector<ServerConfigRoute*>routes with the block
+		}
+		else
+		{
+			std::string key = line.substr(0, pos);
+			std::string value = line.substr(pos + 1);
+	
+			if (key.empty() || value.empty())
+				error_message("Key or value is empty in line: " + line);
+	
+			assign(key, value);
+		}
     }
 
     verify_validity();
