@@ -6,7 +6,7 @@
 /*   By: ttas <ttas@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/05 13:31:12 by ttas              #+#    #+#             */
-/*   Updated: 2026/01/13 13:51:26 by ttas             ###   ########.fr       */
+/*   Updated: 2026/01/15 10:31:48 by ttas             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,12 +42,12 @@ void ServerConfig::verify_validity()
         error_message("Server port is invalid");
     if (_root.empty())
         error_message("Server root is not set");
-    if (_index.empty())
-        error_message("Server index is not set");
-    if (_autoindex != 0 && _autoindex != 1)
-        error_message("Autoindex must be 0 or 1");
-    if (_allowed_methods.empty())
-        error_message("Allowed methods are not set");
+    // if (_index.empty())
+    //     error_message("Server index is not set");
+    // if (_autoindex != 0 && _autoindex != 1)
+    //     error_message("Autoindex must be 0 or 1");
+    // if (_allowed_methods.empty())
+    //     error_message("Allowed methods are not set");
     if (_maxClientBodySize < 0)
         error_message("Max client body size is invalid");
 }
@@ -58,8 +58,6 @@ ServerConfig::ServerConfig(std::string conf)
       _host(""),
       _port(0),
       _root(""),
-      _index(""),
-      _autoindex(-1),
       _maxClientBodySize(-1)
 {
     if (conf.size() < 5 || conf.substr(conf.size() - 5) != ".conf")
@@ -100,11 +98,10 @@ ServerConfig::ServerConfig(std::istream& stream)
       _host(""),
       _port(0),
       _root(""),
-      _index(""),
-      _autoindex(-1),
       _maxClientBodySize(-1)
 {
     std::string line;
+	_routes.clear();
 
     while (std::getline(stream, line))
     {
@@ -115,21 +112,49 @@ ServerConfig::ServerConfig(std::istream& stream)
         if (pos <= 0)
             error_message("Invalid config line: " + line);
 
-		if(line.find("route"))
-		{
-			// cut route block out and execute the parsing from std::vector<ServerConfigRoute*>routes with the block
-		}
-		else
-		{
-			std::string key = line.substr(0, pos);
-			std::string value = line.substr(pos + 1);
+
+		std::stringstream block;
+    	std::string line;
+    	bool inside = false;
+    	int braceCount = 0;
+
+		if (!inside) {
+            // Allow variations: "server {", "server{", "server   {", etc.
+            if (line.find("route") != std::string::npos &&
+                line.find("{") != std::string::npos) {
+                inside = true;
+                braceCount = 1; // found the first '{'
+				block.str("");  // clear previous content
+                block.clear();  // reset flags
+                continue;       // don't include this line
+            }
+        } 
+        else {
+            // Already inside block
+            if (line.find("{") != std::string::npos)
+                braceCount++;
+
+            if (line.find("}") != std::string::npos)
+                braceCount--;
+
+            // Stop if block ended
+            if (braceCount == 0) {
+                inside = false;
+				_routes.push_back(ServerConfigRoutes(block));
+                continue; // don't include the closing brace
+            }
+
+            // Save content inside server block
+            block << line << "\n";
+        }
+		std::string key = line.substr(0, pos);
+		std::string value = line.substr(pos + 1);
 	
-			if (key.empty() || value.empty())
-				error_message("Key or value is empty in line: " + line);
+		if (key.empty() || value.empty())
+			error_message("Key or value is empty in line: " + line);
 	
-			assign(key, value);
-		}
-    }
+		assign(key, value);
+   }
 
     verify_validity();
 }
@@ -146,13 +171,13 @@ const std::string &ServerConfig::getName() const { return _name; }
 const std::string &ServerConfig::getHost() const { return _host; }
 int ServerConfig::getPort() const { return _port; }
 const std::string &ServerConfig::getRoot() const { return _root; }
-const std::string &ServerConfig::getIndex() const { return _index; }
-int ServerConfig::getAutoindex() const { return _autoindex; }
+// const std::string &ServerConfig::getIndex() const { return _index; }
+// int ServerConfig::getAutoindex() const { return _autoindex; }
 const std::map<std::string, std::string> &ServerConfig::getErrorPages() const { return _error_pages; }
-const std::vector<std::string> &ServerConfig::getAllowedMethods() const { return _allowed_methods; }
+// const std::vector<std::string> &ServerConfig::getAllowedMethods() const { return _allowed_methods; }
 int ServerConfig::getMaxClientBodySize() const { return _maxClientBodySize; }
-const std::string &ServerConfig::getCgiPath() const { return _cgi_path; }
-const std::string &ServerConfig::getCgiExt() const { return _cgi_ext; }
+// const std::string &ServerConfig::getCgiPath() const { return _cgi_path; }
+// const std::string &ServerConfig::getCgiExt() const { return _cgi_ext; }
 
 // ---------------- Setters ----------------
 
@@ -180,44 +205,44 @@ void ServerConfig::setRoot(const std::string &root)
         error_message("Duplicate: Server root already set to: " + _root);
     _root = root; 
 }
-void ServerConfig::setIndex(const std::string &index) 
-{ 
-    if(!_index.empty())
-        error_message("Duplicate: Server index already set to: " + _index);
-    _index = index; 
-}
-void ServerConfig::setAutoindex(const std::string &autoindex) 
-{ 
-    if(_autoindex != -1)
-        error_message("Duplicate: Server autoindex already set");
-    _autoindex = atoi(autoindex.c_str()); 
-}
+// void ServerConfig::setIndex(const std::string &index) 
+// { 
+//     if(!_index.empty())
+//         error_message("Duplicate: Server index already set to: " + _index);
+//     _index = index; 
+// }
+// void ServerConfig::setAutoindex(const std::string &autoindex) 
+// { 
+//     if(_autoindex != -1)
+//         error_message("Duplicate: Server autoindex already set");
+//     _autoindex = atoi(autoindex.c_str()); 
+// }
 void ServerConfig::setErrorPage(const std::string &errorPage)
 {
     this->_error_pages[errorPage.substr(0, errorPage.find(' '))] = errorPage.substr(errorPage.find(' ') + 1);
 }
 
-void ServerConfig::setAllowedMethods(const std::string &methods)
-{
-    _allowed_methods.clear();
-    std::string method;
-    for (size_t i = 0; i < methods.size(); ++i)
-    {
-        if (methods[i] == ' ')
-        {
-            if (!method.empty())
-                _allowed_methods.push_back(method);
-            method.clear();
-        }
-        else
-            method += methods[i];
-    }
-    if (!method.empty())
-        _allowed_methods.push_back(method);
-}
+// void ServerConfig::setAllowedMethods(const std::string &methods)
+// {
+//     _allowed_methods.clear();
+//     std::string method;
+//     for (size_t i = 0; i < methods.size(); ++i)
+//     {
+//         if (methods[i] == ' ')
+//         {
+//             if (!method.empty())
+//                 _allowed_methods.push_back(method);
+//             method.clear();
+//         }
+//         else
+//             method += methods[i];
+//     }
+//     if (!method.empty())
+//         _allowed_methods.push_back(method);
+// }
 void ServerConfig::setMaxClientBodySize(const std::string &size) { _maxClientBodySize = atoi(size.c_str()); }
-void ServerConfig::setCgiPath(const std::string &cgiPath) { _cgi_path = cgiPath; }
-void ServerConfig::setCgiExt(const std::string &cgiExt) { _cgi_ext = cgiExt; }
+// void ServerConfig::setCgiPath(const std::string &cgiPath) { _cgi_path = cgiPath; }
+// void ServerConfig::setCgiExt(const std::string &cgiExt) { _cgi_ext = cgiExt; }
 
 // ---------------- Map Initialization ----------------
 
@@ -228,13 +253,13 @@ std::map<std::string, ServerConfig::Setter> ServerConfig::initMap()
     m["host"] = &ServerConfig::setHost;
     m["port"] = &ServerConfig::setPort;
     m["root"] = &ServerConfig::setRoot;
-    m["index"] = &ServerConfig::setIndex;
-    m["autoindex"] = &ServerConfig::setAutoindex;
     m["error_page"] = &ServerConfig::setErrorPage;
-    m["allowed_methods"] = &ServerConfig::setAllowedMethods;
     m["client_max_body"] = &ServerConfig::setMaxClientBodySize;
-    m["cgi_path"] = &ServerConfig::setCgiPath;
-    m["cgi_ext"] = &ServerConfig::setCgiExt;
+    // m["index"] = &ServerConfig::setIndex;
+    // m["autoindex"] = &ServerConfig::setAutoindex;
+    // m["allowed_methods"] = &ServerConfig::setAllowedMethods;
+    // m["cgi_path"] = &ServerConfig::setCgiPath;
+    // m["cgi_ext"] = &ServerConfig::setCgiExt;
     return m;
 }
 
