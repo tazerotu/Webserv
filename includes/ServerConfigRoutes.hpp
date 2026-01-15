@@ -5,6 +5,7 @@
 #include <fstream>
 #include <sstream>
 #include <cstring>
+#include <cstdlib>
 #include <errno.h>
 #include <sys/stat.h>
 #include <map>
@@ -66,10 +67,10 @@ class ServerConfigRoutes
 		const std::string& getRouteLoc() const { return _routeLoc; }
     	const std::vector<std::string>& getConfigMethods() const { return _configMethods; }
     	const std::string& getRootPath() const { return _rootPath; }
-    	int8_t getAutoIndex() const { return _autoIndex; }
+    	signed char getAutoIndex() const { return _autoIndex; }
     	const std::string& getDefaultFile() const { return _defaultFile; }
     	const std::string& getUploadDirectory() const { return _uploadDirectory; }
-    	int8_t getUpload() const { return _upload; }
+    	signed char getUpload() const { return _upload; }
     	const std::string& getCgiPath() const { return _cgi_path; }
     	const std::string& getCgiExt() const { return _cgi_ext; }
     	const std::map<int, std::string>& getRedirection() const { return _redirection; }
@@ -84,10 +85,10 @@ class ServerConfigRoutes
 		std::string _routeLoc;
 		std::vector<std::string> _configMethods;
 		std::string _rootPath;
-		int8_t _autoIndex;
+		signed char _autoIndex;
 		std::string _defaultFile;
 		std::string _uploadDirectory;
-		int8_t _upload;
+		signed char _upload;
 		std::string _cgi_path;
         std::string _cgi_ext;
 		std::map<int, std::string> _redirection;

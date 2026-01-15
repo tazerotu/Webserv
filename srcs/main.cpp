@@ -6,7 +6,7 @@
 /*   By: ttas <ttas@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/05 09:31:11 by ttas              #+#    #+#             */
-/*   Updated: 2026/01/15 12:40:12 by ttas             ###   ########.fr       */
+/*   Updated: 2026/01/15 12:40:53 by ttas             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -131,7 +131,6 @@ int main(int argc, char **argv)
 	std::string file = argv[1];
 	parse_config(&Configs, file);
 
-	int n = 1;
 	if (Configs.empty())
         return(0);
     else

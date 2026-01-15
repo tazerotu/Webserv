@@ -32,7 +32,7 @@ class ServerConfig
         const std::string &getRoot() const;
         int getMaxClientBodySize() const;
         const std::map<std::string, std::string> &getErrorPages() const;
-		std::vector<ServerConfigRoutes> getRoutes() const;
+		std::vector<ServerConfigRoutes> getRoutes() const {return _routes;}
         // const std::string &getIndex() const;
         // int getAutoindex() const;
         // const std::vector<std::string> &getAllowedMethods() const;

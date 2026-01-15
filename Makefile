@@ -3,17 +3,18 @@
 #                                                         :::      ::::::::    #
 #    Makefile                                           :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: marvin <marvin@student.42.fr>              +#+  +:+       +#+         #
+#    By: ttas <ttas@student.42.fr>                  +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/11/05 09:31:15 by ttas              #+#    #+#              #
-#    Updated: 2025/11/22 08:35:19 by marvin           ###   ########.fr        #
+#    Updated: 2026/01/15 12:44:48 by ttas             ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 EXE = webserv
 
 SRC =	./srcs/main.cpp \
-		./srcs/ServerConfig.cpp
+		./srcs/ServerConfig.cpp \
+		./srcs/ServerConfigRoutes.cpp
 
 
 SOURCES = ${SRC}
