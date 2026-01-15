@@ -6,7 +6,7 @@
 /*   By: ttas <ttas@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/05 09:31:11 by ttas              #+#    #+#             */
-/*   Updated: 2026/01/13 10:55:34 by ttas             ###   ########.fr       */
+/*   Updated: 2026/01/15 12:40:12 by ttas             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,56 +18,48 @@
 #include <cstdlib>
 #include <string>
 
-static void print_config_data(ServerConfig serverConfig, int n)
-{
-	std::cout << "------------------Data in class " << n << " ---------------------\n" << std::endl; 
+// Function to print a ServerConfigRoutes object
+static void printRoute(const ServerConfigRoutes &route) {
+    std::cout << "  Route Location: " << route.getRouteLoc() << "\n";
+    std::cout << "  Root Path: " << route.getRootPath() << "\n";
+    std::cout << "  Default File: " << route.getDefaultFile() << "\n";
+    std::cout << "  Auto Index: " << static_cast<int>(route.getAutoIndex()) << "\n";
+    std::cout << "  Upload Directory: " << route.getUploadDirectory() << "\n";
+    std::cout << "  Upload: " << static_cast<int>(route.getUpload()) << "\n";
+    std::cout << "  CGI Path: " << route.getCgiPath() << "\n";
+    std::cout << "  CGI Ext: " << route.getCgiExt() << "\n";
 
-    std::cout << "Name: " << serverConfig.getName() << std::endl;
-    std::cout << "Host: " << serverConfig.getHost() << std::endl;
-    std::cout << "Port: " << serverConfig.getPort() << std::endl;
-    std::cout << "Root: " << serverConfig.getRoot() << std::endl;
-    std::cout << "Index: " << serverConfig.getIndex() << std::endl;
-    std::cout << "Autoindex: " << serverConfig.getAutoindex() << std::endl;
-
-    // ---- Error pages ----
-    const std::map<std::string, std::string> &errors = serverConfig.getErrorPages();
-    std::cout << "Error pages: ";
-    if (errors.empty())
-        std::cout << "(none)";
-    else
-    {
-        bool first = true;
-        for (std::map<std::string, std::string>::const_iterator it = errors.begin();
-            it != errors.end(); ++it)
-        {
-            if (!first)
-                std::cout << ", ";
-            std::cout << it->first << ": " << it->second;
-            first = false;
-        }
+    std::cout << "  Methods: ";
+    for (size_t i = 0; i < route.getConfigMethods().size(); ++i) {
+        std::cout << route.getConfigMethods()[i];
+        if (i != route.getConfigMethods().size() - 1) std::cout << ", ";
     }
-    std::cout << std::endl;
+    std::cout << "\n";
 
-    // ---- Allowed methods ----
-    const std::vector<std::string> &methods = serverConfig.getAllowedMethods();
-    std::cout << "Allowed methods: ";
-    if (methods.empty())
-        std::cout << "(none)";
-    else
-    {
-        for (std::vector<std::string>::const_iterator it = methods.begin();
-            it != methods.end(); ++it)
-        {
-            std::cout << *it;
-            if (it + 1 != methods.end())
-                std::cout << ", ";
-        }
+    std::cout << "  Redirections:\n";
+    for (std::map<int, std::string>::const_iterator it = route.getRedirection().begin(); it != route.getRedirection().end(); ++it) {
+        std::cout << "    " << it->first << " -> " << it->second << "\n";
     }
-    std::cout << std::endl;
+}
 
-    std::cout << "Max client body size: " << serverConfig.getMaxClientBodySize() << std::endl;
-    std::cout << "CGI path: " << serverConfig.getCgiPath() << std::endl;
-    std::cout << "CGI extension: " << serverConfig.getCgiExt() << std::endl;
+// Function to print a ServerConfig object
+static void printServerConfig(const ServerConfig &config) {
+    std::cout << "Server Name: " << config.getName() << "\n";
+    std::cout << "Host: " << config.getHost() << "\n";
+    std::cout << "Port: " << config.getPort() << "\n";
+    std::cout << "Root: " << config.getRoot() << "\n";
+    std::cout << "Max Client Body Size: " << config.getMaxClientBodySize() << "\n";
+
+    std::cout << "Error Pages:\n";
+    for (std::map<std::string, std::string>::const_iterator it = config.getErrorPages().begin(); it != config.getErrorPages().end(); ++it) {
+        std::cout << "  " << it->first << " -> " << it->second << "\n";
+    }
+
+    std::cout << "Routes:\n";
+    for (size_t i = 0; i < config.getRoutes().size(); ++i) {
+        std::cout << "Route " << i + 1 << ":\n";
+        printRoute(config.getRoutes()[i]);
+    }
 }
 
 
@@ -144,14 +136,12 @@ int main(int argc, char **argv)
         return(0);
     else
     {
-        for (std::vector<ServerConfig>::const_iterator it = Configs.begin();
-            it != Configs.end(); ++it)
-        {
-            print_config_data(*it, n);
-			n++;
-            if (it + 1 != Configs.end())
-				std::cout << std::endl;
-        }
+        for (size_t i = 0; i < Configs.size(); ++i) {
+        std::cout << "========================\n";
+        std::cout << "Server Configuration " << i + 1 << ":\n";
+        printServerConfig(Configs[i]);
+        std::cout << "========================\n\n";
+    }
     }
 
 	return (0);
