@@ -9,34 +9,51 @@ static void error_message(const std::string &message)
 void ServerConfigRoutes::verify_validity()
 {
 	if(_routeLoc.empty())
+	{
 		error_message("Route has no name");
+	}
     if(_defaultFile.empty())
+	{
     	error_message("default page of route " + _routeLoc + " is not set");
+	}
 	if(_rootPath.empty())
+	{
 		error_message("Route " + _routeLoc + " has no root");
+    }
     if(_autoIndex != 0 && _autoIndex != 1)
+	{
     	error_message("Autoindex must be 1 or 0");
+	}
     if(_configMethods.empty())
+	{
     	error_message("Allowed methods are not set");
+	}
 	if(_upload != 1 && _upload != 0)
+	{
 		error_message("Upload must be 1 or 0");
+	}
 	if(_upload == 1 && _uploadDirectory.empty())
+	{
 		error_message("Missing upload directory in upload available route");
+	}
 	if((_cgi_path.empty() || _cgi_ext.empty()) && !(_cgi_path.empty() || _cgi_ext.empty()))
+	{
 		error_message("CGI Error, extention or path empty\n Required both be set or left empty");
+	}
 	
 }
 
 ServerConfigRoutes::ServerConfigRoutes(std::istream& stream)
-	:_cgi_ext(""),
-	 _cgi_path(""),
-	 _routeLoc(""),
+	:_routeLoc(""),
+	 _configMethods(),
 	 _rootPath(""),
+	 _autoIndex(-1),
 	 _defaultFile(""),
 	 _uploadDirectory(""),
-	 _redirection("", ""),
 	 _upload(-1),
-	 _autoIndex(-1)
+	 _cgi_path(""),
+	 _cgi_ext(""),
+	 _redirection()
 {
 	std::string line;
 
@@ -45,7 +62,7 @@ ServerConfigRoutes::ServerConfigRoutes(std::istream& stream)
         if (line.empty() || line[0] == '#')
             continue;
 
-        int pos = line.find_first_of(' ');
+        std::string::size_type pos = line.find_first_of(' ');
         if (pos <= 0)
             error_message("Invalid config line: " + line);
 

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ttas <ttas@student.42.fr>                  +#+  +:+       +#+        */
+/*   By: marvin <marvin@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/05 09:31:11 by ttas              #+#    #+#             */
-/*   Updated: 2026/01/15 12:40:53 by ttas             ###   ########.fr       */
+/*   Updated: 2026/01/20 17:29:05 by marvin           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -65,11 +65,11 @@ static void printServerConfig(const ServerConfig &config) {
 
 static void parse_config(std::vector<ServerConfig> *Configs, std::string config_file)
 {
-	if (config_file.size() < 5 || config_file.substr(config_file.size() - 5) != ".conf")
-	{
-		perror("Invalid config file extension. Expected .conf");
-		exit(1);
-	}
+	if (config_file.size() < 5 || config_file.substr(config_file.size() - 5, 5) != ".conf")
+    {
+        perror("Invalid config file extension. Expected .conf");
+        exit(1);
+    }
 
 	std::ifstream file(config_file.c_str());
     if (!file) {
@@ -113,7 +113,7 @@ static void parse_config(std::vector<ServerConfig> *Configs, std::string config_
             // Save content inside server block
             block << line << "\n";
         }
-		// // Now you can use block like any stringstream
+		// Now you can use block like any stringstream
     	// std::cout << "--- Extracted server block ---\n";
     	// std::cout << block.str() << std::endl;
     }
