@@ -101,7 +101,7 @@ class ServerConfigRoutes
         void assign(const std::string &key, const std::string &value);
 
 		ServerConfigRoutes(std::istream& stream);
-		void verify_validity();
+		void verify_route();
 	
 	private:
 		std::string _routeLoc;

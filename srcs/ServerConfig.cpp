@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ServerConfig.cpp                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: marvin <marvin@student.42.fr>              +#+  +:+       +#+        */
+/*   By: ttas <ttas@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/05 13:31:12 by ttas              #+#    #+#             */
-/*   Updated: 2026/01/20 17:36:19 by marvin           ###   ########.fr       */
+/*   Updated: 2026/01/21 12:13:54 by ttas             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,8 +40,8 @@ void ServerConfig::verify_validity()
         error_message("Server host is not set");
     if (_port <= 0 || _port > 65535)
         error_message("Server port is invalid");
-    if (_root.empty())
-        error_message("Server root is not set");
+    // if (_root.empty())
+    //     error_message("Server root is not set");
     // if (_index.empty())
     //     error_message("Server index is not set");
     // if (_autoindex != 0 && _autoindex != 1)
@@ -92,6 +92,24 @@ ServerConfig::ServerConfig(std::string conf)
     file.close();
 }
 
+// static bool whitespace(char c) {return isspace((unsigned char)c)&&c!='\t';}
+
+static std::string trim(const std::string& s)
+{
+    size_t start = 0;
+    size_t end = s.size();
+
+    // Trim leading whitespace
+    while (start < end && std::isspace(static_cast<unsigned char>(s[start])))
+        ++start;
+
+    // Trim trailing whitespace
+    while (end > start && std::isspace(static_cast<unsigned char>(s[end - 1])))
+        --end;
+
+    return s.substr(start, end - start);
+}
+
 // stringstream constructor
 ServerConfig::ServerConfig(std::istream& stream)
     : _name(""),
@@ -100,26 +118,26 @@ ServerConfig::ServerConfig(std::istream& stream)
       _root(""),
       _maxClientBodySize(-1)
 {
-    std::string line;
 	_routes.clear();
-
+	
+    std::string line;
+	std::stringstream block;
+	bool inside = false;
+	int braceCount = 0;
+	
     while (std::getline(stream, line))
     {
+		line = trim(line);
         if (line.empty() || line[0] == '#')
             continue;
 
-        int pos = line.find_first_of(' ');
-        if (pos <= 0)
-            error_message("Invalid config line: " + line);
+		if(line == "}")
+			break;	
 
-
-		std::stringstream block;
-    	std::string line;
-    	bool inside = false;
-    	int braceCount = 0;
 
 		if (!inside) {
-            // Allow variations: "server {", "server{", "server   {", etc.
+			std::cout << "goind inside block" << std::endl;
+            // Allow variations: "route {", "route{", "route   {", etc.
             if (line.find("route") != std::string::npos &&
                 line.find("{") != std::string::npos) {
                 inside = true;
@@ -129,34 +147,46 @@ ServerConfig::ServerConfig(std::istream& stream)
                 continue;       // don't include this line
             }
         } 
-        else {
-            // Already inside block
-            if (line.find("{") != std::string::npos)
-                braceCount++;
+        else 
+		{
+			std::cout << "started to block route" << std::endl;
+			// Already inside block
+			if (line.find("{") != std::string::npos)
+				braceCount++;
+			if (line.find("}") != std::string::npos)
+				braceCount--;
 
-            if (line.find("}") != std::string::npos)
-                braceCount--;
-
-            // Stop if block ended
-            if (braceCount == 0) {
-                inside = false;
+			// Stop if block ended
+			if (braceCount == 0) {
+				inside = false;
 				_routes.push_back(ServerConfigRoutes(block));
-                continue; // don't include the closing brace
-            }
+				continue; // don't include the closing brace
+			}
 
-            // Save content inside server block
-            block << line << "\n";
+			// Save content inside server block
+			block << line << "\n";
         }
-		std::string key = line.substr(0, pos);
-		std::string value = line.substr(pos + 1);
+			
+		if (!inside)
+		{
+			int pos = line.find_first_of(' ');
+			if (pos <= 0)
+				error_message("Invalid config line: " + line);
 	
-		if (key.empty() || value.empty())
-			error_message("Key or value is empty in line: " + line);
-	
-		assign(key, value);
-   }
+			// std::cout << "pos : " << pos << "\nsize : " << line.size() << std::endl;
+			
+			std::string key = line.substr(0, pos);
+			std::string value = line.substr(pos + 1);
+		
+			if (key.empty() || value.empty())
+				error_message("Key or value is empty in line: " + line);
+		
+			// std::cout << "key : " + key + "\n value : " + value << std::endl;
+			assign(key, value);
 
-    verify_validity();
+		}
+   }
+    // verify_validity();
 }
 
 // ---------------- Destructor ----------------
@@ -249,7 +279,7 @@ void ServerConfig::setMaxClientBodySize(const std::string &size) { _maxClientBod
 std::map<std::string, ServerConfig::Setter> ServerConfig::initMap()
 {
     std::map<std::string, Setter> m;
-    m["name"] = &ServerConfig::setName;
+    m["server_name"] = &ServerConfig::setName;
     m["host"] = &ServerConfig::setHost;
     m["port"] = &ServerConfig::setPort;
     m["root"] = &ServerConfig::setRoot;
@@ -273,5 +303,5 @@ void ServerConfig::assign(const std::string &key, const std::string &value)
     if (it != _setters.end())
         (this->*(it->second))(value);
     else
-        error_message("Unknown config key: " + key);
+        error_message("Unknown server config key: " + key);
 }

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: marvin <marvin@student.42.fr>              +#+  +:+       +#+        */
+/*   By: ttas <ttas@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/05 09:31:11 by ttas              #+#    #+#             */
-/*   Updated: 2026/01/20 17:29:05 by marvin           ###   ########.fr       */
+/*   Updated: 2026/01/21 11:14:30 by ttas             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -81,6 +81,7 @@ static void parse_config(std::vector<ServerConfig> *Configs, std::string config_
     std::string line;
     bool inside = false;
     int braceCount = 0;
+	bool found = false;
 
     while (std::getline(file, line)) {
         // Detect start of block
@@ -90,6 +91,7 @@ static void parse_config(std::vector<ServerConfig> *Configs, std::string config_
                 line.find("{") != std::string::npos) {
                 inside = true;
                 braceCount = 1; // found the first '{'
+				found = true;
 				block.str("");  // clear previous content
                 block.clear();  // reset flags
                 continue;       // don't include this line
@@ -104,8 +106,9 @@ static void parse_config(std::vector<ServerConfig> *Configs, std::string config_
                 braceCount--;
 
             // Stop if block ended
-            if (braceCount == 0) {
+            if (braceCount == 0 && found == true) {
                 inside = false;
+				found = false;
 				(*Configs).push_back(ServerConfig(block));
                 continue; // don't include the closing brace
             }
@@ -128,6 +131,7 @@ int main(int argc, char **argv)
 	}
 
 	std::vector<ServerConfig> Configs;
+	Configs.clear();
 	std::string file = argv[1];
 	parse_config(&Configs, file);
 

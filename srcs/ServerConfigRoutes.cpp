@@ -6,7 +6,7 @@ static void error_message(const std::string &message)
     exit(1);
 }
 
-void ServerConfigRoutes::verify_validity()
+void ServerConfigRoutes::verify_route()
 {
 	if(_routeLoc.empty())
 	{
@@ -43,6 +43,22 @@ void ServerConfigRoutes::verify_validity()
 	
 }
 
+static std::string trim(const std::string& s)
+{
+    size_t start = 0;
+    size_t end = s.size();
+
+    // Trim leading whitespace
+    while (start < end && std::isspace(static_cast<unsigned char>(s[start])))
+        ++start;
+
+    // Trim trailing whitespace
+    while (end > start && std::isspace(static_cast<unsigned char>(s[end - 1])))
+        --end;
+
+    return s.substr(start, end - start);
+}
+
 ServerConfigRoutes::ServerConfigRoutes(std::istream& stream)
 	:_routeLoc(""),
 	 _configMethods(),
@@ -61,6 +77,7 @@ ServerConfigRoutes::ServerConfigRoutes(std::istream& stream)
     {
         if (line.empty() || line[0] == '#')
             continue;
+		line = trim(line);
 
         std::string::size_type pos = line.find_first_of(' ');
         if (pos <= 0)
@@ -69,13 +86,15 @@ ServerConfigRoutes::ServerConfigRoutes(std::istream& stream)
 		std::string key = line.substr(0, pos);
 		std::string value = line.substr(pos + 1);
 	
+		std::cout << "key : " + key + "\n value : " + value << std::endl;
+
 		if (key.empty() || value.empty())
 			error_message("Key or value is empty in line: " + line);
 	
 		assign(key, value);
    }
 
-    verify_validity();
+    // verify_route();
 }
 
 
@@ -84,7 +103,7 @@ ServerConfigRoutes::ServerConfigRoutes(std::istream& stream)
 std::map<std::string, ServerConfigRoutes::Setter> ServerConfigRoutes::initMap()
 {
     std::map<std::string, Setter> m;
-	m["name"] = &ServerConfigRoutes::setRouteLoc;
+	m["route_name"] = &ServerConfigRoutes::setRouteLoc;
     m["index"] = &ServerConfigRoutes::setDefaultFile;
 	m["root"] = &ServerConfigRoutes::setRootPath;
     m["autoindex"] = &ServerConfigRoutes::setAutoIndex;
@@ -108,5 +127,5 @@ void ServerConfigRoutes::assign(const std::string &key, const std::string &value
     if (it != _setters.end())
         (this->*(it->second))(value);
     else
-        error_message("Unknown config key: " + key);
+        error_message("Unknown route config key: " + key);
 }
