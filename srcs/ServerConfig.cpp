@@ -6,7 +6,7 @@
 /*   By: ttas <ttas@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/05 13:31:12 by ttas              #+#    #+#             */
-/*   Updated: 2026/01/21 12:13:54 by ttas             ###   ########.fr       */
+/*   Updated: 2026/01/21 13:47:19 by ttas             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -131,12 +131,7 @@ ServerConfig::ServerConfig(std::istream& stream)
         if (line.empty() || line[0] == '#')
             continue;
 
-		if(line == "}")
-			break;	
-
-
 		if (!inside) {
-			std::cout << "goind inside block" << std::endl;
             // Allow variations: "route {", "route{", "route   {", etc.
             if (line.find("route") != std::string::npos &&
                 line.find("{") != std::string::npos) {
@@ -147,9 +142,8 @@ ServerConfig::ServerConfig(std::istream& stream)
                 continue;       // don't include this line
             }
         } 
-        else 
+        else
 		{
-			std::cout << "started to block route" << std::endl;
 			// Already inside block
 			if (line.find("{") != std::string::npos)
 				braceCount++;
@@ -165,8 +159,8 @@ ServerConfig::ServerConfig(std::istream& stream)
 
 			// Save content inside server block
 			block << line << "\n";
+			// std::cout << block.str() << std::endl;
         }
-			
 		if (!inside)
 		{
 			int pos = line.find_first_of(' ');
@@ -186,7 +180,7 @@ ServerConfig::ServerConfig(std::istream& stream)
 
 		}
    }
-    // verify_validity();
+    verify_validity();
 }
 
 // ---------------- Destructor ----------------

@@ -6,7 +6,7 @@
 /*   By: ttas <ttas@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/05 09:31:11 by ttas              #+#    #+#             */
-/*   Updated: 2026/01/21 11:14:30 by ttas             ###   ########.fr       */
+/*   Updated: 2026/01/21 13:47:24 by ttas             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -65,13 +65,13 @@ static void printServerConfig(const ServerConfig &config) {
 
 static void parse_config(std::vector<ServerConfig> *Configs, std::string config_file)
 {
-	if (config_file.size() < 5 || config_file.substr(config_file.size() - 5, 5) != ".conf")
+    if (config_file.size() < 5 || config_file.substr(config_file.size() - 5, 5) != ".conf")
     {
         perror("Invalid config file extension. Expected .conf");
         exit(1);
     }
 
-	std::ifstream file(config_file.c_str());
+    std::ifstream file(config_file.c_str());
     if (!file) {
         std::cerr << "Cannot open file\n";
         exit(1);
@@ -81,18 +81,23 @@ static void parse_config(std::vector<ServerConfig> *Configs, std::string config_
     std::string line;
     bool inside = false;
     int braceCount = 0;
-	bool found = false;
 
     while (std::getline(file, line)) {
+
+        // Remove comments (everything after '#')
+        size_t comment_pos = line.find('#');
+        if (comment_pos != std::string::npos) {
+            line = line.substr(0, comment_pos);
+        }
+
+        if (line.empty()) continue; // skip empty lines
         // Detect start of block
         if (!inside) {
-            // Allow variations: "server {", "server{", "server   {", etc.
             if (line.find("server") != std::string::npos &&
                 line.find("{") != std::string::npos) {
                 inside = true;
                 braceCount = 1; // found the first '{'
-				found = true;
-				block.str("");  // clear previous content
+                block.str("");  // clear previous content
                 block.clear();  // reset flags
                 continue;       // don't include this line
             }
@@ -106,19 +111,15 @@ static void parse_config(std::vector<ServerConfig> *Configs, std::string config_
                 braceCount--;
 
             // Stop if block ended
-            if (braceCount == 0 && found == true) {
+            if (braceCount == 0) {
                 inside = false;
-				found = false;
-				(*Configs).push_back(ServerConfig(block));
+                (*Configs).push_back(ServerConfig(block));
                 continue; // don't include the closing brace
             }
 
             // Save content inside server block
             block << line << "\n";
         }
-		// Now you can use block like any stringstream
-    	// std::cout << "--- Extracted server block ---\n";
-    	// std::cout << block.str() << std::endl;
     }
 }
 

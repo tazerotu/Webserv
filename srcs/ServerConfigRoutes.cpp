@@ -86,7 +86,6 @@ ServerConfigRoutes::ServerConfigRoutes(std::istream& stream)
 		std::string key = line.substr(0, pos);
 		std::string value = line.substr(pos + 1);
 	
-		std::cout << "key : " + key + "\n value : " + value << std::endl;
 
 		if (key.empty() || value.empty())
 			error_message("Key or value is empty in line: " + line);
@@ -94,7 +93,7 @@ ServerConfigRoutes::ServerConfigRoutes(std::istream& stream)
 		assign(key, value);
    }
 
-    // verify_route();
+    verify_route();
 }
 
 
