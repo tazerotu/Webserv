@@ -6,15 +6,16 @@
 #    By: ttas <ttas@student.42.fr>                  +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/11/05 09:31:15 by ttas              #+#    #+#              #
-#    Updated: 2026/01/15 12:44:48 by ttas             ###   ########.fr        #
+#    Updated: 2026/01/27 11:43:38 by ttas             ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 EXE = webserv
 
 SRC =	./srcs/main.cpp \
-		./srcs/ServerConfig.cpp \
-		./srcs/ServerConfigRoutes.cpp
+		./srcs/Parsing.cpp \
+		./srcs/ParsingRoutes.cpp \
+		./srcs/SCMethodFactory.cpp
 
 
 SOURCES = ${SRC}

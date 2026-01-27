@@ -1,4 +1,4 @@
-add ServerConfigRoute class
+add ParsingRoute class
 complete class
-finish parsing (separate route from ServerConfig and send it to ServerConfigRoute)
+finish parsing (separate route from Parsing and send it to ParsingRoute)
 CGI

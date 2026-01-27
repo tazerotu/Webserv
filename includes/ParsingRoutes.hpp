@@ -1,5 +1,5 @@
-#ifndef SERVERCONFIGROUTES_HPP
-# define SERVERCONFIGROUTES_HPP
+#ifndef PARSINGROUTES_HPP
+# define PARSINGROUTES_HPP
 
 #include <iostream>
 #include <fstream>
@@ -11,7 +11,7 @@
 #include <map>
 #include <vector>
 
-class ServerConfigRoutes
+class ParsingRoutes
 {
 	public:
 	
@@ -77,11 +77,10 @@ class ServerConfigRoutes
 			char *end;
    			long temp = std::strtol(upload.c_str(), &end, 10);
     		if (*end != '\0') {
-        		_upload = -1;
+        		_upload_status = -1;
     		}
-    		_upload = static_cast<int8_t>(temp);
+    		_upload_status = static_cast<int8_t>(temp);
 		}
-		void setUploadDirectory(const std::string &upload_directory) {_uploadDirectory = upload_directory;}
 		void setRouteLoc(const std::string &route_loc) {_routeLoc = route_loc;}
 		void setRootPath(const std::string &root_path) {_rootPath = root_path;}
 
@@ -91,16 +90,15 @@ class ServerConfigRoutes
     	const std::string& getRootPath() const { return _rootPath; }
     	signed char getAutoIndex() const { return _autoIndex; }
     	const std::string& getDefaultFile() const { return _defaultFile; }
-    	const std::string& getUploadDirectory() const { return _uploadDirectory; }
-    	signed char getUpload() const { return _upload; }
+    	signed char getUpload() const { return _upload_status; }
     	const std::string& getCgiPath() const { return _cgi_path; }
     	const std::string& getCgiExt() const { return _cgi_ext; }
     	const std::map<int, std::string>& getRedirection() const { return _redirection; }
 
-		typedef void (ServerConfigRoutes::*Setter)(const std::string&);
+		typedef void (ParsingRoutes::*Setter)(const std::string&);
         void assign(const std::string &key, const std::string &value);
 
-		ServerConfigRoutes(std::istream& stream);
+		ParsingRoutes(std::istream& stream);
 		void verify_route();
 	
 	private:
@@ -109,8 +107,7 @@ class ServerConfigRoutes
 		std::string _rootPath;
 		signed char _autoIndex;
 		std::string _defaultFile;
-		std::string _uploadDirectory;
-		signed char _upload;
+		signed char _upload_status;
 		std::string _cgi_path;
         std::string _cgi_ext;
 		std::map<int, std::string> _redirection;

@@ -3,14 +3,14 @@
 /*                                                        :::      ::::::::   */
 /*   SCMethodFactory.cpp                                :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: yroard <yroard@student.42.fr>              +#+  +:+       +#+        */
+/*   By: ttas <ttas@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/11 09:29:27 by yroard            #+#    #+#             */
-/*   Updated: 2025/12/11 09:29:57 by yroard           ###   ########.fr       */
+/*   Updated: 2026/01/27 11:44:10 by ttas             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "ServiceConfigMethod.hpp"
+#include "../includes/serverConfig/routes/ServiceConfigMethod.hpp"
 
 namespace webserv {
     namespace serverConfig {

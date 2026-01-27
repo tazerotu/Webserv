@@ -19,6 +19,7 @@
 #include <vector>
 #include <string>
 #include <sstream>
+#include <iostream>
 #include "../IServerConfigError.hpp"
 #include "../../Webserv.hpp"
 
@@ -41,6 +42,7 @@ namespace webserv {
 				// You will use this in RequestValidator!
 				bool isAllowed(const std::string &methodStr) const {
 					tVerb verb;
+					//std::cout << "is allowed: " << methodStr << std::endl;
 					if (methodStr == "GET") verb = GET;
 					else if (methodStr == "POST") verb = POST;
 					else if (methodStr == "DELETE") verb = DELETE;
@@ -48,6 +50,8 @@ namespace webserv {
 
 					// Check if 'verb' is in our vector
 					for (size_t i = 0; i < m_allowedMethod.size(); ++i) {
+						//std::cout << "m_allowedMethod: " << m_allowedMethod[i]
+							//<< std::endl;
 						if (m_allowedMethod[i] == verb)
 							return true;
 					}
@@ -59,9 +63,9 @@ namespace webserv {
 					std::string result = "";
 					for (size_t i = 0; i < m_allowedMethod.size(); ++i) {
 						switch (m_allowedMethod[i]) {
-							case GET: result += "GET "; break;
-							case POST: result += "POST "; break;
-							case DELETE: result += "DELETE "; break;
+							case GET: result += "GET"; break;
+							case POST: result += "POST"; break;
+							case DELETE: result += "DELETE"; break;
 							default: break;
 						}
 					}

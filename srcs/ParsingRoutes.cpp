@@ -1,4 +1,4 @@
-#include "../includes/ServerConfigRoutes.hpp"
+#include "../includes/ParsingRoutes.hpp"
 
 static void error_message(const std::string &message)
 {
@@ -6,7 +6,7 @@ static void error_message(const std::string &message)
     exit(1);
 }
 
-void ServerConfigRoutes::verify_route()
+void ParsingRoutes::verify_route()
 {
 	if(_routeLoc.empty())
 	{
@@ -28,13 +28,9 @@ void ServerConfigRoutes::verify_route()
 	{
     	error_message("Allowed methods are not set");
 	}
-	if(_upload != 1 && _upload != 0)
+	if(_upload_status != 1 && _upload_status != 0)
 	{
 		error_message("Upload must be 1 or 0");
-	}
-	if(_upload == 1 && _uploadDirectory.empty())
-	{
-		error_message("Missing upload directory in upload available route");
 	}
 	if((_cgi_path.empty() || _cgi_ext.empty()) && !(_cgi_path.empty() || _cgi_ext.empty()))
 	{
@@ -59,14 +55,13 @@ static std::string trim(const std::string& s)
     return s.substr(start, end - start);
 }
 
-ServerConfigRoutes::ServerConfigRoutes(std::istream& stream)
+ParsingRoutes::ParsingRoutes(std::istream& stream)
 	:_routeLoc(""),
 	 _configMethods(),
 	 _rootPath(""),
 	 _autoIndex(-1),
 	 _defaultFile(""),
-	 _uploadDirectory(""),
-	 _upload(-1),
+	 _upload_status(-1),
 	 _cgi_path(""),
 	 _cgi_ext(""),
 	 _redirection()
@@ -99,28 +94,27 @@ ServerConfigRoutes::ServerConfigRoutes(std::istream& stream)
 
 // ---------------- Map Initialization ----------------
 
-std::map<std::string, ServerConfigRoutes::Setter> ServerConfigRoutes::initMap()
+std::map<std::string, ParsingRoutes::Setter> ParsingRoutes::initMap()
 {
     std::map<std::string, Setter> m;
-	m["route_name"] = &ServerConfigRoutes::setRouteLoc;
-    m["index"] = &ServerConfigRoutes::setDefaultFile;
-	m["root"] = &ServerConfigRoutes::setRootPath;
-    m["autoindex"] = &ServerConfigRoutes::setAutoIndex;
-    m["allowed_methods"] = &ServerConfigRoutes::setConfigMethods;
-	m["upload"] = &ServerConfigRoutes::setUpload;
-	m["upload_directory"] = &ServerConfigRoutes::setUploadDirectory;
-    m["cgi_path"] = &ServerConfigRoutes::setCGIPath;
-    m["cgi_ext"] = &ServerConfigRoutes::setCGIExt;
-	m["redirection"] = &ServerConfigRoutes::setRedirection;
+	m["route_name"] = &ParsingRoutes::setRouteLoc;
+    m["index"] = &ParsingRoutes::setDefaultFile;
+	m["root"] = &ParsingRoutes::setRootPath;
+    m["autoindex"] = &ParsingRoutes::setAutoIndex;
+    m["allowed_methods"] = &ParsingRoutes::setConfigMethods;
+	m["upload_status"] = &ParsingRoutes::setUpload;
+    m["cgi_path"] = &ParsingRoutes::setCGIPath;
+    m["cgi_ext"] = &ParsingRoutes::setCGIExt;
+	m["redirection"] = &ParsingRoutes::setRedirection;
 
     return m;
 }
 
-const std::map<std::string, ServerConfigRoutes::Setter> ServerConfigRoutes::_setters = ServerConfigRoutes::initMap();
+const std::map<std::string, ParsingRoutes::Setter> ParsingRoutes::_setters = ParsingRoutes::initMap();
 
 // ---------------- assign() ----------------
 
-void ServerConfigRoutes::assign(const std::string &key, const std::string &value)
+void ParsingRoutes::assign(const std::string &key, const std::string &value)
 {
     std::map<std::string, Setter>::const_iterator it = _setters.find(key);
     if (it != _setters.end())

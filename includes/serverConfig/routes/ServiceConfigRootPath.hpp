@@ -6,7 +6,7 @@
 /*   By: yroard <yroard@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/11 09:31:25 by yroard            #+#    #+#             */
-/*   Updated: 2025/12/11 09:31:28 by yroard           ###   ########.fr       */
+/*   Updated: 2026/01/21 16:21:09 by yroard           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,25 +21,27 @@
 #include "../IServerConfigError.hpp"
 
 namespace webserv {
-    namespace serverConfig {
-        namespace routes{
-            class ServiceConfigRootPath {
-            private:
-                const std::string m_rootPath;
-            public:
-                explicit ServiceConfigRootPath(const std::string& rootPath)
-                    : m_rootPath(rootPath) {}
-                ~ServiceConfigRootPath(){}
-                static ServiceConfigRootPath create(const std::string& rootPath){
-                    if (!rootPath.empty() && !opendir(rootPath.c_str()))
-                        throw IServerConfigError::create
-                            (invalid_root_path,
-                                std::strerror(errno));
-                    return ServiceConfigRootPath(rootPath);
-                }
-                const std::string& getValue()const { return m_rootPath; }
-            };
-        }
-    }
+	namespace serverConfig {
+		namespace routes{
+			class ServiceConfigRootPath {
+			private:
+				const std::string m_rootPath;
+			public:
+				explicit ServiceConfigRootPath(const std::string& rootPath)
+					: m_rootPath(rootPath) {}
+				~ServiceConfigRootPath(){}
+				static ServiceConfigRootPath create(const std::string& rootPath){
+					std::string path = "." + rootPath;
+					std::cout << "path= " << path << std::endl;
+					if (!rootPath.empty() && !opendir(path.c_str())){
+							 throw IServerConfigError::create (invalid_root_path,
+								std::strerror(errno));                  
+					}
+					return ServiceConfigRootPath(rootPath);
+				}
+				const std::string& getValue()const { return m_rootPath; }
+			};
+		}
+	}
 }
 #endif

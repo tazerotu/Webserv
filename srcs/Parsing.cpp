@@ -1,16 +1,16 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   ServerConfig.cpp                                   :+:      :+:    :+:   */
+/*   Parsing.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: ttas <ttas@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/05 13:31:12 by ttas              #+#    #+#             */
-/*   Updated: 2026/01/21 13:47:19 by ttas             ###   ########.fr       */
+/*   Updated: 2026/01/27 11:19:27 by ttas             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../includes/ServerConfig.hpp"
+#include "../includes/Parsing.hpp"
 
 #include <cstdlib> 
 
@@ -32,7 +32,7 @@ static bool isRegularFile(const std::string &path)
 
 // ---------------- Constructor ----------------
 
-void ServerConfig::verify_validity()
+void Parsing::verify_validity()
 {
     if (_name.empty())
         error_message("Server name is not set");
@@ -53,7 +53,7 @@ void ServerConfig::verify_validity()
 }
 
 // file constructor
-ServerConfig::ServerConfig(std::string conf)
+Parsing::Parsing(std::string conf)
     : _name(""),
       _host(""),
       _port(0),
@@ -111,7 +111,7 @@ static std::string trim(const std::string& s)
 }
 
 // stringstream constructor
-ServerConfig::ServerConfig(std::istream& stream)
+Parsing::Parsing(std::istream& stream)
     : _name(""),
       _host(""),
       _port(0),
@@ -153,7 +153,7 @@ ServerConfig::ServerConfig(std::istream& stream)
 			// Stop if block ended
 			if (braceCount == 0) {
 				inside = false;
-				_routes.push_back(ServerConfigRoutes(block));
+				_routes.push_back(ParsingRoutes(block));
 				continue; // don't include the closing brace
 			}
 
@@ -185,68 +185,69 @@ ServerConfig::ServerConfig(std::istream& stream)
 
 // ---------------- Destructor ----------------
 
-ServerConfig::~ServerConfig()
+Parsing::~Parsing()
 {
 }
 
 // ---------------- Getters ----------------
 
-const std::string &ServerConfig::getName() const { return _name; }
-const std::string &ServerConfig::getHost() const { return _host; }
-int ServerConfig::getPort() const { return _port; }
-const std::string &ServerConfig::getRoot() const { return _root; }
-// const std::string &ServerConfig::getIndex() const { return _index; }
-// int ServerConfig::getAutoindex() const { return _autoindex; }
-const std::map<std::string, std::string> &ServerConfig::getErrorPages() const { return _error_pages; }
-// const std::vector<std::string> &ServerConfig::getAllowedMethods() const { return _allowed_methods; }
-int ServerConfig::getMaxClientBodySize() const { return _maxClientBodySize; }
-// const std::string &ServerConfig::getCgiPath() const { return _cgi_path; }
-// const std::string &ServerConfig::getCgiExt() const { return _cgi_ext; }
+const std::string &Parsing::getName() const { return _name; }
+const std::string &Parsing::getHost() const { return _host; }
+int Parsing::getPort() const { return _port; }
+const std::string &Parsing::getRoot() const { return _root; }
+// const std::string &Parsing::getIndex() const { return _index; }
+// int Parsing::getAutoindex() const { return _autoindex; }
+std::map<int, std::string> &Parsing::getErrorPages() { return _error_pages; }
+// const std::vector<std::string> &Parsing::getAllowedMethods() const { return _allowed_methods; }
+int Parsing::getMaxClientBodySize() const { return _maxClientBodySize; }
+// const std::string &Parsing::getCgiPath() const { return _cgi_path; }
+// const std::string &Parsing::getCgiExt() const { return _cgi_ext; }
 
 // ---------------- Setters ----------------
 
-void ServerConfig::setName(const std::string &name) 
+void Parsing::setName(const std::string &name) 
 {
     if(!_name.empty())
         error_message("Duplicate: Server name already set to: " + _name);
     _name = name; 
 }
-void ServerConfig::setHost(const std::string &host) 
+void Parsing::setHost(const std::string &host) 
 { 
     if(!_host.empty())
         error_message("Duplicate: Server host already set to: " + _host);
     _host = host; 
 }
-void ServerConfig::setPort(const std::string &port) 
+void Parsing::setPort(const std::string &port) 
 { 
     if(_port != 0)
         error_message("Duplicate: Server port already set");
     _port = atoi(port.c_str()); 
 }
-void ServerConfig::setRoot(const std::string &root) 
+void Parsing::setRoot(const std::string &root) 
 { 
     if(!_root.empty())
         error_message("Duplicate: Server root already set to: " + _root);
     _root = root; 
 }
-// void ServerConfig::setIndex(const std::string &index) 
+// void Parsing::setIndex(const std::string &index) 
 // { 
 //     if(!_index.empty())
 //         error_message("Duplicate: Server index already set to: " + _index);
 //     _index = index; 
 // }
-// void ServerConfig::setAutoindex(const std::string &autoindex) 
+// void Parsing::setAutoindex(const std::string &autoindex) 
 // { 
 //     if(_autoindex != -1)
 //         error_message("Duplicate: Server autoindex already set");
 //     _autoindex = atoi(autoindex.c_str()); 
 // }
-void ServerConfig::setErrorPage(const std::string &errorPage)
+void Parsing::setErrorPage(const std::string &errorPage)
 {
-    this->_error_pages[errorPage.substr(0, errorPage.find(' '))] = errorPage.substr(errorPage.find(' ') + 1);
+	int error_code = atoi(errorPage.substr(0, errorPage.find(' ')).c_str());
+    this->_error_pages[error_code] = errorPage.substr(errorPage.find(' ') + 1);
 }
 
-// void ServerConfig::setAllowedMethods(const std::string &methods)
+// void Parsing::setAllowedMethods(const std::string &methods)
 // {
 //     _allowed_methods.clear();
 //     std::string method;
@@ -264,34 +265,34 @@ void ServerConfig::setErrorPage(const std::string &errorPage)
 //     if (!method.empty())
 //         _allowed_methods.push_back(method);
 // }
-void ServerConfig::setMaxClientBodySize(const std::string &size) { _maxClientBodySize = atoi(size.c_str()); }
-// void ServerConfig::setCgiPath(const std::string &cgiPath) { _cgi_path = cgiPath; }
-// void ServerConfig::setCgiExt(const std::string &cgiExt) { _cgi_ext = cgiExt; }
+void Parsing::setMaxClientBodySize(const std::string &size) { _maxClientBodySize = atoi(size.c_str()); }
+// void Parsing::setCgiPath(const std::string &cgiPath) { _cgi_path = cgiPath; }
+// void Parsing::setCgiExt(const std::string &cgiExt) { _cgi_ext = cgiExt; }
 
 // ---------------- Map Initialization ----------------
 
-std::map<std::string, ServerConfig::Setter> ServerConfig::initMap()
+std::map<std::string, Parsing::Setter> Parsing::initMap()
 {
     std::map<std::string, Setter> m;
-    m["server_name"] = &ServerConfig::setName;
-    m["host"] = &ServerConfig::setHost;
-    m["port"] = &ServerConfig::setPort;
-    m["root"] = &ServerConfig::setRoot;
-    m["error_page"] = &ServerConfig::setErrorPage;
-    m["client_max_body"] = &ServerConfig::setMaxClientBodySize;
-    // m["index"] = &ServerConfig::setIndex;
-    // m["autoindex"] = &ServerConfig::setAutoindex;
-    // m["allowed_methods"] = &ServerConfig::setAllowedMethods;
-    // m["cgi_path"] = &ServerConfig::setCgiPath;
-    // m["cgi_ext"] = &ServerConfig::setCgiExt;
+    m["server_name"] = &Parsing::setName;
+    m["host"] = &Parsing::setHost;
+    m["port"] = &Parsing::setPort;
+    m["root"] = &Parsing::setRoot;
+    m["error_page"] = &Parsing::setErrorPage;
+    m["client_max_body"] = &Parsing::setMaxClientBodySize;
+    // m["index"] = &Parsing::setIndex;
+    // m["autoindex"] = &Parsing::setAutoindex;
+    // m["allowed_methods"] = &Parsing::setAllowedMethods;
+    // m["cgi_path"] = &Parsing::setCgiPath;
+    // m["cgi_ext"] = &Parsing::setCgiExt;
     return m;
 }
 
-const std::map<std::string, ServerConfig::Setter> ServerConfig::_setters = ServerConfig::initMap();
+const std::map<std::string, Parsing::Setter> Parsing::_setters = Parsing::initMap();
 
 // ---------------- assign() ----------------
 
-void ServerConfig::assign(const std::string &key, const std::string &value)
+void Parsing::assign(const std::string &key, const std::string &value)
 {
     std::map<std::string, Setter>::const_iterator it = _setters.find(key);
     if (it != _setters.end())

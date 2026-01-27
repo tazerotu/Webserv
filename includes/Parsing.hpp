@@ -1,5 +1,5 @@
-#ifndef SERVERCONFIG_HPP
-# define SERVERCONFIG_HPP
+#ifndef PARSING_HPP
+# define PARSING_HPP
 
 #include <iostream>
 #include <fstream>
@@ -9,18 +9,18 @@
 #include <sys/stat.h>
 #include <map>
 #include <vector>
-#include "ServerConfigRoutes.hpp"
+#include "ParsingRoutes.hpp"
 
-class ServerConfig
+class Parsing
 {
 
     public:
-        typedef void (ServerConfig::*Setter)(const std::string&);
+        typedef void (Parsing::*Setter)(const std::string&);
 
         // Constructor / Destructor
-        ServerConfig(std::string conf);
-		ServerConfig(std::istream& stream);
-        ~ServerConfig();
+        Parsing(std::string conf);
+		Parsing(std::istream& stream);
+        ~Parsing();
 
         // Assign from key/value
         void assign(const std::string &key, const std::string &value);
@@ -31,8 +31,8 @@ class ServerConfig
         int getPort() const;
         const std::string &getRoot() const;
         int getMaxClientBodySize() const;
-        const std::map<std::string, std::string> &getErrorPages() const;
-		std::vector<ServerConfigRoutes> getRoutes() const {return _routes;}
+        std::map<int, std::string> &getErrorPages();
+		std::vector<ParsingRoutes> getRoutes() const {return _routes;}
         // const std::string &getIndex() const;
         // int getAutoindex() const;
         // const std::vector<std::string> &getAllowedMethods() const;
@@ -60,9 +60,9 @@ class ServerConfig
         std::string _host;
         int         _port;
         std::string _root;
-        std::map<std::string, std::string> _error_pages;
+        std::map<int, std::string> _error_pages;
         int         _maxClientBodySize;
-		std::vector<ServerConfigRoutes> _routes;
+		std::vector<ParsingRoutes> _routes;
         // std::string _index;
         // int         _autoindex;
         // std::vector<std::string> _allowed_methods;
