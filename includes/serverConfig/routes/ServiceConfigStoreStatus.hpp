@@ -6,7 +6,7 @@
 /*   By: ttas <ttas@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/11 09:31:43 by yroard            #+#    #+#             */
-/*   Updated: 2026/01/27 12:05:09 by ttas             ###   ########.fr       */
+/*   Updated: 2026/01/27 12:07:31 by ttas             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,9 +32,9 @@ namespace webserv {
 				~ServiceConfigStoreStatus(){}
 
 				static tStoreStatus isValid(const std::string & storeStatus){
-					if (storeStatus == "OFF")
+					if (storeStatus == "0")
 						return OFF;
-					if (storeStatus == "ON")
+					if (storeStatus == "1")
 						return ON;
 					return ERROR;
 				}
