@@ -90,7 +90,7 @@ class ParsingRoutes
     	const std::string& getRootPath() const { return _rootPath; }
     	signed char getAutoIndex() const { return _autoIndex; }
     	const std::string& getDefaultFile() const { return _defaultFile; }
-    	std::string getUpload() const { return _upload_status; }
+    	std::string getUpload() const { return _upload_status; } // modify upload status to take a signed char and transform into std::string
     	const std::string& getCgiPath() const { return _cgi_path; }
     	const std::string& getCgiExt() const { return _cgi_ext; }
     	const std::map<int, std::string>& getRedirection() const { return _redirection; }
