@@ -6,7 +6,7 @@
 /*   By: ttas <ttas@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/05 09:31:11 by ttas              #+#    #+#             */
-/*   Updated: 2026/01/27 12:07:24 by ttas             ###   ########.fr       */
+/*   Updated: 2026/01/28 09:38:24 by ttas             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -67,55 +67,67 @@ static void printParsing(Parsing &config) {
 }
 
 
-void printServers(const std::vector<ServerConfig>& servers)
+void printServers(const std::vector<ServerConfig*>& servers)
 {
     for (size_t i = 0; i < servers.size(); ++i)
     {
-        const ServerConfig& s = servers[i];
+        const ServerConfig* s = servers[i];
+        if (!s)
+            continue;
 
         std::cout << "=================================\n";
         std::cout << "Server #" << i << "\n";
 
         // Server config values
-        std::cout << "WebsiteName: " << s.getWebsiteName().getValue() << "\n";
-        std::cout << "IP Address: " << s.getIPAddress().getValue() << "\n";
-        std::cout << "Port: " << s.getPort().getValue() << "\n";
-        std::cout << "MaxBodySize: " << s.getMaxBodySize().getValue() << "\n";
+        std::cout << "WebsiteName: " << s->getWebsiteName().getValue() << "\n";
+        std::cout << "IP Address: " << s->getIPAddress().getValue() << "\n";
+        std::cout << "Port: " << s->getPort().getValue() << "\n";
+        std::cout << "MaxBodySize: " << s->getMaxBodySize().getValue() << "\n";
 
         // Error pages
         std::cout << "Error Pages:\n";
-        const std::map<int, std::string>& errors = s.getErrorPages().getValue();
-        for (std::map<int, std::string>::const_iterator it = errors.begin(); it != errors.end(); ++it)
+        const std::map<int, std::string>& errors = s->getErrorPages().getValue();
+        for (std::map<int, std::string>::const_iterator it = errors.begin();
+             it != errors.end(); ++it)
         {
             std::cout << "  " << it->first << " -> " << it->second << "\n";
         }
 
         // Routes
-        const std::vector<IServerConfigRoutes*>& routes = s.getRoutes();
+        const std::vector<IServerConfigRoutes*>& routes = s->getRoutes();
         std::cout << "Routes (" << routes.size() << "):\n";
 
         for (size_t j = 0; j < routes.size(); ++j)
         {
             const IServerConfigRoutes* r = routes[j];
+            if (!r)
+                continue;
+
             std::cout << "  Route #" << j << "\n";
             std::cout << "    Location: " << r->getRouteLoc().getValue() << "\n";
             std::cout << "    Method: " << r->getMethod().getValue() << "\n";
-            const std::map<int, std::string>& redirMap = r->getRedirection().getValue();
 
-			std::cout << "    Redirection:\n";
-			for (std::map<int, std::string>::const_iterator it = redirMap.begin(); it != redirMap.end(); ++it)
-			{
-				std::cout << "      " << it->first << " -> " << it->second << "\n";
-			}
+            const std::map<int, std::string>& redirMap =
+                r->getRedirection().getValue();
+
+            std::cout << "    Redirection:\n";
+            for (std::map<int, std::string>::const_iterator it = redirMap.begin();
+                 it != redirMap.end(); ++it)
+            {
+                std::cout << "      " << it->first << " -> " << it->second << "\n";
+            }
+
             std::cout << "    Root: " << r->getRootPath().getValue() << "\n";
             std::cout << "    AutoIndex: " << r->getAutoIndex().getValue() << "\n";
             std::cout << "    DefaultFile: " << r->getDefaultFile().getValue() << "\n";
             std::cout << "    StoreStatus: " << r->getStoreStatus().getValue() << "\n";
-            std::cout << "    CGI: " << r->getCGI().getCGIInterpreterPath()
-                      << " " << r->getCGI().getCGIExtension() << "\n";
+            std::cout << "    CGI: "
+                      << r->getCGI().getCGIInterpreterPath() << " "
+                      << r->getCGI().getCGIExtension() << "\n";
         }
     }
 }
+
 
 
 
@@ -188,66 +200,85 @@ int main(int argc, char **argv)
 	}
 
 	std::vector<Parsing> Configs;
-	std::vector<ServerConfig> Server;
-	TabRoute routesVec;
+	std::vector<ServerConfig*> Server;
 	Configs.clear();
 	Server.clear();
 	std::string file = argv[1];
 	parse_config(&Configs, file);
-
+	
 	if (Configs.empty())
-        return(0);
+	return(0);
     else
     {
-        for (size_t i = 0; i < Configs.size(); ++i) 
+		for (size_t i = 0; i < Configs.size(); ++i) 
 		{
 			std::cout << "========================\n";
 			std::cout << "Server Configuration " << i + 1 << ":\n";
 			printParsing(Configs[i]);
 			std::cout << "========================\n\n";
-			routesVec.clear();
-			for (size_t j = 0; j < Configs[i].getRoutes().size(); j++)
+		
+			TabRoute routesVec; // ✅ NEW vector for THIS server only
+
+			for (size_t j = 0; j < Configs[i].getRoutes().size(); ++j)
 			{
 				std::string method_string;
-				std::vector<std::string> methods = Configs[i].getRoutes()[j].getConfigMethods();
+				std::vector<std::string> methods =
+					Configs[i].getRoutes()[j].getConfigMethods();
 
-				for (std::vector<std::string>::size_type k = 0; k < methods.size(); ++k) {
-					if (k > 0) {
-						method_string += " ";  // add a space before all except the first
-					}
-					method_string += methods[k]; // append the method
+				for (size_t k = 0; k < methods.size(); ++k)
+				{
+					if (k > 0)
+						method_string += " ";
+					method_string += methods[k];
 				}
 
 				std::stringstream StoreStatus;
-				StoreStatus << static_cast<int>(Configs[i].getRoutes()[j].getUpload()); // convert to int to avoid char interpretation
-				std::string StoreStatusString = StoreStatus.str();
+				StoreStatus << static_cast<int>(
+					Configs[i].getRoutes()[j].getUpload()
+				);
 
 				routesVec.push_back(new ServerConfigRoutes(
-					ServiceConfigRouteLoc::create(Configs[i].getRoutes()[j].getRouteLoc()),
+					ServiceConfigRouteLoc::create(
+						Configs[i].getRoutes()[j].getRouteLoc()
+					),
 					SCMethodFactory::createMethod(method_string),
 					ServiceConfigRedirection::create(
 						Configs[i].getRoutes()[j].getRedirection()
 					),
-					ServiceConfigRootPath::create(Configs[i].getRoutes()[j].getRootPath()),
-					ServiceConfigAutoIndex::create(Configs[i].getRoutes()[j].getAutoIndex()),
-					ServiceConfigDefaultFile::create(Configs[i].getRoutes()[j].getDefaultFile()),
-					ServiceConfigStoreStatus::create(StoreStatusString),
-					ServiceConfigCGI::create(Configs[i].getRoutes()[j].getCgiPath(), Configs[i].getRoutes()[j].getCgiExt())
+					ServiceConfigRootPath::create(
+						Configs[i].getRoutes()[j].getRootPath()
+					),
+					ServiceConfigAutoIndex::create(
+						Configs[i].getRoutes()[j].getAutoIndex()
+					),
+					ServiceConfigDefaultFile::create(
+						Configs[i].getRoutes()[j].getDefaultFile()
+					),
+					ServiceConfigStoreStatus::create(
+						StoreStatus.str()
+					),
+					ServiceConfigCGI::create(
+						Configs[i].getRoutes()[j].getCgiPath(),
+						Configs[i].getRoutes()[j].getCgiExt()
+					)
 				));
 			}
 
-			Server.push_back(ServerConfig(
+			Server.push_back(new ServerConfig(
 				ServiceConfigWebsiteName::create(Configs[i].getName()),
 				ServiceConfigIPAddress::create(Configs[i].getHost()),
 				ServiceConfigPort::create(Configs[i].getPort()),
 				ServiceConfigErrorPages::create(Configs[i].getErrorPages()),
-				ServiceConfigMaxBodySize::create(Configs[i].getMaxClientBodySize()),
+				ServiceConfigMaxBodySize::create(
+					Configs[i].getMaxClientBodySize()
+				),
 				routesVec
 			));
     	}
 		printServers(Server);
 	}
-
+	for (size_t i = 0; i < Server.size(); ++i)
+    	delete Server[i];
 	return (0);
 }
 

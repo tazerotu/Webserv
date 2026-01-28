@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ServiceConfigRootPath.hpp                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: yroard <yroard@student.42.fr>              +#+  +:+       +#+        */
+/*   By: ttas <ttas@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/11 09:31:25 by yroard            #+#    #+#             */
-/*   Updated: 2026/01/21 16:21:09 by yroard           ###   ########.fr       */
+/*   Updated: 2026/01/28 09:43:27 by ttas             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,10 +33,12 @@ namespace webserv {
 				static ServiceConfigRootPath create(const std::string& rootPath){
 					std::string path = "." + rootPath;
 					std::cout << "path= " << path << std::endl;
-					if (!rootPath.empty() && !opendir(path.c_str())){
-							 throw IServerConfigError::create (invalid_root_path,
-								std::strerror(errno));                  
-					}
+					if (rootPath.empty())
+						throw IServerConfigError::create(invalid_root_path, std::strerror(errno));
+					DIR* dir = opendir(path.c_str());
+					if (!dir)
+						throw IServerConfigError::create(invalid_root_path, std::strerror(errno));
+					closedir(dir);
 					return ServiceConfigRootPath(rootPath);
 				}
 				const std::string& getValue()const { return m_rootPath; }

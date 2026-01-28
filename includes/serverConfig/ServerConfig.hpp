@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ServerConfig.hpp                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: yroard <yroard@student.42.fr>              +#+  +:+       +#+        */
+/*   By: ttas <ttas@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/11 09:32:20 by yroard            #+#    #+#             */
-/*   Updated: 2025/12/11 09:32:24 by yroard           ###   ########.fr       */
+/*   Updated: 2026/01/28 09:34:31 by ttas             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,6 +26,8 @@ namespace webserv {
             ServiceConfigErrorPages m_errorPages;
             const ServiceConfigMaxBodySize m_maxBodySize;
             const TabRoute m_routes;
+			ServerConfig(const ServerConfig&);
+   			ServerConfig& operator=(const ServerConfig&);
         public:
             explicit ServerConfig(const ServiceConfigWebsiteName &websiteName,
                 const ServiceConfigIPAddress &iPAddress,
