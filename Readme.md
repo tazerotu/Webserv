@@ -6,6 +6,42 @@ Webserv is a custom web server project developed as part of the 42 curriculum. T
 This project emphasizes understanding low-level networking, process and socket management, and HTTP protocol mechanics. Webserv supports features such as request parsing, response generation, error handling, and configurable server behavior through a simple configuration file. By completing this project, students gain hands-on experience with server-side programming and learn the foundations of web server architecture.
 
 Instructions :
+To start the server, you will need a configuration file, said file needs to have the *.conf extention.
+The format of the file is as follows :
+	server {
+		// contains the content of the server and can have multiple servers
+		server_name name	// the name of the server
+		host host_ip		// the ip needed to browse the server
+		port port_nbr		// the port to which the server will listen
+		client_max_body 100000		// the max size of the client request body
+		error_page error_code page/directory/to/the_page		//can have multiple pages, which have to be declared in separate lines
+		
+		route / {		// there can be multiple routes, which can be declared after this one
+			route_name /
+			allowed_methods GET	// methods allowed in this route
+
+			root root_directory
+			index index_page
+			upload_status 0		// 0/1 (0 is off, 1 is on)
+			autoindex 0			// same as upload status
+
+			cgi_path /usr/bin/php-cgi	// left in config file for better ease of access/setup
+			cgi_ext .php				// CGI extentions allowed
+		}
+
+		route /something {
+			// to show how to declare multiple routes
+		}
+	}
+	server {
+		// same format as the previous one
+	}
+
+once the conf file is setup, go to the root directory and do :
+	- make re
+	- ./webserv ./path/to/conf/default.conf
+	
+
 
 
 Ressources :
