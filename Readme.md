@@ -6,6 +6,7 @@ Webserv is a custom web server project developed as part of the 42 curriculum. T
 This project emphasizes understanding low-level networking, process and socket management, and HTTP protocol mechanics. Webserv supports features such as request parsing, response generation, error handling, and configurable server behavior through a simple configuration file. By completing this project, students gain hands-on experience with server-side programming and learn the foundations of web server architecture.
 
 Instructions :
+
 To start the server, you will need a configuration file, said file needs to have the *.conf extention.
 The format of the file is as follows :
 	server {
@@ -41,6 +42,7 @@ once the conf file is setup, go to the root directory and do :
 	- make re
 	- ./webserv ./path/to/conf/default.conf
 	
+After starting the server, you will need to open a browser and 
 
 
 
