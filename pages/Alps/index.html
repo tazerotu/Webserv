@@ -28,15 +28,23 @@
 </head>
 <body>
     <!-- Header -->
-    <header>
-        <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-            <div class="container-fluid">
-                <span class="navbar-brand">🏔️ Alpine Cottage</span>
-                <a href="/index.html" class="nav-link text-light">Home</a>
-                <a href="/cgi.php" class="nav-link text-light">Test</a>
-            </div>
-        </nav>
-    </header>
+	<header>
+	<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+		<div class="container-fluid">
+		<!-- Left side: Brand and Home -->
+		<div class="d-flex align-items-center">
+			<span class="navbar-brand mb-0">🏔️ Alpine Cottage</span>
+			<a href="/index.html" class="nav-link text-light ms-3">Home</a>
+		</div>
+
+		<!-- Right side: Upload and Test -->
+		<div class="d-flex align-items-center ms-auto">
+			<a href="/upload/upload.php" class="nav-link text-light me-3">Upload</a>
+			<a href="/cgi.php" class="nav-link text-light">Test</a>
+		</div>
+		</div>
+	</nav>
+	</header>
 
     <!-- Main Content -->
     <main class="container-fluid">
