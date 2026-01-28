@@ -4,8 +4,8 @@
     <title>Upload File</title>
 </head>
 <body>
-    <h2>Upload a File</h2><br>
-	<h4>.jpg, .jpeg, .png, .gif, .pdf only<h4>
+    <h2>Upload a File</h2>
+	.jpg, .jpeg, .png, .gif, .pdf only <br><br>
     <form action="upload.php" method="POST" enctype="multipart/form-data">
         <input type="file" name="uploadedFile" required>
         <br><br>
