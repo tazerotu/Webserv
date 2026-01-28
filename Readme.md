@@ -9,7 +9,7 @@ Instructions :
 
 
 Ressources :
-AI was used mostly for information gathering and debugging (check print functions), as well as repetitive tasks and writing this Readme.md
+AI was used mostly for information gathering and debugging (check print functions), as well as repetitive tasks (Error pages) and writing this Readme.md
 
 - Overall :
 https://www.figma.com/board/uhGOOwWJVKSQrdwLc31jYh/Webserv?node-id=0-1&p=f&t=OYxIPOu6uhDw8zSH-0
