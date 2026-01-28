@@ -9,8 +9,14 @@ Instructions :
 
 
 Ressources :
-AI was used mostly for information gathering and debugging (check print functions) and writing this Readme.md
+AI was used mostly for information gathering and debugging (check print functions), as well as repetitive tasks and writing this Readme.md
 
+- Overall :
 https://www.figma.com/board/uhGOOwWJVKSQrdwLc31jYh/Webserv?node-id=0-1&p=f&t=OYxIPOu6uhDw8zSH-0
+
+- Requette
 https://www.pierre-giraud.com/http-reseau-securite-cours/requete-reponse-session/
 
+- Web
+https://www.w3schools.com/php/php_file_upload.asp
+https://www.php.net/manual/en/features.file-upload.php
