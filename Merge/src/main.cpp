@@ -6,7 +6,7 @@
 /*   By: ttas <ttas@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/11 09:34:18 by yroard            #+#    #+#             */
-/*   Updated: 2026/02/03 13:28:48 by ttas             ###   ########.fr       */
+/*   Updated: 2026/02/03 13:52:46 by ttas             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -517,7 +517,7 @@ int main(int argc, char**argv) {
 	std::cout << "route 4 starting to be  defined" << std::endl;
 	IServerConfigRoutes* route4 = new ServerConfigRoutes(
 	 	ServiceConfigRouteLoc::create(("/upload/")),
-		SCMethodFactory::createMethod("GET POST"),
+		SCMethodFactory::createMethod("POST"),
 		ServiceConfigRedirection::create(noRedirMap),
 		ServiceConfigRootPath::create("/pages/Alps/upload/"),
 		ServiceConfigAutoIndex::create(0),
