@@ -1,0 +1,12 @@
+﻿POST /fileToUpload/test.txt HTTP/1.1
+Content-Type: text/plain
+User-Agent: PostmanRuntime/7.49.1
+Accept: */*
+Postman-Token: a2eae8c8-da7d-426b-b9e5-1ad60c792174
+Host: localhost:9000
+Accept-Encoding: gzip, deflate, br
+Connection: keep-alive
+Content-Length: 12
+
+Hello World
+

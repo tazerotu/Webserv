@@ -1,0 +1,55 @@
+2026/01/20 10:47:54 [error] 9196#9196: *4 open() "/home/yannou/Bureau/Ecole_42/PROJETS/COMMON_CORE/commonCore05/core05-webserv/webserv/pages/Alps/sada" failed (2: No such file or directory), client: 127.0.0.1, server: hello, request: "GET /sada HTTP/1.1", host: "127.0.0.1:9001"
+2026/01/20 16:18:59 [error] 9196#9196: *7 directory index of "/home/yannou/Bureau/Ecole_42/PROJETS/COMMON_CORE/commonCore05/core05-webserv/webserv/./cgi/" is forbidden, client: 127.0.0.1, server: hello, request: "GET /cgi/ HTTP/1.1", host: "127.0.0.1:9001"
+2026/01/20 17:05:19 [error] 9196#9196: *8 connect() failed (111: Connection refused) while connecting to upstream, client: 127.0.0.1, server: hello, request: "GET /cgi/test.php HTTP/1.1", upstream: "fastcgi://127.0.0.1:9002", host: "127.0.0.1:9001"
+2026/01/20 17:34:12 [error] 9196#9196: *10 connect() failed (111: Connection refused) while connecting to upstream, client: 127.0.0.1, server: hello, request: "GET /cgi/test.php HTTP/1.1", upstream: "fastcgi://127.0.0.1:9002", host: "127.0.0.1:9001"
+2026/01/20 17:34:35 [error] 46262#46262: *1 connect() failed (111: Connection refused) while connecting to upstream, client: 127.0.0.1, server: hello, request: "GET /cgi/test.php HTTP/1.1", upstream: "fastcgi://127.0.0.1:9002", host: "127.0.0.1:9001"
+2026/01/20 17:37:51 [error] 46402#46402: *1 connect() failed (111: Connection refused) while connecting to upstream, client: 127.0.0.1, server: hello, request: "GET /cgi/test.php HTTP/1.1", upstream: "fastcgi://127.0.0.1:9002", host: "127.0.0.1:9001"
+2026/01/21 11:23:43 [emerg] 10351#0: open() "/etc/nginx/mime.types" failed (2: No such file or directory) in /home/yroard/Desktop/Core05-webserv/webserv/configs/nginx.conf:20
+2026/01/21 11:26:27 [emerg] 10436#0: unknown directive "//include" in /home/yroard/Desktop/Core05-webserv/webserv/configs/nginx.conf:20
+2026/01/21 11:29:08 [emerg] 10497#0: unknown directive "//include" in /home/yroard/Desktop/Core05-webserv/webserv/configs/nginx.conf:20
+2026/01/21 11:29:30 [emerg] 10518#0: open() "/home/yroard/Desktop/Core05-webserv/webserv/configs/~/nginx-1.24.0/configs/mime.types" failed (2: No such file or directory) in /home/yroard/Desktop/Core05-webserv/webserv/configs/nginx.conf:21
+2026/01/21 11:31:11 [emerg] 10578#0: unknown directive "return" in /home/yroard/Desktop/Core05-webserv/webserv/configs/nginx.conf:58
+2026/01/21 11:35:04 [emerg] 10658#0: unknown directive "return" in /home/yroard/Desktop/Core05-webserv/webserv/configs/nginx.conf:60
+2026/01/21 11:37:10 [emerg] 10702#0: unknown directive "return" in /home/yroard/Desktop/Core05-webserv/webserv/configs/nginx.conf:60
+2026/01/21 11:49:30 [emerg] 16339#0: mkdir() "/home/yroard/Desktop/Core05-webserv/webserv/temp/client_body_temp" failed (2: No such file or directory)
+2026/01/21 13:16:57 [error] 18405#0: *1 access forbidden by rule, client: 127.0.0.1, server: hello, request: "POST / HTTP/1.1", host: "127.0.0.1:8081"
+2026/01/21 13:17:52 [error] 18405#0: *2 access forbidden by rule, client: 127.0.0.1, server: hello, request: "POST / HTTP/1.1", host: "127.0.0.1:8081"
+2026/01/21 13:18:14 [error] 18405#0: *3 client intended to send too large body: 227 bytes, client: 127.0.0.1, server: hello, request: "POST / HTTP/1.1", host: "127.0.0.1:9001"
+2026/01/21 13:20:12 [error] 18524#0: *1 access forbidden by rule, client: 127.0.0.1, server: hello, request: "POST / HTTP/1.1", host: "127.0.0.1:9001"
+2026/01/21 13:20:33 [error] 18524#0: *2 access forbidden by rule, client: 127.0.0.1, server: hello, request: "POST / HTTP/1.1", host: "127.0.0.1:9001"
+2026/01/21 13:22:32 [error] 18524#0: *3 access forbidden by rule, client: 127.0.0.1, server: hello, request: "POST / HTTP/1.1", host: "127.0.0.1:9001"
+2026/01/21 13:31:39 [error] 18524#0: *4 access forbidden by rule, client: 127.0.0.1, server: hello, request: "POST / HTTP/1.1", host: "127.0.0.1:9001"
+2026/01/21 13:32:32 [error] 19038#0: *1 access forbidden by rule, client: 127.0.0.1, server: hello, request: "POST / HTTP/1.1", host: "127.0.0.1:9001"
+2026/01/21 13:34:12 [emerg] 19115#0: bind() to 127.0.0.1:8081 failed (98: Address already in use)
+2026/01/21 13:34:12 [emerg] 19115#0: bind() to 127.0.0.1:9001 failed (98: Address already in use)
+2026/01/21 13:34:12 [emerg] 19115#0: bind() to 127.0.0.1:8081 failed (98: Address already in use)
+2026/01/21 13:34:12 [emerg] 19115#0: bind() to 127.0.0.1:9001 failed (98: Address already in use)
+2026/01/21 13:34:12 [emerg] 19115#0: bind() to 127.0.0.1:8081 failed (98: Address already in use)
+2026/01/21 13:34:12 [emerg] 19115#0: bind() to 127.0.0.1:9001 failed (98: Address already in use)
+2026/01/21 13:34:12 [emerg] 19115#0: bind() to 127.0.0.1:8081 failed (98: Address already in use)
+2026/01/21 13:34:12 [emerg] 19115#0: bind() to 127.0.0.1:9001 failed (98: Address already in use)
+2026/01/21 13:34:12 [emerg] 19115#0: bind() to 127.0.0.1:8081 failed (98: Address already in use)
+2026/01/21 13:34:12 [emerg] 19115#0: bind() to 127.0.0.1:9001 failed (98: Address already in use)
+2026/01/21 13:34:12 [emerg] 19115#0: still could not bind()
+2026/01/21 13:34:30 [error] 19104#0: *1 access forbidden by rule, client: 127.0.0.1, server: hello, request: "POST / HTTP/1.1", host: "127.0.0.1:9001"
+2026/01/21 13:42:24 [error] 19104#0: *4 open() "/home/yroard/Desktop/Core05-webserv/webserv/pages/Alps/uploads/test_file.txt" failed (2: No such file or directory), client: 127.0.0.1, server: hello, request: "GET /uploads/test_file.txt HTTP/1.1", host: "127.0.0.1:9001"
+2026/01/22 10:32:59 [error] 17397#17397: *2 open() "/home/yannou/Bureau/Ecole_42/PROJETS/COMMON_CORE/commonCore05/core05-webserv/webserv/pages/Alps/favicon.ico" failed (2: No such file or directory), client: 127.0.0.1, server: hello, request: "GET /favicon.ico HTTP/1.1", host: "127.0.0.1:8081", referrer: "http://127.0.0.1:8081/"
+2026/01/22 14:41:49 [error] 36256#36256: *1 open() "/home/yannou/Bureau/Ecole_42/PROJETS/COMMON_CORE/commonCore05/core05-webserv/webserv/pages/Alps/uploads/test_file.txt" failed (2: No such file or directory), client: 127.0.0.1, server: hello, request: "GET /uploads/test_file.txt HTTP/1.1", host: "127.0.0.1:9001"
+2026/01/22 14:49:34 [error] 36256#36256: *2 access forbidden by rule, client: 127.0.0.1, server: hello, request: "POST /upload.php HTTP/1.1", host: "127.0.0.1:9001"
+2026/01/23 13:29:15 [error] 39602#39602: *5 access forbidden by rule, client: 127.0.0.1, server: hello, request: "POST /test.txt HTTP/1.1", host: "localhost:9001"
+2026/01/27 14:20:47 [error] 26540#0: *1 access forbidden by rule, client: 127.0.0.1, server: hello, request: "POST /fileToUpload/testImage.jpeg HTTP/1.1", host: "localhost:9001"
+2026/01/27 14:29:23 [error] 26540#0: *4 client intended to send too large body: 111888 bytes, client: 127.0.0.1, server: hello, request: "POST /upload.php HTTP/1.1", host: "127.0.0.1:9001"
+2026/01/27 14:30:49 [error] 26540#0: *5 client intended to send too large body: 111888 bytes, client: 127.0.0.1, server: hello, request: "POST /upload.php HTTP/1.1", host: "127.0.0.1:9001"
+2026/01/27 14:31:24 [crit] 27269#0: *1 open() "/home/yroard/Desktop/Core05-webserv/webserv/temp/client_body_temp/0000000001" failed (20: Not a directory), client: 127.0.0.1, server: hello, request: "POST /upload.php HTTP/1.1", host: "127.0.0.1:9001"
+2026/01/27 14:32:11 [error] 27269#0: *2 access forbidden by rule, client: 127.0.0.1, server: hello, request: "POST /fileToUpload/TestImage.jpeg HTTP/1.1", host: "localhost:9001"
+2026/01/28 19:03:06 [error] 9275#9275: *1 open() "/home/yannou/Bureau/Ecole_42/PROJETS/COMMON_CORE/commonCore05/core05-webserv/webserv/pages/Alps/pages/Alps" failed (2: No such file or directory), client: 127.0.0.1, server: hello, request: "GET /pages/Alps HTTP/1.1", host: "localhost:8081", referrer: "http://localhost:8081/old-page"
+2026/01/28 19:04:23 [error] 9327#9327: *1 open() "/home/yannou/Bureau/Ecole_42/PROJETS/COMMON_CORE/commonCore05/core05-webserv/webserv/pages/Alps/pages/Alps/index.html" failed (2: No such file or directory), client: 127.0.0.1, server: hello, request: "GET /pages/Alps/index.html HTTP/1.1", host: "localhost:8081", referrer: "http://localhost:8081/old-page"
+2026/01/29 09:38:49 [error] 26033#26033: *2 access forbidden by rule, client: 127.0.0.1, server: hello, request: "DELETE / HTTP/1.1", host: "localhost:8081"
+2026/01/29 10:20:25 [error] 27422#27422: *1 access forbidden by rule, client: 127.0.0.1, server: hello, request: "DELETE / HTTP/1.1", host: "localhost:8081"
+2026/01/29 11:57:22 [error] 27422#27422: *2 access forbidden by rule, client: 127.0.0.1, server: hello, request: "DELETE /1.jpg HTTP/1.1", host: "localhost:8081"
+2026/01/29 17:36:13 [error] 32230#32230: *4 open() "/home/yannou/Bureau/Ecole_42/PROJETS/COMMON_CORE/commonCore05/core05-webserv/webserv/pages/Alps/1.jpg" failed (2: No such file or directory), client: 127.0.0.1, server: hello, request: "POST /1.jpg HTTP/1.1", host: "localhost:8081"
+2026/01/29 17:38:53 [error] 46018#46018: *1 open() "/home/yannou/Bureau/Ecole_42/PROJETS/COMMON_CORE/commonCore05/core05-webserv/webserv/pages/Alps/1.jpg" failed (2: No such file or directory), client: 127.0.0.1, server: hello, request: "POST /1.jpg HTTP/1.1", host: "localhost:8081"
+2026/01/29 17:40:20 [error] 46140#46140: *1 open() "/home/yannou/Bureau/Ecole_42/PROJETS/COMMON_CORE/commonCore05/core05-webserv/webserv/pages/Alps/1.jpg" failed (2: No such file or directory), client: 127.0.0.1, server: hello, request: "POST /1.jpg HTTP/1.1", host: "localhost:8081"
+2026/01/29 17:46:48 [error] 46393#46393: *1 open() "/home/yannou/Bureau/Ecole_42/PROJETS/COMMON_CORE/commonCore05/core05-webserv/webserv/pages/Alps/1.jpg" failed (2: No such file or directory), client: 127.0.0.1, server: hello, request: "GET /1.jpg HTTP/1.1", host: "localhost:8081"
+2026/01/29 17:46:55 [error] 46393#46393: *1 open() "/home/yannou/Bureau/Ecole_42/PROJETS/COMMON_CORE/commonCore05/core05-webserv/webserv/pages/Alps/1.jpg" failed (2: No such file or directory), client: 127.0.0.1, server: hello, request: "POST /1.jpg HTTP/1.1", host: "localhost:8081"
+2026/01/29 18:48:28 [error] 47855#47855: *2 access forbidden by rule, client: 127.0.0.1, server: hello, request: "POST /fileToUpload/test.txt HTTP/1.1", host: "localhost:9001"
