@@ -1,6 +1,14 @@
-//
-// Created by yannou on 30/01/2026.
-//
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   RequestHandler.hpp                                 :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: ttas <ttas@student.42.fr>                  +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2026/02/03 13:13:55 by yroard            #+#    #+#             */
+/*   Updated: 2026/02/04 09:31:14 by ttas             ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
 
 #ifndef WEBSERV_REQUESTHANDLER_HPP
 #define WEBSERV_REQUESTHANDLER_HPP
@@ -18,12 +26,13 @@
 #include "http/HttpError.hpp"
 #include "http/RedirectResponse.hpp"
 #include "http/StaticFileResponse.hpp"
+#include "http/PathResolver.hpp"
 
 namespace webserv {
     class RequestHandler {
-
     private:
-
+        RequestHandler(){}
+        
         static bool isRedirect(const std::map<int, std::string>& redirMap) {
             if (!redirMap.empty())
                 return true;
@@ -50,23 +59,36 @@ namespace webserv {
             const std::string& uri = req.getPath();
             const serverConfig::routes::IServerConfigRoutes* targetRoute =
                 Router::selectRoute(conf, uri);
-            std::cout << "***Router::selectRoute(*config, uri): "
-                << targetRoute->getRouteLoc().getValue() << std::endl;
-            const std::string path = buildPath(req, targetRoute);
+            // SAFETY CHECK: Handle null route
+            if (!targetRoute) {
+                // Return 404 immediately if no route matches
+                return http::ErrorPageGenerator::generate(404,
+                    conf.getErrorPages().getValue());
+            }    
+            //std::cout << "***Router::selectRoute(*config, uri): "
+            //    << targetRoute->getRouteLoc().getValue() << std::endl;
+             std::string path;
+            try {
+                path = http::PathResolver::buildPath(req,
+                    targetRoute);
+            }
+			// CATCH: Something went wrong, generate the error response here 
+            catch (const http::HttpError& e) { 
+                return http::ErrorPageGenerator::generate(e.getCode(),
+                    conf.getErrorPages().getValue());
+            }    
             int code = RequestValidator::validate(path, req, conf,
-                                                   targetRoute);
+                targetRoute);
             if (code != 200)
                 return http::ErrorPageGenerator::generate(code,
-                 conf.getErrorPages().getValue());
-            http::Response res;
+                	conf.getErrorPages().getValue());
             const std::map<int, std::string> &redirMap
-                                    = targetRoute->getRedirection().getValue();
+                = targetRoute->getRedirection().getValue();
             if (isRedirect(redirMap))
                 return http::RedirectResponse::processRedirectResponse(
                     redirMap, req, path);
             if (isCGI(targetRoute))
-                    return http::CgiHandler::processCGI(req, conf, targetRoute,
-                        path);
+                    return http::CgiHandler::processCGI(req, targetRoute, path);
             if (isFileToUpload(targetRoute))
                 return http::FileToUpload::processFileToUpload(req, path,
                     conf.getErrorPages(),
@@ -75,28 +97,6 @@ namespace webserv {
             return http::StaticFileResponse::processStaticFile(path, conf.getErrorPages(),
                 req.getHeaderInfo("Server"),
                 req.getMethod(), req.getHeaderInfo("Connection"));;
-        }
-
-        static 	std::string buildPath(const http::ParsingRequest& req,
-                    const serverConfig::routes::IServerConfigRoutes* targetRoute){
-            //replace route location by root path
-            std::cout << "***req.getPath()= " << req.getPath() << std::endl;
-            std::cout << "***targetRoute.getRouteLoc().getValue()= "
-                        << targetRoute->getRouteLoc().getValue() << std::endl;
-            size_t pos =
-                req.getPath().find_first_of(
-                    targetRoute->getRouteLoc().getValue(), 0);
-            if (pos ==  std::string::npos) {
-                std::cerr << "No route location found!" << std::endl;
-                pos = 0;
-            }
-            std::cout << "***pos= " << pos << std::endl;
-            std::string uri = req.getPath().substr(pos
-                + targetRoute->getRouteLoc().getValue().size());
-            std::string path = "." + targetRoute->getRootPath().getValue()
-                + uri;
-            std::cout << "***file opening1:" << path << std::endl;
-            return path;
         }
     };
 }

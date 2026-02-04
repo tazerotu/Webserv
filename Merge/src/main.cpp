@@ -6,7 +6,7 @@
 /*   By: ttas <ttas@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/11 09:34:18 by yroard            #+#    #+#             */
-/*   Updated: 2026/02/03 13:52:46 by ttas             ###   ########.fr       */
+/*   Updated: 2026/02/04 09:11:43 by ttas             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -367,10 +367,10 @@ std::vector<ServerConfig *> init_server_config(std::vector<ServerConfig*> Server
     {
 		for (size_t i = 0; i < Configs.size(); ++i) 
 		{
-			// std::cout << "========================\n";
-			// std::cout << "Server Configuration " << i + 1 << ":\n";
-			// printParsing(Configs[i]);
-			// std::cout << "========================\n\n";
+			std::cout << "========================\n";
+			std::cout << "Server Configuration " << i + 1 << ":\n";
+			printParsing(Configs[i]);
+			std::cout << "========================\n\n";
 		
 			TabRoute routesVec; // ✅ NEW vector for THIS server only
 
@@ -430,7 +430,7 @@ std::vector<ServerConfig *> init_server_config(std::vector<ServerConfig*> Server
 				routesVec
 			));
     	}
-		// printServers(Server);
+		printServers(Server);
 	}
 	
 	return (Server);
@@ -440,117 +440,117 @@ std::vector<ServerConfig *> init_server_config(std::vector<ServerConfig*> Server
 
 int main(int argc, char**argv) {
 	
-	// if(argc != 2)
-	// {
-	// 	std::cout << "Wrong amount of arguments!" << std::endl << "correct syntax : ./webserv [path/to/file.conf]" << std::endl;
-	// 	return(0);	
-	// }
+	if(argc != 2)
+	{
+		std::cout << "Wrong amount of arguments!" << std::endl << "correct syntax : ./webserv [path/to/file.conf]" << std::endl;
+		return(0);	
+	}
 
 	
-	// std::vector<ServerConfig *> tabServerConf;
-	// tabServerConf = init_server_config(tabServerConf, argv[1]);
+	std::vector<ServerConfig *> tabServerConf;
+	tabServerConf = init_server_config(tabServerConf, argv[1]);
 
-	webserv::test::testIPAddress();
-	webserv::test::testPort();
-	webserv::test::testMaxBodySize();
-	std::map<int, std::string> noRedirMap;
-	std::map<int, std::string> redirMap;
-	std::string absPath = "./";
-	//"/home/yannou/Bureau/Ecole_42/PROJETS/COMMON_CORE/commonCore05/core05-webserv/webserv";
-	redirMap[301] = "http://dermofluide.com"; // Example
-	std::map<int, std::string> errorPagesMap;
-	errorPagesMap[400] = "./pages/Alps/error/400.html";
-	errorPagesMap[401] = "./pages/Alps/error/401.html";
-	errorPagesMap[403] = "./pages/Alps/error/403.html";
-	errorPagesMap[404] = "./pages/Alps/error/404.html";
-	errorPagesMap[500] = "./pages/Alps/error/500.html";
-	errorPagesMap[502] = "./pages/Alps/error/502.html";
-	errorPagesMap[503] = "./pages/Alps/error/503.html";
-	errorPagesMap[504] = "./pages/Alps/error/504.html";
-	//Check for redirection
-	std::cout << "route 1 starting to be  defined" << std::endl;
-	IServerConfigRoutes* route1 = new ServerConfigRoutes(
-			ServiceConfigRouteLoc::create("/old-page"),
-			SCMethodFactory::createMethod("GET POST DELETE"),
-			ServiceConfigRedirection::create(redirMap),
-			ServiceConfigRootPath::create("/"),
-			ServiceConfigAutoIndex::create(0),
-			ServiceConfigDefaultFile::create(""),
-			ServiceConfigStoreStatus::create("0"),
-			ServiceConfigCGI::create("", ""));
-	std::cout << "route 1 defined" << std::endl;	
-	TabRoute routesVec1;
-	routesVec1.push_back(route1);
+	// webserv::test::testIPAddress();
+	// webserv::test::testPort();
+	// webserv::test::testMaxBodySize();
+	// std::map<int, std::string> noRedirMap;
+	// std::map<int, std::string> redirMap;
+	// std::string absPath = "./";
+	// //"/home/yannou/Bureau/Ecole_42/PROJETS/COMMON_CORE/commonCore05/core05-webserv/webserv";
+	// redirMap[301] = "http://dermofluide.com"; // Example
+	// std::map<int, std::string> errorPagesMap;
+	// errorPagesMap[400] = "./pages/Alps/error/400.html";
+	// errorPagesMap[401] = "./pages/Alps/error/401.html";
+	// errorPagesMap[403] = "./pages/Alps/error/403.html";
+	// errorPagesMap[404] = "./pages/Alps/error/404.html";
+	// errorPagesMap[500] = "./pages/Alps/error/500.html";
+	// errorPagesMap[502] = "./pages/Alps/error/502.html";
+	// errorPagesMap[503] = "./pages/Alps/error/503.html";
+	// errorPagesMap[504] = "./pages/Alps/error/504.html";
+	// //Check for redirection
+	// std::cout << "route 1 starting to be  defined" << std::endl;
+	// IServerConfigRoutes* route1 = new ServerConfigRoutes(
+	// 		ServiceConfigRouteLoc::create("/old-page"),
+	// 		SCMethodFactory::createMethod("GET POST DELETE"),
+	// 		ServiceConfigRedirection::create(redirMap),
+	// 		ServiceConfigRootPath::create("/"),
+	// 		ServiceConfigAutoIndex::create(0),
+	// 		ServiceConfigDefaultFile::create(""),
+	// 		ServiceConfigStoreStatus::create("0"),
+	// 		ServiceConfigCGI::create("", ""));
+	// std::cout << "route 1 defined" << std::endl;	
+	// TabRoute routesVec1;
+	// routesVec1.push_back(route1);
 
 
-	std::cout << "route 2 starting to be  defined" << std::endl;
-	//Test with http://localhost:9000/index.html
-	IServerConfigRoutes* route2 = new ServerConfigRoutes(
-	ServiceConfigRouteLoc::create(("/")),
-	SCMethodFactory::createMethod("GET"),
-	ServiceConfigRedirection::create(noRedirMap),
-	ServiceConfigRootPath::create("/pages/Alps/"),
-	ServiceConfigAutoIndex::create(0),
-	ServiceConfigDefaultFile::create("index.html"),
-	ServiceConfigStoreStatus::create("0"),
-	ServiceConfigCGI::create("", ""));
-	routesVec1.push_back(route2);
-	ServerConfig* serverConf1 = new ServerConfig(
-		ServiceConfigWebsiteName::create("Hello"),
-		ServiceConfigIPAddress::create("127.0.0.1"),
-		ServiceConfigPort::create(8080),
-		ServiceConfigErrorPages::create(errorPagesMap),
-		ServiceConfigMaxBodySize::create(2147483647),
-		routesVec1);
-	std::vector <ServerConfig*> tabServerConf;
-	tabServerConf.push_back(serverConf1);
-	std::cout << "route 3 starting to be  defined" << std::endl;
-	IServerConfigRoutes* route3 = new ServerConfigRoutes(
-	 	ServiceConfigRouteLoc::create(("/fileToUpload/")),
-		SCMethodFactory::createMethod("POST"),
-		ServiceConfigRedirection::create(noRedirMap),
-		ServiceConfigRootPath::create("/pages/Alps/uploads/"),
-		ServiceConfigAutoIndex::create(0),
-		ServiceConfigDefaultFile::create(""),
-		ServiceConfigStoreStatus::create("1"),
-		ServiceConfigCGI::create("", ""));
-	std::cout << "route 4 starting to be  defined" << std::endl;
-	IServerConfigRoutes* route4 = new ServerConfigRoutes(
-	 	ServiceConfigRouteLoc::create(("/upload/")),
-		SCMethodFactory::createMethod("POST"),
-		ServiceConfigRedirection::create(noRedirMap),
-		ServiceConfigRootPath::create("/pages/Alps/upload/"),
-		ServiceConfigAutoIndex::create(0),
-		ServiceConfigDefaultFile::create(""),
-		ServiceConfigStoreStatus::create("0"),
-		ServiceConfigCGI::create("/usr/bin/php-cgi", ".php"));
-	//http://localhost:9000/cgi/test.php
-	std::cout << "route 5 starting to be  defined" << std::endl;
-	IServerConfigRoutes* route5 = new ServerConfigRoutes(
-	ServiceConfigRouteLoc::create(("/cgi/")),
-	SCMethodFactory::createMethod("GET POST"),
-	ServiceConfigRedirection::create(noRedirMap),
-	ServiceConfigRootPath::create("/cgi/"),
-	ServiceConfigAutoIndex::create(0),
-	ServiceConfigDefaultFile::create(""),
-	ServiceConfigStoreStatus::create("1"),
-	ServiceConfigCGI::create("/usr/bin/php-cgi", ".php"));
-	TabRoute routesVec2;
-	routesVec2.push_back(route2);
-	routesVec2.push_back(route3);
-	routesVec2.push_back(route4);
-	routesVec2.push_back(route5);
-	ServerConfig* serverConf2 = new ServerConfig(
-		ServiceConfigWebsiteName::create("Hello"),
-		ServiceConfigIPAddress::create("127.0.0.1"),
-		ServiceConfigPort::create(9000),
-		ServiceConfigErrorPages::create(errorPagesMap),
-		ServiceConfigMaxBodySize::create(2147483647),
-		routesVec2);
-	tabServerConf.push_back(serverConf2);
-	// virtual const Routes::ServiceConfigRootPath &rootPath() = 0;
-	// virtual const Routes::ServiceConfigErrorPages &errorPages() = 0;
-	// virtual Routes::ServiceConfigAutoIndex autoIndex() = 0;
+	// std::cout << "route 2 starting to be  defined" << std::endl;
+	// //Test with http://localhost:9000/index.html
+	// IServerConfigRoutes* route2 = new ServerConfigRoutes(
+	// ServiceConfigRouteLoc::create(("/")),
+	// SCMethodFactory::createMethod("GET"),
+	// ServiceConfigRedirection::create(noRedirMap),
+	// ServiceConfigRootPath::create("/pages/Alps/"),
+	// ServiceConfigAutoIndex::create(0),
+	// ServiceConfigDefaultFile::create("index.html"),
+	// ServiceConfigStoreStatus::create("0"),
+	// ServiceConfigCGI::create("", ""));
+	// routesVec1.push_back(route2);
+	// ServerConfig* serverConf1 = new ServerConfig(
+	// 	ServiceConfigWebsiteName::create("Hello"),
+	// 	ServiceConfigIPAddress::create("127.0.0.1"),
+	// 	ServiceConfigPort::create(8080),
+	// 	ServiceConfigErrorPages::create(errorPagesMap),
+	// 	ServiceConfigMaxBodySize::create(2147483647),
+	// 	routesVec1);
+	// std::vector <ServerConfig*> tabServerConf;
+	// tabServerConf.push_back(serverConf1);
+	// std::cout << "route 3 starting to be  defined" << std::endl;
+	// IServerConfigRoutes* route3 = new ServerConfigRoutes(
+	//  	ServiceConfigRouteLoc::create(("/fileToUpload/")),
+	// 	SCMethodFactory::createMethod("POST"),
+	// 	ServiceConfigRedirection::create(noRedirMap),
+	// 	ServiceConfigRootPath::create("/pages/Alps/uploads/"),
+	// 	ServiceConfigAutoIndex::create(0),
+	// 	ServiceConfigDefaultFile::create(""),
+	// 	ServiceConfigStoreStatus::create("1"),
+	// 	ServiceConfigCGI::create("", ""));
+	// std::cout << "route 4 starting to be  defined" << std::endl;
+	// IServerConfigRoutes* route4 = new ServerConfigRoutes(
+	//  	ServiceConfigRouteLoc::create(("/upload/")),
+	// 	SCMethodFactory::createMethod("POST"),
+	// 	ServiceConfigRedirection::create(noRedirMap),
+	// 	ServiceConfigRootPath::create("/pages/Alps/upload/"),
+	// 	ServiceConfigAutoIndex::create(0),
+	// 	ServiceConfigDefaultFile::create(""),
+	// 	ServiceConfigStoreStatus::create("0"),
+	// 	ServiceConfigCGI::create("/usr/bin/php-cgi", ".php"));
+	// //http://localhost:9000/cgi/test.php
+	// std::cout << "route 5 starting to be  defined" << std::endl;
+	// IServerConfigRoutes* route5 = new ServerConfigRoutes(
+	// ServiceConfigRouteLoc::create(("/cgi/")),
+	// SCMethodFactory::createMethod("GET POST"),
+	// ServiceConfigRedirection::create(noRedirMap),
+	// ServiceConfigRootPath::create("/cgi/"),
+	// ServiceConfigAutoIndex::create(0),
+	// ServiceConfigDefaultFile::create(""),
+	// ServiceConfigStoreStatus::create("1"),
+	// ServiceConfigCGI::create("/usr/bin/php-cgi", ".php"));
+	// TabRoute routesVec2;
+	// routesVec2.push_back(route2);
+	// routesVec2.push_back(route3);
+	// routesVec2.push_back(route4);
+	// routesVec2.push_back(route5);
+	// ServerConfig* serverConf2 = new ServerConfig(
+	// 	ServiceConfigWebsiteName::create("Hello"),
+	// 	ServiceConfigIPAddress::create("127.0.0.1"),
+	// 	ServiceConfigPort::create(9000),
+	// 	ServiceConfigErrorPages::create(errorPagesMap),
+	// 	ServiceConfigMaxBodySize::create(2147483647),
+	// 	routesVec2);
+	// tabServerConf.push_back(serverConf2);
+	// // virtual const Routes::ServiceConfigRootPath &rootPath() = 0;
+	// // virtual const Routes::ServiceConfigErrorPages &errorPages() = 0;
+	// // virtual Routes::ServiceConfigAutoIndex autoIndex() = 0;
 	if (!arePortsDifferent(tabServerConf)) {
 		std::cout << "virtual hosting is not handled into this webserv";
 		std::cout << ": ports must be different";

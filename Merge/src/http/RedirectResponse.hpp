@@ -15,8 +15,7 @@ namespace webserv {
         class RedirectResponse {
         public:
             static std::string buildRedirectResponse(
-            const int code, const std::string &url,
-            const std::string &connection) {
+            const int code) {
                 std::stringstream  body;
                 body << "<html>\r\n"
                 << "<head><title>" << code
@@ -35,21 +34,17 @@ namespace webserv {
                     const http::ParsingRequest& req,
                     const std::string& path) {
                 // Get the first pair (Status, URL)
-                //TO DO: check the adequate pair!
+                //TODO: check the adequate pair!
                 std::map<int, std::string>::const_iterator it
                                                     = redirMap.begin();
                 const int code = it->first;       // e.g., 301
                 const std::string url = it->second; // e.g., "/new-page"
-                const std::string body = buildRedirectResponse(code,
-                    url,req.getHeaderInfo("Connection"));
-                std::ostringstream bodyStream;
-                bodyStream << body.size();
+                const std::string body = buildRedirectResponse(code);
                 Response res;
                 res.setStatusCode(code);
                 res.addHeader("Location", url);
                 res.addHeader("Content-Type", MimeTypes::getType(path));
                 res.addHeader("Connection", req.getHeaderInfo("Connection"));
-                res.addHeader("Content-Length", bodyStream.str());
                 res.setBody(body);
                 return res;
             }

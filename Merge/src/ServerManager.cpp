@@ -89,85 +89,15 @@ namespace webserv {
 				std::cerr << "Select error: " << strerror(errno) << std::endl;
 				return;
 			}
-			// 3. CHECK FDs
-			std::cout << "***CHECK FDs" << std::endl;
 			// Loop from 0 to max_fd to find which one is ready
-			for (int index = 0; index <= m_maxFd; ++index) {
-				if (!FD_ISSET(index, &m_readSet)) continue;	
-				if (m_listenerMap.count(index)) {
+			for (int fd = 0; fd <= m_maxFd; ++fd) {
+				if (!FD_ISSET(fd, &m_readSet)) continue;	
+				if (m_listenerMap.count(fd)) {
 					// CASE A: It's a Listener (New Connection)
-					addClient(index);
+					addClient(fd);
 				}
 				else {
-					// CASE B: It's a Client Socket (Existing Connection)
-					std::cout << "***CASE B: It's a Client Socket!" << std::endl;
-					// if (m_listenerSockets.find(index) == m_listenerSockets.end()) {
-					// 	std::cerr << "Error2: Listener FD " << index << " not found in socket map." <<
-					// 		std::endl;
-					// 	continue;
-					// }
-					Client* client = m_clients[index];
-					// 1. Receive Data (Client accumulates it internally)
-					// You might want receiveData to return status
-					//(0=closed, -1=err, 1=ok)
-					int bytes = client->receiveData();
-					//std::cout << "bytes (client->receiveData()): " << bytes << std::endl;
-					if (bytes <= 0) {
-						removeClient(index);
-						continue;
-					}
-					// 2. Check if we have a full request
-					if (client->hasRequest()) {
-						webserv::http::ParsingRequest& req = 
-							client->getRequest();
-						const webserv::serverConfig::ServerConfig* config = 
-							client->getConfig();
-						// 3. Prepare Response Builder
-						// http::Response response; // Empty init
-						// 4. Routing Logic
-						http::Response response =
-							RequestHandler::handleRequest(req, *config);
-						// 5. Send Response
-						std::string finalMsg = response.httpString();
-						client->sendResponse(finalMsg); // Using client's
-														// send method
-						std::cout << "***Response sent: [" << finalMsg << "]" << std::endl;
-						// 6. Closing or not closing?
-						// Check if the Request had "Connection: close"
-						// OR if the Response is set to close.
-						// HTTP/1.1 defaults to keep-alive.
-						bool shouldClose = false;
-						// Simple check: If client asked to close, we close.
-						// (You should also check if your Response enforced
-						// a close, e.g., on critical errors)
-						std::string connectionHeader
-							= req.getHeaderInfo("Connection");
-						if (connectionHeader == "close") {
-							shouldClose = true;
-						}
-						size_t pos = 0;
-						pos = finalMsg.find_first_of("Connection: ", pos);
-						size_t posEndHeader =  0;
-						posEndHeader = finalMsg.find_first_of("\r\n\r\n", posEndHeader);
-						size_t posClose = 0;
-						if (pos != std::string::npos && pos < posEndHeader) {
-							posClose = finalMsg.find_first_of("close", posClose);
-							if (posClose == pos + 12)
-								shouldClose = true;
-						}
-						if (shouldClose) {
-							std::cout << "Connection: close requested. Closing FD " << index << std::endl;
-							removeClient(index);
-						} else {
-							// KEEP ALIVE:
-							std::cout << "Keep-Alive: Waiting for next request on FD " << index << std::endl;
-							// IMPORTANT: Reset the client so it can read the next request
-							resetClient(index);
-							// Do NOT call removeClient(index) here.
-							// The FD remains in m_readSet via m_masterSet, so select() will pick it up
-							// when the client sends the next request.
-						}
-					}
+					handleClientActivity(fd);
 				}
 			}
 		}
@@ -228,5 +158,44 @@ namespace webserv {
 			return;
 		std::cout << "***Reset Client FD " << fd << std::endl;
 		m_clients[fd]->reset();
+	}
+
+	void ServerManager::handleClientActivity(int fd){
+		std::cout << "***CASE B: It's a Client Socket!(Existing Connection)" << std::endl;
+		Client* client = m_clients[fd];
+		// 1. Receive Data (Client accumulates it internally)
+		int bytes = client->receiveData();
+		//std::cout << "bytes (client->receiveData()): " << bytes << std::endl;
+		if (bytes <= 0) {
+			removeClient(fd);
+			return;
+		}
+		// 2. Check if we have a full request
+		if (client->hasRequest()) {
+			webserv::http::ParsingRequest& req = client->getRequest();
+			const webserv::serverConfig::ServerConfig* config = 
+				client->getConfig();
+			// 3. Routing Logic
+			http::Response response =
+				RequestHandler::handleRequest(req, *config);
+			// 4. Send Response
+			std::string finalMsg = response.httpString();
+			client->sendResponse(finalMsg); // Using client's
+											// send method
+			std::cout << "***Response sent: [" << finalMsg << "]" << std::endl;
+			// 5. Closing or not closing?
+			if (response.isConnectionToBeClosed()){
+				std::cout << "Connection: close requested. Closing FD " << fd << std::endl;
+				removeClient(fd);
+			}
+			else {
+				// KEEP ALIVE:
+				std::cout << "Keep-Alive: Waiting for next request on FD " << fd << std::endl;
+				// IMPORTANT: Reset the client so it can read the next request
+				resetClient(fd);
+				// The FD remains in m_readSet via m_masterSet, so select() will pick it up
+				// when the client sends the next request.
+			}
+		}
 	}
 }

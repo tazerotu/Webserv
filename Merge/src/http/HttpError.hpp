@@ -26,7 +26,11 @@ namespace webserv {
             pipe_error,
             fork_error,
             execve_error,
-            invalid_file
+            invalid_file,
+            cgi_exec_failure,
+            invalid_cgi_extension,
+            cgi_script_invalid,
+            cgi_interpreter_invalid
         }tExceptError;
 
         class HttpError : public std::exception {
@@ -59,16 +63,28 @@ namespace webserv {
                         full_msg = "header request is not handled properly";
                         break;
                     case pipe_error:
-                        full_msg = "pipe error";
+                        full_msg = "pipe failed";
                         break;
                     case fork_error:
-                        full_msg = "fork error";
+                        full_msg = "fork failed";
                         break;
                     case execve_error:
                         full_msg = "execve error";
                         break;
                     case invalid_file:
                         full_msg = "error in opening file";
+                        break;
+                    case cgi_exec_failure:
+                        full_msg = "CGI Script execution failed";
+                        break;
+                    case invalid_cgi_extension:
+                        full_msg = "File extension does not match CGI";
+                        break;
+                    case cgi_script_invalid:
+                        full_msg = "CGI script not found or not readable";
+                        break;
+                    case cgi_interpreter_invalid:
+                        full_msg = "CGI Interpreter not found";
                         break;
                     default:
                         full_msg = "http error";
@@ -80,7 +96,7 @@ namespace webserv {
                 return m_code;
             }
 
-            virtual const char* what() throw() {
+            virtual const char* what() const throw() {
                 return m_logMessage.empty() ? "HTTP Error" : m_logMessage.c_str();
             }
 
@@ -115,88 +131,6 @@ namespace webserv {
                     return false;
                 return true;
             }
-
-            // static Response sendError(const int statusCode,
-            //         const std::map<int, std::string>& errorPages,
-            //         const std::string& connection) {
-            //     Response res;
-            //     int status = statusCode;
-            //     int fd = -1;
-            //     res.setStatusCode(status);
-            //     res.addHeader("Content-Type", "text/plain");
-            //     res.addHeader("Connection", connection);
-            //     std::stringstream buffer;
-            //     if (!isErrorPageMissing(&status, errorPages, &fd)
-            //             && isReadBufferOk(fd, &buffer)) {
-            //         std::ostringstream bodyStream;
-            //         bodyStream << buffer.str().size();
-            //         res.addHeader("Content-Length", "bodyStream.str()");
-            //         res.setBody("bodyStream.str()");
-            //         close(fd);
-            //         return res;
-            //     }
-            //     res.addHeader("Content-Length", "0");
-            //     res.setBody("");
-            //     if (!isReadBufferOk(fd, &buffer))
-            //         res.setStatusCode(500);
-            //     close(fd);
-            //     return res;
-            // }
-
-            // static Response sendAdequateError(const int errorCode,
-            //         const serverConfig::ServiceConfigErrorPages& errorPages,
-            //         const std::string& connection) {
-            //     int code = 0;
-            //     switch (errorCode) {
-            //         case ENOENT: // File not found
-            //             // NGINX behavior: 404 Not Found
-            //             code = 404;
-            //             break;
-            //         case EACCES: // Permission denied
-            //         case EPERM:  // Operation not permitted
-            //         case EISDIR: // It is a directory
-            //             // NGINX behavior: 403 Forbidden
-            //             code = 403;
-            //             break;
-            //         default:
-            //             // Something weird happened (Disk full, IO error)
-            //             std::cerr << "Delete failed: " << strerror(errno) << std::endl;
-            //             code = 500;
-            //     }
-            //     return sendError(code, errorPages.getValue(), connection);
-            // }
-
-            // static std::string sendMsgError(const int statusCode,
-            //         const std::map<int, std::string>& errorPages,
-            //         const std::string& connection) {
-            //     int status = statusCode;
-            //     int fd = -1;
-            //     std::stringstream  response;
-            //     std::stringstream buffer;
-            //     if (isErrorPageMissing(&status, errorPages, &fd)) {
-            //         response << "HTTP/1.1 " << status << " "
-            //        << http::HttpStatus::getReasonPhrase(status) << "\r\n"
-            //        << "Content-Type: text/plain\r\n"
-            //        << "Connection: " << connection << "\r\n"
-            //         << "Content-Length: 0\r\n\r\n";
-            //        return response.str();
-            //     }
-            //     if (isReadBufferOk(fd, &buffer)) {
-            //         response << "HTTP/1.1 " << status << " "
-            //         << http::HttpStatus::getReasonPhrase(status) << "\r\n"
-            //         << "Content-Type: text/plain\r\n"
-            //         << "Connection: " << connection << "\r\n"
-            //         << "Content-Length: " << buffer.str().size()
-            //         << "\r\n\r\n" << buffer.str();
-            //         return response.str();
-            //     }
-            //     response << "HTTP/1.1 " << 500 << " "
-            //        << http::HttpStatus::getReasonPhrase(status) << "\r\n"
-            //        << "Content-Type: text/plain\r\n"
-            //        << "Connection: " << connection << "\r\n"
-            //         << "Content-Length: 0\r\n\r\n";
-            //     return response.str();
-            // }
         };
     }
 }

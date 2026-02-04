@@ -42,9 +42,12 @@ namespace webserv {
                             ErrorPageGenerator::mapErrnoToCode(errorCode),
                             errorPages.getValue());
                     }
-                    if (buf.st_mode == S_IFDIR)
+                    if (buf.st_mode == S_IFDIR){
+                        std::cout << "buf.st_mode == S_IFDIR" << std::endl;
                         return ErrorPageGenerator::generate(403,
                             errorPages.getValue());
+                    }
+
                     if (std::remove(path.c_str()) != 0) {
                         const int errorCode = errno;
                         return ErrorPageGenerator::generate(
@@ -63,9 +66,6 @@ namespace webserv {
                 res.addHeader("Content-Type",
                     MimeTypes::getType(path));
                 res.addHeader("Connection", connection);
-                std::stringstream ss;
-                ss << body.size();
-                res.addHeader("Content-Length", ss.str());
                 res.setBody(body);
                 return res;
             }

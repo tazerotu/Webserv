@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ServerManager.hpp                                  :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: yroard <yroard@student.42.fr>              +#+  +:+       +#+        */
+/*   By: ttas <ttas@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/13 14:02:20 by yroard            #+#    #+#             */
-/*   Updated: 2026/01/15 12:25:41 by yroard           ###   ########.fr       */
+/*   Updated: 2026/02/04 09:31:28 by ttas             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -58,8 +58,8 @@ namespace webserv {
         void removeClient(int fd);
         void addClient(int listenerFd);
 		void resetClient(int fd);
-		static std::string buildPath(http::ParsingRequest& req,
-			const serverConfig::routes::IServerConfigRoutes* targetRoute);
+		void handleClientActivity(int fd);
+		
 	};
 }
 #endif

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ParsingRequest.hpp                                 :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: yroard <yroard@student.42.fr>              +#+  +:+       +#+        */
+/*   By: ttas <ttas@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/11 09:29:01 by yroard            #+#    #+#             */
-/*   Updated: 2026/01/28 14:45:50 by yroard           ###   ########.fr       */
+/*   Updated: 2026/02/04 09:33:02 by ttas             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,8 +39,6 @@ namespace webserv {
 				const std::string& s, tExceptError error);
 			static std::string parseForQueryLineRequest(std::string *fullUri);
 			static std::string trimHeader(const std::string& str);
-			static std::map<std::string, std::string> parseForHeaderLineRequest(
-				std::string &rawHeader);
 			static std::string findEndHeader(Buffer rawData, unsigned* index);
 			static Buffer fillBody(Buffer rawData, unsigned index);
 
@@ -58,7 +56,8 @@ namespace webserv {
 			const std::string& getHttpVersion() const;
 			const std::string getHeaderInfo(const std::string& ToFind)const;
 			const Buffer& getBody() const;
-
+			static std::map<std::string, std::string> parseForHeaderLineRequest(
+							std::string &rawHeader);
 			static ParsingRequest parseRequest(Buffer &rawData);
 			void printReqBody()const;
 			void printRequest();
