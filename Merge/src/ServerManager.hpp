@@ -6,7 +6,7 @@
 /*   By: ttas <ttas@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/13 14:02:20 by yroard            #+#    #+#             */
-/*   Updated: 2026/02/11 13:14:49 by ttas             ###   ########.fr       */
+/*   Updated: 2026/02/11 14:00:45 by ttas             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -144,6 +144,19 @@ namespace webserv {
 				}
 				// 3. Delegate cleanup
 				m_connectionManager->checkTimeouts(m_multiplexer);
+
+				// Verify how long since last activity, if > 30s -> cut connection
+
+				/*
+					timeout test (diminuer le temps): 
+					- printf "" | nc localhost 8080 
+					- printf "GET / HTTP/1.1\r\nHost: localhost:8080\r\n\r\n" | nc localhost 8080 
+					- boucle infini en CGI /// division par 0
+
+					Code dans les fichiers .cpp au lieu des .hpp
+
+					Test de montee de charge avec `siege` avec le maximum de client (255) (succes de 99.7% minimum)
+				*/
 			}
 		}
 	};
