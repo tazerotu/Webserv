@@ -21,14 +21,14 @@ namespace webserv {
         // Define HTTP status codes as an enum
         class HttpStatus {
         private:
-            tStatusCode m_status;
+            StatusCode m_status;
         public:
             // Constructor
-            explicit HttpStatus(tStatusCode status) : m_status(status) {
+            explicit HttpStatus(StatusCode status) : m_status(status) {
             }
 
             // Get the status code
-            tStatusCode getStatusCode() const {
+            StatusCode getStatusCode() const {
                 return m_status;
             }
 

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ServerManager.hpp                                  :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ttas <ttas@student.42.fr>                  +#+  +:+       +#+        */
+/*   By: yroard <yroard@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/13 14:02:20 by yroard            #+#    #+#             */
-/*   Updated: 2026/02/04 09:31:28 by ttas             ###   ########.fr       */
+/*   Updated: 2026/02/11 09:20:57 by yroard           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,49 +17,150 @@
 #ifndef SERVERMANAGER_HPP
 #define SERVERMANAGER_HPP
 
-#include <map>
 #include <vector>
-#include <sys/select.h>
-#include "Socket.hpp"
-#include "Client.hpp" // See next point
-
+#include "ConnectionManager.hpp"
+#include "RequestHandler.hpp"
+#include "SelectMultiplexer.hpp"
+#include "serverConfig/ServerConfig.hpp"
 
 namespace webserv {
 	class ServerManager {
 	private:
-		const std::vector<webserv::serverConfig::ServerConfig*> m_configs;
-		// Map 1: Listening Sockets (FD -> Config)
-        // Used to know which config applies when accepting a new connection
-        std::map<int, webserv::serverConfig::ServerConfig*> m_listenerMap;
-
-        // Map 2: Active Clients (FD -> Client Object)
-        // Used to store state (buffer, request) for each connection
-        std::map<int, Client*> m_clients;
-
-		// Map 3: to store the actual Listener Socket objects (FD -> Socket*)
-    	std::map<int, webserv::Socket*> m_listenerSockets; 
-
-		fd_set m_readSet;
-		fd_set m_writeSet;
-		fd_set m_masterSet;
-		int    m_maxFd;
-
+		SelectMultiplexer* m_multiplexer;
+		ConnectionManager* m_connectionManager;
+		bool m_isRunning;
 	public:
-		explicit ServerManager(const std::vector<webserv::serverConfig::ServerConfig*>& tabServerConf);
-		~ServerManager();
-		// Initializes listening sockets based on configs
-		void setupServers();
+		ServerManager(const std::vector<serverConfig::ServerConfig*>& configs)
+			: m_multiplexer(new SelectMultiplexer()),
+				m_connectionManager(new ConnectionManager(configs)),
+				m_isRunning(true){
+		}
+		~ServerManager() {
+			delete m_multiplexer;
+			delete m_connectionManager;
+		}
+		void setupServers() {
+			m_connectionManager->setupServers(m_multiplexer);
+		}
+		void acceptNewConnection(int fd)const {
+			m_connectionManager->addClient(fd, m_multiplexer);
+		}
+		void handleClientActivity(int fd) {
+			Logger::MessagesFilter(INFO,
+			"CASE B: It's a Client Socket!(Existing Connection)",
+			"");
+			Client* client = m_connectionManager->getClient(fd);
+			// 1. Receive Data (Client accumulates it internally)
+			int bytes = client->receiveData();
+			Logger::MessagesFilter(DEBUG,
+			"Receiving data, Fd Client: ",
+					ConvUtils::intToStr(fd));
+			if (bytes < 0) {
+				Logger::MessagesFilter(ERR,
+				"Error in receiving data",
+						"client removed");
+				m_connectionManager->removeClient(fd, m_multiplexer);
+				return;
+			}
+			if (bytes == 0) {
+				if (client->isReceivingBody()) {
+					Logger::MessagesFilter(DEBUG,
+					"Client still to receive data: ",
+							"no data received this time");
+					return;
+				}
+				Logger::MessagesFilter(DEBUG,
+						"Data complete for this client: ",
+						"client removed");
+				m_connectionManager->removeClient(fd, m_multiplexer);
+				return;
+			}
+			// 2. Loop to handle potentially multiple requests (Pipelining)
+			// We loop as long as the request is complete
+			while (client->getRequest().isComplete()) {
+				client->setRequestAsFull();
+				http::ParsingRequest& req = client->getRequest();
+				const webserv::serverConfig::ServerConfig* config =
+					client->getConfig();
+				http::Response response =
+					RequestHandler::handleRequest(req, *config);
+				std::string finalMsg = response.httpString();
+				client->sendResponse(finalMsg); // Using client's send method
+				std::string dataPreview(finalMsg);
+				Logger::MessagesFilter(DEBUG,
+					"Response data preview: ",
+					Logger::filterUnprintable(dataPreview));
+				if (response.isConnectionToBeClosed()){
+					Logger::MessagesFilter(DEBUG,
+						"Connection: close requested. Closing FD ",
+						ConvUtils::intToStr(fd));
+					m_connectionManager->removeClient(fd, m_multiplexer);
+					return;
+				}
+				Logger::MessagesFilter(INFO,
+					"Keep-Alive: Waiting for next request on FD: ",
+					ConvUtils::intToStr(fd));
+				// Check for leftovers
+				std::string leftovers = req.getRemainingData();
+				m_connectionManager->resetClient(fd);
+				if (!leftovers.empty()) {
+					m_connectionManager->getClient(fd)
+						->getRequest().appendData(leftovers);
+				}
+				else
+					break;
+			}
+		}
 
-		// The infinite loop (select)
-		void run();
-
-	private:
-        // Helper to add/remove/reset client clearly
-        void removeClient(int fd);
-        void addClient(int listenerFd);
-		void resetClient(int fd);
-		void handleClientActivity(int fd);
-		
+		void run() {
+			setupServers();
+			while (m_isRunning) {
+				// 1. Wait (Blocking)
+				int maxFd = m_connectionManager->getMaxFd();
+				int activity = m_multiplexer->wait(maxFd);
+				if (activity < 0) {
+					Logger::MessagesFilter(DEBUG,
+					"Server Manager::run: activity < 0!", "");
+					// Check if it's just a signal interruption
+					int errValue = errno;
+					if (errValue == EINTR)
+						continue;
+					Logger::MessagesFilter(ERR,
+						"ServerManager::run: activity < 0, Select error:",
+									strerror(errValue));
+					continue;
+				}
+				// 2. Get Ready FDs (Clean list, no looping 0..maxFd)
+				std::vector<int> readyFds
+					= m_multiplexer->getReadyFds();
+				for (size_t i = 0; i < readyFds.size(); ++i){
+					int fd = readyFds[i];
+					if (m_connectionManager->isListener(fd)) {
+						// Delegate acceptance logic
+						acceptNewConnection(fd);
+					} else {
+						// Delegate business logic
+						handleClientActivity(fd);
+					}
+				}
+				// 3. Delegate cleanup
+				m_connectionManager->checkTimeouts(m_multiplexer);
+			}
+		}
 	};
 }
 #endif
+
+//     class ServerManager {
+//     private:
+//         IIOMultiplexer* m_multiplexer;
+//     public:
+//         ServerManager() : m_multiplexer(new SelectMultiplexer()) {}
+//         ~ServerManager() {
+//             delete m_multiplexer;
+//         }
+//         void run() {
+//             // Use m_multiplexer->waitForActivity() instead of select()
+//         }
+//     };
+// }

@@ -70,76 +70,18 @@ namespace webserv {
 			return header;
 		}
 
-		std::string ParsingRequest::findEndHeader(Buffer rawData,
-				unsigned* index) {
-			std::string rawBuffer;
-			Buffer::iterator it;
-			Buffer::iterator itEnd = rawData.end();
-			for (it = rawData.begin(); it != itEnd; ++it, ++(*index)) {
-				rawBuffer += rawData[*index];
-				if (*index > 3 && rawData[*index] == '\n'
-					&& rawData[*index - 1] == '\r'
-					&& rawData[*index - 2] == '\n'
-					&& rawData[*index - 3] == '\r')
-					return rawBuffer;
-			}
-			return rawBuffer;
-		}
-
-		Buffer ParsingRequest::fillBody(Buffer rawData, unsigned index) {
-			// Safety check: ensure index is within bounds
-            if (index >= rawData.size()) {
-                // TO DO: Determine if this is an error or just an empty body
-                // For now, return empty body
-                return Buffer(); 
-            }
-			Buffer body;
-			if (index > 3 && rawData[index] == '\n'
-					&& rawData[index - 1] == '\r'
-					&& rawData[index - 2] == '\n'
-					&& rawData[index - 3] == '\r') {
-				++index;
-                if (index < rawData.size()) {
-				    return Buffer(rawData.begin() + index,
-				    	rawData.end());
-                }
-			}
-			else {
-				throw HttpError::create(HttpStatus(BadRequest),
-					invalid_header);
-			}    
-			return Buffer(); // Return empty buffer if no body
-		}
-
-        ParsingRequest::ParsingRequest() : m_rawData(), m_method(), m_path(),
-			m_queryString(), m_httpVersion(), m_header(), m_body() {
-			std::cout << "ParsingRequest, default constructor called"
-				<< std::endl;
+        ParsingRequest::ParsingRequest() : m_rawData(), m_method(),
+			m_fullUri(), m_uri(), m_path(), m_queryString(), m_httpVersion(),
+			m_header(), m_body(), m_headerParsed(false), m_expectedBodySize(0) {
+			Logger::MessagesFilter(INFO,
+				"ParsingRequest, default constructor called",
+				"");
 		}
 
 		ParsingRequest::ParsingRequest(const Buffer& rawData)
-						: m_rawData(rawData), m_method(), m_path(),
-						m_queryString(), m_httpVersion(), m_header(),
-						m_body() {
-			std::cout << "ParsingRequest, constructor called"
-				<< std::endl;
-			//First, find the end of the header
-			unsigned index = 0;
-			std::string rawBuffer = findEndHeader(rawData, &index);
-			m_body = fillBody(rawData, index);
-			size_t headerEnd = rawBuffer.find("\r\n\r\n");
-			std::string rawHeader;
-			rawHeader = rawBuffer.substr(0, headerEnd);
-			m_method = parseLineRequest(&rawHeader, " ",
-				invalid_method);
-			std::string fullUri = parseLineRequest(&rawHeader,
-				" ", invalid_path);
-			m_queryString = parseForQueryLineRequest(&fullUri);
-			m_path = fullUri;
-			m_httpVersion = parseLineRequest(&rawHeader, "\r\n",
-					invalid_httpVersion);
-			m_header = parseForHeaderLineRequest(rawHeader);
-			printRequest();
+				: m_rawData(rawData), m_method(), m_fullUri(), m_uri(),
+				m_path(), m_queryString(), m_httpVersion(), m_header(),
+				m_body(), m_headerParsed(false), m_expectedBodySize(0) {
 		}
 
 		// Make Copy Constructor Public
@@ -152,11 +94,15 @@ namespace webserv {
 			if (this != &src) {
 				m_rawData = src.m_rawData;
 				m_method = src.m_method;
+				m_fullUri = src.m_fullUri;
+				m_uri = src.m_uri;
 				m_path = src.m_path;
 				m_queryString = src.m_queryString;
 				m_httpVersion = src.m_httpVersion;
 				m_header = src.m_header;
 				m_body = src.m_body;
+				m_headerParsed = src.m_headerParsed;
+				m_expectedBodySize = src.m_expectedBodySize;
 			}
 			return *this;
 		}
@@ -165,12 +111,21 @@ namespace webserv {
 		}
 
 		ParsingRequest ParsingRequest::parseRequest(Buffer &rawData) {
-			std::cout << "parseRequest" << std::endl;
+			Logger::MessagesFilter(DEBUG,
+	"parseRequest, constructor called","");
 			return ParsingRequest(rawData);
 		}
 
 		const std::string& ParsingRequest::getMethod() const {
 			return m_method;
+		}
+
+		const std::string& ParsingRequest::getFullUri()const{
+			return m_fullUri;
+		}
+
+		const std::string& ParsingRequest::getUri()const{
+			return m_uri;
 		}
 
 		const std::string& ParsingRequest::getPath() const {
@@ -189,16 +144,32 @@ namespace webserv {
 				const std::string& ToFind)const{
 			std::map<std::string, std::string>::const_iterator it =
 					m_header.find(ToFind);
-				if (it != m_header.end()) {
-					return it->second;
-				}
-				return "";
+			if (it != m_header.end()) {
+				return it->second;
+			}
+			return "";
 		}
 		const Buffer& ParsingRequest::getBody() const {
 			return m_body;
 		}
 
+		size_t ParsingRequest::getExpectedSize()const {
+			return m_expectedBodySize;
+		}
+
+		const std::string ParsingRequest::getRemainingData() const {
+			return m_rawData.getBufferStr();
+		}
+
 		void ParsingRequest::printReqBody()const {
+			if (m_body.size() == 0) {
+				Logger::MessagesFilter(INFO, "No body",
+					"");
+				return;
+			}
+
+			Logger::MessagesFilter(INFO,
+				"========== START BODY ==========", "");
 			for (unsigned i = 0; i < m_body.size(); ++i) {
 				char c = m_body[i];
 				if (c == '\r')
@@ -210,38 +181,28 @@ namespace webserv {
 				else
 					std::cout << "."; // Replace non-printables with dot
 			}
+			Logger::MessagesFilter(INFO,
+	 "=========== END BODY ==========", "");
 		}
 
 		void ParsingRequest::printRequest() {
 			std::cout << "Method: " << m_method << std::endl; // e.g., "GET"
+			std::cout << "Full uri: " << m_fullUri << std::endl;
+			std::cout << "Uri: " << m_uri << std::endl;
 			std::cout << "Path: " << m_path << std::endl; // e.g., "/index.html"
 			std::cout << "Query: " << m_queryString << std::endl; // e.g., "/index.html"
 			std::cout << "Version: " << m_httpVersion << std::endl; // e.g., "HTTP/1.1"
-			std::cout << "Header: " << std::endl;
-			std::cout << "========== START HEADER =========="
-				<< std::endl;
+			Logger::MessagesFilter(INFO,
+							"========== START HEADER ==========", "");
 			for (std::map<std::string, std::string>::iterator itHeader =
 						m_header.begin(); itHeader != m_header.end();
 						++itHeader) {
 				std::cout << itHeader->first << ": "
 						<< itHeader->second << std::endl;
 			}
-			std::cout << "\n========== END HEADER =========="
-				<< std::endl;
-			std::cout << "Body: " << std::endl;
-			std::cout << "========== START BODY ==========" << std::endl;
-			for (unsigned i = 0; i < m_body.size(); ++i) {
-				char c = m_body[i];
-				if (c == '\r')
-					std::cout << "\\r"; // Print literally "\r"
-				else if (c == '\n')
-					std::cout << "\\n\n"; // Print literally "\n" then a real newline
-				else if (std::isprint(c))
-					std::cout << c;
-				else
-					std::cout << "."; // Replace non-printables with dot
-			}
-			std::cout << "\n========== END BODY ==========" << std::endl;
+			Logger::MessagesFilter(INFO,
+	"=========== END HEADER ==========", "");
+			printReqBody();
 		}
 
 		void ParsingRequest::reset() {
@@ -252,6 +213,80 @@ namespace webserv {
 			m_httpVersion.erase();
 			m_header.clear();
 			m_body.clear();
+			m_headerParsed = false;
+			m_expectedBodySize = 0;
+		}
+
+void ParsingRequest::parseHeader(std::string& rawHeader) {
+			m_method = parseLineRequest(&rawHeader, " ",
+				invalid_method);
+			std::string fullUri = parseLineRequest(&rawHeader,
+				" ", invalid_path);
+			m_fullUri = fullUri;
+			size_t pos = fullUri.find("?");
+			if (pos == std::string::npos)
+				m_uri = fullUri;
+			else
+				m_uri = fullUri.substr(0, pos);
+			m_queryString = parseForQueryLineRequest(&fullUri);
+			m_path = fullUri;
+			m_httpVersion = parseLineRequest(&rawHeader, "\r\n",
+					invalid_httpVersion);
+			m_header = parseForHeaderLineRequest(rawHeader);
+			std::stringstream ss;
+			ss << getHeaderInfo("Content-Length");
+			ss >> m_expectedBodySize;
+			std::cout << "m_expectedBodySize= " << m_expectedBodySize << std::endl;
+		}
+
+		//parse only if end of the header found
+		void ParsingRequest::parse(){
+			std::string bufferStr = m_rawData.getBufferStr();
+			if (!m_headerParsed){
+				size_t posEndHeader = bufferStr.find("\r\n\r\n");
+				if (posEndHeader == std::string::npos)
+					return;
+				std::string rawHeader =
+					bufferStr.substr(0, posEndHeader + 4);
+				parseHeader(rawHeader);
+				bufferStr.erase(0, posEndHeader + 4);
+				m_headerParsed = true;
+				m_rawData.clear();
+				if (bufferStr.size()) {
+					m_rawData.append(bufferStr);
+					Logger::MessagesFilter(DEBUG,
+				"m_rawData, body only: ",
+				m_rawData.getBufferStr());
+				}
+			}
+			if (m_headerParsed && m_expectedBodySize > 0) {
+				// Calculate how much more data we need
+				size_t bytesNeeded = m_expectedBodySize - m_body.size();
+				size_t bytesAvailable = bufferStr.size();
+
+				// Take the smaller of: what we have OR what we need
+				size_t toCopy = std::min(bytesNeeded, bytesAvailable);
+				if (toCopy > 0) {
+					m_body.insert(bufferStr, 0, toCopy);
+					m_rawData.clear();
+					if (bytesAvailable > toCopy) {
+						// If we had MORE data than needed (e.g. pipelined request), keep the rest
+						m_rawData.append(bufferStr.substr(toCopy));
+					}
+				}
+			}
+		}
+
+		void ParsingRequest::appendData(const std::string& chunk) {
+			m_rawData.append(chunk);
+			parse(); // Try to parse what we have so far
+		}
+
+		bool ParsingRequest::isComplete() {
+			parse();
+			if (m_headerParsed && m_body.size() == m_expectedBodySize)
+				return true;
+			return false;
 		}
 	}
 }

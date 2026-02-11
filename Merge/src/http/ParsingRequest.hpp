@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ParsingRequest.hpp                                 :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ttas <ttas@student.42.fr>                  +#+  +:+       +#+        */
+/*   By: yroard <yroard@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/11 09:29:01 by yroard            #+#    #+#             */
-/*   Updated: 2026/02/04 09:33:02 by ttas             ###   ########.fr       */
+/*   Updated: 2026/02/11 08:54:57 by yroard           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,21 +26,25 @@ namespace webserv {
 
 		class ParsingRequest {
 		private:
-			Buffer  m_rawData;
-			std::string m_method;
-			std::string  m_path;
-			std::string  m_queryString;
-			std::string  m_httpVersion;
+			Buffer		m_rawData;
+			std::string	m_method;
+			std::string	m_fullUri;
+			std::string	m_uri;
+			std::string	m_path;
+			std::string	m_queryString;
+			std::string	m_httpVersion;
 			std::map<std::string, std::string> m_header;
 			Buffer m_body;
+			bool m_headerParsed;
+    		size_t m_expectedBodySize;
 
-			// Static because they don't touch member variables directly
 			static std::string parseLineRequest(std::string* rawHeader,
 				const std::string& s, tExceptError error);
 			static std::string parseForQueryLineRequest(std::string *fullUri);
 			static std::string trimHeader(const std::string& str);
 			static std::string findEndHeader(Buffer rawData, unsigned* index);
-			static Buffer fillBody(Buffer rawData, unsigned index);
+			void parseHeader(std::string& rawHeader);
+			void parse();
 
 		public:
 			ParsingRequest();
@@ -51,17 +55,25 @@ namespace webserv {
 
 			// Getters
 			const std::string& getMethod() const;
+			const std::string& getFullUri()const;
+			const std::string& getUri()const;
 			const std::string& getPath() const;
 			const std::string& getQuery() const;
 			const std::string& getHttpVersion() const;
 			const std::string getHeaderInfo(const std::string& ToFind)const;
 			const Buffer& getBody() const;
+			size_t getExpectedSize() const;
+			const std::string getRemainingData() const;
 			static std::map<std::string, std::string> parseForHeaderLineRequest(
 							std::string &rawHeader);
 			static ParsingRequest parseRequest(Buffer &rawData);
 			void printReqBody()const;
 			void printRequest();
 			void reset();
+
+			
+			void appendData(const std::string& chunk);
+			bool isComplete();
 		};
 	}
 }

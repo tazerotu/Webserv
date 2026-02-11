@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Response.hpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ttas <ttas@student.42.fr>                  +#+  +:+       +#+        */
+/*   By: yroard <yroard@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/03 14:58:10 by yroard            #+#    #+#             */
-/*   Updated: 2026/02/04 09:33:08 by ttas             ###   ########.fr       */
+/*   Updated: 2026/02/11 08:53:38 by yroard           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,10 @@
 
 #include <string>
 #include <map>
+
+#include "../ConvUtils.hpp"
 #include "HttpStatus.hpp"
+#include "../Logger.hpp"
 
 namespace webserv {
     namespace http {
@@ -48,12 +51,11 @@ namespace webserv {
                 m_statusCode = statusCode;
             }
 
+            // set the Content-Length header as well
             void setBody(const std::string& body) {
                 m_body = body;
-                // Automatically set the Content-Length header
-                std::stringstream ss;
-                ss << m_body.size();
-                addHeader("Content-Length", ss.str());
+                addHeader("Content-Length",
+                    ConvUtils::sizeTToStr(body.size()));
             }
 
             void addHeader(const std::string& key, const std::string& val) {
@@ -76,9 +78,16 @@ namespace webserv {
             bool isConnectionToBeClosed(){
                 std::map<std::string, std::string>::iterator it;
                 it = m_headers.find("Connection");
-                if (it != m_headers.end() && (it->second.find("close") || it->second.find("Close")
-                        || it->second.find("CLOSE"))) 
+                if (it == m_headers.end())
+                    return false;
+                Logger::MessagesFilter(INFO,
+                    "m_headers.find(\'Connection\'): ",
+                    it->second);
+                if (it != m_headers.end() && (it->second == "close"
+                        || it->second == "Close"
+                        || it->second == "CLOSE")) {
                     return true;
+                }
                 return false;
             }
 

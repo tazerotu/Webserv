@@ -30,7 +30,10 @@ namespace webserv {
             cgi_exec_failure,
             invalid_cgi_extension,
             cgi_script_invalid,
-            cgi_interpreter_invalid
+            cgi_interpreter_invalid,
+            invalid_default_file,
+            writing_to_stringstream_failure,
+            read_failure
         }tExceptError;
 
         class HttpError : public std::exception {
@@ -86,6 +89,15 @@ namespace webserv {
                     case cgi_interpreter_invalid:
                         full_msg = "CGI Interpreter not found";
                         break;
+                    case invalid_default_file:
+                        full_msg = "default file is missing";
+                        break;
+                    case writing_to_stringstream_failure:
+                        full_msg = "Failed to write to stringstream";
+                        break;
+                    case read_failure:
+                        full_msg = "read() failed";
+                        break;
                     default:
                         full_msg = "http error";
                 }
@@ -103,15 +115,20 @@ namespace webserv {
             static bool isErrorPageMissing(int* status,
                     const std::map<int, std::string>& errorPages,
                     int* fd){
-                if (!http::HttpStatus::IsValidStatusCode(*status)) {
-                    std::cerr << "status code is invalid: "
-                        << *status << std::endl;
+                if (!HttpStatus::IsValidStatusCode(*status)) {
+                    std::stringstream sStatus;
+                    sStatus << *status;
+                    Logger::MessagesFilter(ERR,
+                         "status code is invalid: ",
+                        sStatus.str());
                     *status = 500;
                 }
                 std::map<int, std::string>::const_iterator it
                     = errorPages.find(*status);
                 if (it != errorPages.end()) {
-                    std::cout << "***it->second.c_str(): " << it->second.c_str() << std::endl;
+                    Logger::MessagesFilter(DEBUG,
+                        "it->second.c_str(): ",
+                        it->second.c_str());
                     *fd = open(it->second.c_str(), O_RDONLY);
                 }
                 if (*fd == -1)

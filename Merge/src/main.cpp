@@ -6,7 +6,7 @@
 /*   By: ttas <ttas@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/11 09:34:18 by yroard            #+#    #+#             */
-/*   Updated: 2026/02/11 10:23:30 by ttas             ###   ########.fr       */
+/*   Updated: 2026/02/11 11:10:52 by ttas             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -457,7 +457,7 @@ int main(int argc, char**argv) {
 	try{
 		// 2. Initialize Server Engine
 		webserv::ServerManager manager(tabServerConf);
-		manager.setupServers();
+		// manager.setupServers();
 		// 3. Start the Main Loop
 		std::cout << "MAIN LOOP" << std::endl;
 		manager.run();

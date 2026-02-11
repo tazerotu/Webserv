@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ServiceConfigMethod.hpp                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: yroard <yroard@student.42.fr>              +#+  +:+       +#+        */
+/*   By: ttas <ttas@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/11 09:30:46 by yroard            #+#    #+#             */
-/*   Updated: 2025/12/11 15:41:47 by yroard           ###   ########.fr       */
+/*   Updated: 2026/02/11 11:18:36 by ttas             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,16 +32,16 @@ namespace webserv {
 
 			class ServiceConfigMethod {
 			private:
-				const std::vector<tVerb> m_allowedMethod;
+				const std::vector<Verb> m_allowedMethod;
 
-				explicit ServiceConfigMethod(const std::vector<tVerb> allowedMethod)
+				explicit ServiceConfigMethod(const std::vector<Verb> allowedMethod)
 					: m_allowedMethod(allowedMethod){}
 
 			public:
 				// Helper to check if a specific string method is allowed
 				// You will use this in RequestValidator!
 				bool isAllowed(const std::string &methodStr) const {
-					tVerb verb;
+					Verb verb;
 					//std::cout << "is allowed: " << methodStr << std::endl;
 					if (methodStr == "GET") verb = GET;
 					else if (methodStr == "POST") verb = POST;
@@ -77,7 +77,7 @@ namespace webserv {
 
 			class SCMethodFactory {
 			public:
-				typedef std::map<std::string, tVerb> Map;
+				typedef std::map<std::string, Verb> Map;
 
 			private:
 				static const Map map;
@@ -87,7 +87,7 @@ namespace webserv {
 			public:
 				static ServiceConfigMethod createMethod(
 						const std::string &rawMethods) {
-					std::vector<webserv::tVerb> methodsVec;
+					std::vector<webserv::Verb> methodsVec;
 					// 1. Use stringstream to split by spaces
 					std::stringstream ss(rawMethods);
 					std::string token;

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ServiceConfigRedirection.hpp                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: yroard <yroard@student.42.fr>              +#+  +:+       +#+        */
+/*   By: ttas <ttas@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/11 09:30:54 by yroard            #+#    #+#             */
-/*   Updated: 2025/12/11 09:38:27 by yroard           ###   ########.fr       */
+/*   Updated: 2026/02/11 11:18:03 by ttas             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,7 +43,7 @@ namespace webserv {
                             it != redirection.end(); ++it) {
                         const int code = it->first;
                         std::string uri = it->second;
-                        if (!HttpStatusCodeValidator::intToEnum(it->first))
+                        if (!http::HttpStatusCodeValidator::intToEnum(it->first))
                             return false;
                         if (code < 300 || code > 399) //codes must be within this range to make sense
                             return false;

@@ -14,25 +14,24 @@
 # define SERVER_HPP
 
 #include <string>
-#include <iostream>
+//#include <iostream>
+//#include <stdlib.h>
+
 #include "Endpoint.hpp"
 #include "Socket.hpp"
-#include "serverConfig/IServerConfig.hpp"
+//#include "serverConfig/IServerConfig.hpp"
+#include "Logger.hpp"
+#include "TcpSocketFactory.hpp"
 
 namespace webserv {
     class Server {
     public:
         static Socket listen(const std::string &ipAddr,
-                             const unsigned short port) {
-            using namespace webserv;
-            // 1. Create the Endpoint object, which holds the address info
-            const Endpoint endpoint = Endpoint::createIpv4Addr(ipAddr, port);
-            // 2. Create the Socket object
-            const Socket s(Socket::createTcpSocket());
-            // 3. Listen on the socket using the endpoint information
-            s.listenSocket(endpoint); // Pass endpoint object by reference
-            std::cout << "Server listening on " << ipAddr << ":" << port << std::endl;
-            return s;
+            const unsigned short port) {
+            ISocketFactory* factory = new TcpSocketFactory();
+            Socket socket = factory->createSocket(ipAddr, port);
+            delete factory;
+            return socket;
         }
     };
 }

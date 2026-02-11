@@ -4,6 +4,8 @@
 
 #ifndef WEBSERV_STATICFILERESPONSE_HPP
 #define WEBSERV_STATICFILERESPONSE_HPP
+#include "../ConvUtils.hpp"
+#include "HttpError.hpp"
 #include "Response.hpp"
 
 namespace webserv {
@@ -13,14 +15,25 @@ namespace webserv {
             static void ReadFileContent(std::stringstream *buffer,
                     const int fd) {
                 // Read file content
-                //std::stringstream buffer;
-                char buf[1024];
-                int ret;
-                while ((ret = static_cast<int>(read(fd, buf, 1024))) > 0) {
+                char buf[4096];
+                ssize_t ret;
+                while ((ret = read(fd, buf, 1024)) > 0) {
                     buffer->write(buf, ret);
                 }
-                //TO DO what if ret <= 0? what if buffer == NULL?
+            	if (buffer->fail()) {
+            		close(fd);
+            		throw HttpError::create(HttpStatus(InternalServerError),
+						writing_to_stringstream_failure);
+            	}
+            	int readError = errno;
+                Logger::MessagesFilter(ERR,
+                "Error reading file content, error: ",
+                ConvUtils::intToStr(readError));
                 close(fd);
+            	if (ret == -1) {
+            		throw HttpError::create(HttpStatus(InternalServerError),
+						read_failure);
+            	}
             }
             public:
             static Response buildStaticFileResponse(
@@ -47,7 +60,6 @@ namespace webserv {
                         return ErrorPageGenerator::generate(403,
                             errorPages.getValue());
                     }
-
                     if (std::remove(path.c_str()) != 0) {
                         const int errorCode = errno;
                         return ErrorPageGenerator::generate(
@@ -60,29 +72,52 @@ namespace webserv {
                     return res;
                 }
                 std::stringstream buffer;
-                ReadFileContent(&buffer, fd);
+            	try {
+            		ReadFileContent(&buffer, fd);
+            	}
+            	catch(const std::exception& e){
+            		Logger::MessagesFilter(ERR,
+            			"File Read Error: ", e.what());
+            		return ErrorPageGenerator::generate(500,
+            			errorPages.getValue());
+            	}
                 std::string body = buffer.str();
                 res.setStatusCode(200);
                 res.addHeader("Content-Type",
                     MimeTypes::getType(path));
+            	res.addHeader("Content-Length",
+            		ConvUtils::ssizeToStr(body.size()));
                 res.addHeader("Connection", connection);
                 res.setBody(body);
                 return res;
             }
 
-            static Response processStaticFile(const std::string& path,
-            const serverConfig::ServiceConfigErrorPages& errorPages,
-            const std::string& serverName,
-            const std::string& method,
-            const std::string& connection) {
-                int fd = 0;
-                fd = open(path.c_str(), O_RDONLY);
-                if (fd == -1)
-                    return ErrorPageGenerator::generate(404,
-                        errorPages.getValue());
-                return buildStaticFileResponse(fd, path, errorPages,
-                    serverName, method, connection);
-            }
+			static Response processStaticFile(const std::string& path,
+					const serverConfig::ServiceConfigErrorPages& errorPages,
+					const std::string& serverName,
+					const std::string& method,
+					const std::string& connection, 
+					const serverConfig::routes::IServerConfigRoutes* targetRoute) {
+    			std::string fullPath = path;
+				struct stat buf = {};
+				int statReturn = stat(fullPath.c_str(), &buf);
+				if (statReturn == -1 || (S_ISDIR(buf.st_mode) 
+						&& targetRoute->getDefaultFile().getValue().empty()))
+					return ErrorPageGenerator::generate(404,
+							errorPages.getValue());
+				if (S_ISDIR(buf.st_mode))
+					fullPath += targetRoute->getDefaultFile().getValue();
+				Logger::MessagesFilter(DEBUG,
+					"processStaticFile, path= ",
+					fullPath);
+				int fd = 0;
+				fd = open(fullPath.c_str(), O_RDONLY);
+				if (fd == -1)
+					return ErrorPageGenerator::generate(404,
+						errorPages.getValue());
+				return buildStaticFileResponse(fd, fullPath, errorPages,
+					serverName, method, connection);
+			}
         };
     }
 }

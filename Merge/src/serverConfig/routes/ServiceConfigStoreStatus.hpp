@@ -6,7 +6,7 @@
 /*   By: ttas <ttas@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/11 09:31:43 by yroard            #+#    #+#             */
-/*   Updated: 2026/01/27 12:07:31 by ttas             ###   ########.fr       */
+/*   Updated: 2026/02/11 11:14:22 by ttas             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,16 +22,16 @@ namespace webserv {
 		namespace routes {
 			class ServiceConfigStoreStatus {
 			private:
-				const tStoreStatus m_storeStatus;
+				const StoreStatus m_storeStatus;
 
 			public:
 				explicit ServiceConfigStoreStatus(
-					const tStoreStatus &storeStatus)
+					const StoreStatus &storeStatus)
 					: m_storeStatus(storeStatus) {}
 
 				~ServiceConfigStoreStatus(){}
 
-				static tStoreStatus isValid(const std::string & storeStatus){
+				static StoreStatus isValid(const std::string & storeStatus){
 					if (storeStatus == "0")
 						return OFF;
 					if (storeStatus == "1")
@@ -41,14 +41,14 @@ namespace webserv {
 				
 				static ServiceConfigStoreStatus create(
 						const std::string & storeStatus) {
-					tStoreStatus value = isValid(storeStatus);
+					StoreStatus value = isValid(storeStatus);
 					if (value == ERROR)
 						throw IServerConfigError::create(
 								invalid_store_status, NULL);
 					return ServiceConfigStoreStatus(value);
 				}
 
-				const tStoreStatus& getValue()const {
+				const StoreStatus& getValue()const {
 					return m_storeStatus;
 				}
 			};

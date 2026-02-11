@@ -33,8 +33,6 @@ namespace webserv {
                     const std::map<int, std::string> &redirMap,
                     const http::ParsingRequest& req,
                     const std::string& path) {
-                // Get the first pair (Status, URL)
-                //TODO: check the adequate pair!
                 std::map<int, std::string>::const_iterator it
                                                     = redirMap.begin();
                 const int code = it->first;       // e.g., 301

@@ -41,12 +41,13 @@ namespace webserv {
                 = server.getRoutes();
             const serverConfig::routes::IServerConfigRoutes* bestMatch = NULL;
             size_t bestMatchLength = 0;
-            std::cout << "uri to find: " << uri << std::endl;
-            std::cout << "routes.size(): " << routes.size() << std::endl;
+            Logger::MessagesFilter(DEBUG,
+                "uri to find: ", uri);
             for (size_t i = 0; i < routes.size(); ++i) {
                 std::string routePath = routes[i]->getRouteLoc().getValue();
-                std::cout << "routePath found: " << routePath << std::endl;
-                // Or getRoutePath()
+                Logger::MessagesFilter(DEBUG,
+                    "routePath found: ",
+                    routePath);
                 // Check if URI starts with this route path
                 if (uri.find(routePath) == 0) {
                     // We want the LONGEST match (e.g. URI "/img/logo.png" matches "/" and "/img/")

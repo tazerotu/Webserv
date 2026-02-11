@@ -4,6 +4,7 @@
 
 #ifndef WEBSERV_MIMETYPES_HPP
 #define WEBSERV_MIMETYPES_HPP
+
 #include <string>
 
 namespace webserv {

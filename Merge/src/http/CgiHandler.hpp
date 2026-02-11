@@ -10,6 +10,7 @@
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <signal.h>
+#include <cstdlib>
 #include "HttpError.hpp"
 
 namespace webserv {
@@ -19,34 +20,29 @@ namespace webserv {
         CgiHandler(){}
 
         public:
+            //Check file extension, file existence, interpreter, then
+            //execution and response
             static Response processCGI(const ParsingRequest& req,
                     const serverConfig::routes::IServerConfigRoutes* targetRoute,
                     const std::string& path) {
-                // 1. Validation Logic
                 const std::string& cgiExtension
                     = targetRoute->getCGI().getCGIExtension();
-                // Verify Extension
                 if (path.find(cgiExtension) == std::string::npos) {
                     throw HttpError::create(HttpStatus(NotFound),
                         invalid_cgi_extension);
                 }
-                // Verify File Existence
                 if (access(path.c_str(), R_OK) == -1) {
                     throw HttpError::create(HttpStatus(NotFound),
                         cgi_script_invalid);
                 }
-                // Verify Interpreter
                 const std::string& cgiInterpreterPath
                     = targetRoute->getCGI().getCGIInterpreterPath();
                 if (!isInterpreterInstalled(cgiInterpreterPath)) {
                     throw HttpError::create(HttpStatus(InternalServerError),
                         cgi_interpreter_invalid);
                 }
-                // 2. Execution Logic
-                // We pass the 'req' to allow dynamic environment setup
                 std::string cgiOutput = execute(path, cgiInterpreterPath,
                         req);
-                // 3. Response Construction
                 Response res;
                 res.setStatusCode(200);
                 size_t headerEnd = cgiOutput.find("\r\n\r\n");
@@ -55,18 +51,21 @@ namespace webserv {
                     std::string body = cgiOutput.substr(headerEnd + 4);
                     res.setBody(body);
                     std::map<std::string, std::string> headerMap;
-			        headerMap = ParsingRequest::parseForHeaderLineRequest(headers);
+			        headerMap =
+			            ParsingRequest::parseForHeaderLineRequest(headers);
                     std::map<std::string, std::string>::iterator it;
-                    std::cout << "Into php file, header: " << std::endl;
+                    Logger::MessagesFilter(DEBUG,
+                        "Into php file, header: ","");
                     for (it = headerMap.begin(); it != headerMap.end(); ++it){
+                        Logger::MessagesFilter(DEBUG,
+                        "Into loop, header: ","");
                         std::cout << it->first << ": " << it->second << std::endl;
-                    } 
+                    }
+                    Logger::MessagesFilter(DEBUG,
+                        "Exit loop, header","");
                     if (!req.getHeaderInfo("Connection").empty())
-                        res.addHeader("Connection", req.getHeaderInfo("Connection"));
-
-                    
-                    // TODO: You should actually parse 'headers' string and add them to 'res'
-                    // For now, minimal implementation:
+                        res.addHeader("Connection",
+                            req.getHeaderInfo("Connection"));
                     res.addHeader("Content-Type", "text/html");
                 }
                 else 
@@ -75,8 +74,8 @@ namespace webserv {
 
             }
 
+            //  checks if the file exists AND has execute permissions
             static bool isInterpreterInstalled(const std::string &path) {
-                //  checks if the file exists AND has execute permissions
                 if (access(path.c_str(), X_OK) == 0)
                     return true;
                 return false;
@@ -94,22 +93,39 @@ namespace webserv {
             // Helpers for setting up env, etc.
             static char** setUpEnvParameters(const http::ParsingRequest& req,
                     const std::string& scriptPath) {
-                // You usually convert the Request headers here.
-                // For basic testing, these are the minimums:
                 std::vector<std::string> envStr;
                 envStr.push_back("REQUEST_METHOD=" + req.getMethod());
+                envStr.push_back("REQUEST_URI=" + req.getFullUri());
                 envStr.push_back("SCRIPT_FILENAME=" + scriptPath);
+				envStr.push_back("SCRIPT_NAME=" + req.getUri());   // Virtual path (e.g., /cgi/test.php)
+                envStr.push_back("QUERY_STRING=" + req.getQuery());
                 envStr.push_back("SERVER_PROTOCOL=" + req.getHttpVersion());
                 envStr.push_back("GATEWAY_INTERFACE=CGI/1.1");
                 envStr.push_back("REDIRECT_STATUS=200"); // PHP-CGI needs
-                //this to run directly
-                // Handle Content-Length/Type for POST
                 if (!req.getHeaderInfo("Content-Length").empty())
-                    envStr.push_back("CONTENT_LENGTH="
-                        + req.getHeaderInfo("Content-Length"));
+                    envStr.push_back("CONTENT_LENGTH=" 
+						+ req.getHeaderInfo("Content-Length"));
                 if (!req.getHeaderInfo("Content-Type").empty())
-                    envStr.push_back("CONTENT_TYPE="
-                        + req.getHeaderInfo("Content-Type"));
+                    envStr.push_back("CONTENT_TYPE=" 
+						+ req.getHeaderInfo("Content-Type"));
+				if (!req.getHeaderInfo("Host").empty())
+                    envStr.push_back("HTTP_HOST=" 
+						+ req.getHeaderInfo("Host"));
+				if (!req.getHeaderInfo("User-Agent").empty())
+                    envStr.push_back("HTTP_USER_AGENT="
+                        + req.getHeaderInfo("User-Agent"));
+				if (!req.getHeaderInfo("Accept").empty())
+                    envStr.push_back("HTTP_ACCEPT="
+                        + req.getHeaderInfo("Accept"));
+				if (!req.getHeaderInfo("Accept-Language").empty())
+                    envStr.push_back("HTTP_ACCEPT_LANGUAGE="
+                        + req.getHeaderInfo("Accept-Language"));
+				if (!req.getHeaderInfo("Accept-Encoding").empty())
+                    envStr.push_back("HTTP_ACCEPT_ENCODING="
+                        + req.getHeaderInfo("Accept-Encoding"));
+				if (!req.getHeaderInfo("Connection").empty())
+                    envStr.push_back("HTTP_CONNECTION="
+                        + req.getHeaderInfo("Connection"));
                 // Convert to char**
                 char** envP = new char*[envStr.size() + 1];
                 for (size_t i = 0; i < envStr.size(); ++i) {
@@ -135,11 +151,6 @@ namespace webserv {
                     close(pipe_out[1]);
                     throw HttpError::create(HttpStatus(InternalServerError), pipe_error);
                 }
-                // int pipe_fd[2];
-                // if (pipe(pipe_fd) == -1) {
-                //     throw HttpError::create(HttpStatus(InternalServerError),
-                //         pipe_error);
-                // }
                 pid_t pid = fork();
                 if (pid == -1) {
                     close(pipe_out[0]); close(pipe_out[1]);
@@ -149,15 +160,10 @@ namespace webserv {
                 }
                 // --- CHILD PROCESS (Executes PHP) ---
                 if (pid == 0) {
-                    // // 1. Redirect Standard Output to the Pipe
-                    // dup2(pipe_fd[1], STDOUT_FILENO);
-                    // close(pipe_fd[0]);
-                    // close(pipe_fd[1]);
                     // 1. Redirect Output (Stdout -> pipe_out)
                     dup2(pipe_out[1], STDOUT_FILENO);
                     close(pipe_out[0]);
                     close(pipe_out[1]);
-
                     // 2. Redirect Input (pipe_in -> Stdin)
                     dup2(pipe_in[0], STDIN_FILENO);
                     close(pipe_in[0]);
@@ -179,7 +185,6 @@ namespace webserv {
                     exit(1);
                 }
                 // --- PARENT PROCESS (Reads Output) ---
-                // close(pipe_fd[1]); // Close write end
                 // 1. Close unused ends
                 close(pipe_out[1]); // We don't write to output
                 close(pipe_in[0]);  // We don't read from input
@@ -187,11 +192,10 @@ namespace webserv {
                 // Assuming req.getBody() returns a Buffer or string
                 // You might need to adjust .getBufferStr() depending on your Buffer class 
                 //implementation
-                const std::vector<char>& body = req.getBody(); 
+                const Buffer& body = req.getBody();
                 if (!body.empty()) {
                     write(pipe_in[1], &body[0], body.size());
                 }
-                
                 // 3. Close the write-end so Child gets EOF (or stops reading after Content-Length)
                 close(pipe_in[1]);
                 // 4. Wait for Child
@@ -212,11 +216,6 @@ namespace webserv {
                     cgiOutput.append(buffer, bytesRead);
                 }
                 close(pipe_out[0]);
-                // while ((bytesRead = read(pipe_fd[0], buffer,
-                //         sizeof(buffer))) > 0) {
-                //     cgiOutput.append(buffer, bytesRead);
-                // }
-                // close(pipe_fd[0]);
                 return cgiOutput;
             }
         };

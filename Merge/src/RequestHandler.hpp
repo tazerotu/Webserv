@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   RequestHandler.hpp                                 :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ttas <ttas@student.42.fr>                  +#+  +:+       +#+        */
+/*   By: yroard <yroard@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/03 13:13:55 by yroard            #+#    #+#             */
-/*   Updated: 2026/02/04 09:31:14 by ttas             ###   ########.fr       */
+/*   Updated: 2026/02/04 12:19:52 by yroard           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -64,15 +64,12 @@ namespace webserv {
                 // Return 404 immediately if no route matches
                 return http::ErrorPageGenerator::generate(404,
                     conf.getErrorPages().getValue());
-            }    
-            //std::cout << "***Router::selectRoute(*config, uri): "
-            //    << targetRoute->getRouteLoc().getValue() << std::endl;
+            }
              std::string path;
             try {
                 path = http::PathResolver::buildPath(req,
                     targetRoute);
             }
-			// CATCH: Something went wrong, generate the error response here 
             catch (const http::HttpError& e) { 
                 return http::ErrorPageGenerator::generate(e.getCode(),
                     conf.getErrorPages().getValue());
@@ -87,16 +84,16 @@ namespace webserv {
             if (isRedirect(redirMap))
                 return http::RedirectResponse::processRedirectResponse(
                     redirMap, req, path);
-            if (isCGI(targetRoute))
+            if (isCGI(targetRoute) 
+                && path.find(".php") != std::string::npos)
                     return http::CgiHandler::processCGI(req, targetRoute, path);
             if (isFileToUpload(targetRoute))
                 return http::FileToUpload::processFileToUpload(req, path,
                     conf.getErrorPages(),
                     conf.getMaxBodySize().getValue());
-            // ... handle static files ...
             return http::StaticFileResponse::processStaticFile(path, conf.getErrorPages(),
                 req.getHeaderInfo("Server"),
-                req.getMethod(), req.getHeaderInfo("Connection"));;
+                req.getMethod(), req.getHeaderInfo("Connection"), targetRoute);;
         }
     };
 }

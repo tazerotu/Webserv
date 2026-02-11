@@ -6,7 +6,7 @@
 /*   By: yroard <yroard@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/11 09:33:50 by yroard            #+#    #+#             */
-/*   Updated: 2026/01/27 11:03:07 by yroard           ###   ########.fr       */
+/*   Updated: 2026/02/04 16:38:41 by yroard           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,29 +16,94 @@
 #include <vector>
 
 namespace webserv {
-// Inherit from vector to get all vector methods ([], size, begin, end) 
-//for free
-    class Buffer : public std::vector<char> {
-    public:
-        // Default constructor
-        Buffer() : std::vector<char>() {}
-        // Constructor from string
-        explicit Buffer(const std::string& str) {
-            // Use the base class's method to fill data
-            this->reserve(str.size());
-            this->assign(str.begin(), str.end());
-        }
-        // Iterator Constructor (Crucial for Client.hpp)
-        // Allows: Buffer buf(str.begin(), str.end());
-        template <typename InputIterator>
-        Buffer(InputIterator first, InputIterator last) 
-            : std::vector<char>(first, last) {}
-        ~Buffer() {}
-        // You don't need getBuffer(), 'this' IS the buffer.
-        std::string getBufferStr() const {
-            return std::string(this->begin(), this->end());
-        }
-    };
+	class Buffer {
+	private:
+		std::vector<char> m_data;
+		
+	public:
+		// Default constructor
+		Buffer(){}     
+		// Constructor from string
+		explicit Buffer(const std::string& str) {
+			m_data.assign(str.begin(), str.end());
+		}
+		// Iterator Constructor (Crucial for Client.hpp)
+		// Allows: Buffer buf(str.begin(), str.end());
+		template <typename InputIterator>
+		Buffer(InputIterator first, InputIterator last) 
+			: m_data(first, last){}
+		
+		Buffer& operator=(const Buffer& other){
+			if (this != &other){
+				m_data = other.m_data;
+			}
+			return *this;	
+		}
+		~Buffer() {}
+		// Allow direct access to data like a vector
+		char& operator[](const size_t pos) {
+			return m_data[pos]; 
+		}
+		
+		const char& operator[](const size_t pos) const {
+			return m_data[pos]; 
+		}
+
+		size_t size() const { 
+			return m_data.size(); 
+		}
+		
+		bool empty() const { 
+			return m_data.empty(); 
+		}
+		
+		void clear() { 
+			m_data.clear(); 
+		}
+		
+		void push_back(char c) { 
+			m_data.push_back(c); 
+		}
+		
+		void reserve(size_t n) { 
+			m_data.reserve(n); 
+		}
+
+		// Expose iterators if needed (standard pattern)
+		typedef std::vector<char>::iterator iterator;
+		typedef std::vector<char>::const_iterator const_iterator;
+		
+		iterator begin() { 
+			return m_data.begin(); 
+		}
+		
+		iterator end() { 
+			return m_data.end(); 
+		}
+		
+		const_iterator begin() const { 
+			return m_data.begin();
+		}
+		
+		const_iterator end() const { 
+			return m_data.end();
+		}
+		
+		// Your custom method
+		std::string getBufferStr() const {
+			return std::string(m_data.begin(), m_data.end());
+		}
+		
+		// Helper to append data easily (Optional but useful)
+		void append(const std::string& str) {
+			m_data.insert(m_data.end(), str.begin(), str.end());
+		}
+
+		void insert(std::string& buffer, size_t start, size_t end) {
+			m_data.insert(m_data.end(), buffer.begin() + start,
+				buffer.begin() + end);
+		}
+	};
 }
 
 #endif

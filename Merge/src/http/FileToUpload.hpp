@@ -12,25 +12,25 @@ namespace webserv {
         class FileToUpload {
         public:
             static Response processFileToUpload(
-                    const webserv::http::ParsingRequest& req,
+                    const ParsingRequest& req,
                     const std::string& path,
-                    const webserv::serverConfig::ServiceConfigErrorPages& errorPages,
+                    const serverConfig::ServiceConfigErrorPages& errorPages,
                     const unsigned maxBodySize) {
                 Response res;
-                if (req.getMethod() != "POST")
+                if (req.getMethod() != "POST"){
+                    Logger::MessagesFilter(DEBUG,
+                        "req.getMethod() != \"POST\"","");
                     return ErrorPageGenerator::generate(403,
                         errorPages.getValue());
+                }
                 size_t pos = path.rfind('/');
                 std::string fileToUpload = path.substr(pos + 1);
-                //std::cout << "***fileToUpload= [" << fileToUpload << "]" << std::endl;
-                const std::string headerInfo =
+                const std::string bodyLength=
                     req.getHeaderInfo("Content-Length");
-                long bodySize = strtol(headerInfo.c_str(), NULL, 10);
-                //TO DO
-                //std::cout << "***bodySize= " << bodySize << std::endl;
+                Logger::MessagesFilter(DEBUG,
+                    "processFileToUpload, body size: ",
+                    bodyLength);
                 const std::string body = req.getBody().getBufferStr();
-                // 1. Check if file exists BEFORE writing
-                // access returns 0 if file exists, -1 if not
                 const bool fileExists = (access(path.c_str(),
                     F_OK) == 0);
                 int statusCode = 0;
@@ -44,10 +44,11 @@ namespace webserv {
                     res.setStatusCode(statusCode);
                     res.setBody("File created successfully");
                 }
-                if (bodySize > maxBodySize)
+                if (ConvUtils::cStringToLong(bodyLength) > maxBodySize)
                     return ErrorPageGenerator::generate(413,
                         errorPages.getValue());
-                const int result = checkUploadFile(path, body, bodySize);
+                const int result = checkUploadFile(path, body,
+                    ConvUtils::cStringToLong(bodyLength));
                 if (result != 0){
                     return ErrorPageGenerator::generate(result,
                         errorPages.getValue());
@@ -55,9 +56,6 @@ namespace webserv {
                 res.addHeader("Content-Type", MimeTypes::getType(path));
                 res.addHeader("Connection",
                     req.getHeaderInfo("Connection"));
-                std::stringstream ss;
-                ss << body.size();
-                res.addHeader("Content-Length", ss.str());
                 if (statusCode == 201)
                     res.addHeader("Location", req.getPath());
                 return res;
@@ -70,10 +68,14 @@ namespace webserv {
                 int fd = open(path.c_str(),O_RDWR | O_CREAT | O_TRUNC, 00644);
                 if (fd == -1) {
                     errorValue = errno;
-                    std::cerr << "***Error: Could not open file for writing! Error: "
-                        << errorValue << std::endl;
-                    if (errorValue == EACCES)
+                    Logger::MessagesFilter(ERR,
+                         "Could not open file for writing! Error: ",
+                        ConvUtils::intToStr(errorValue));
+                    if (errorValue == EACCES){
+                        Logger::MessagesFilter(DEBUG,
+                            "errorValue == EACCES", "");
                         return 403;// You might want to throw an exception here to return a 500 or 403 error
+                    }
                     return 500;
                 }
                 const char* buffer = body.c_str();

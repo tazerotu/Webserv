@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ServiceConfigIPAddress.hpp                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: yroard <yroard@student.42.fr>              +#+  +:+       +#+        */
+/*   By: ttas <ttas@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/11 09:32:38 by yroard            #+#    #+#             */
-/*   Updated: 2025/12/11 09:32:41 by yroard           ###   ########.fr       */
+/*   Updated: 2026/02/11 11:13:37 by ttas             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,7 @@
 #include <string>
 #include <vector>
 #include <sstream>
+#include "../ConvUtils.hpp"
 
 namespace webserv {
     namespace serverConfig {
@@ -52,9 +53,7 @@ namespace webserv {
                             return false;
                     }
                     // 5. Convert to integer
-                    int num = 0;
-                    std::istringstream converter(s);
-                    converter >> num;
+                    int num = ConvUtils::cStringToInt(s);
                     // 6. Check Range (0-255)
                     if (num < 0 || num > 255)
                         return false;
