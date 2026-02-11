@@ -6,7 +6,7 @@
 /*   By: ttas <ttas@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/11 09:34:18 by yroard            #+#    #+#             */
-/*   Updated: 2026/02/11 10:21:19 by ttas             ###   ########.fr       */
+/*   Updated: 2026/02/11 10:23:30 by ttas             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,7 +25,7 @@
 #include "http/ParsingRequest.hpp"
 #include "http/Response.hpp"
 #include "ServerManager.hpp"
-#include "Parsing.hpp"
+#include "parsing/Parsing.hpp"
 
 // Signal handler (keep your existing one)
 void handleSigabrt(int signal) { (void)signal; }
