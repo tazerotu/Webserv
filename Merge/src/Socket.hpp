@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Socket.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: yroard <yroard@student.42.fr>              +#+  +:+       +#+        */
+/*   By: ttas <ttas@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/11 09:35:08 by yroard            #+#    #+#             */
-/*   Updated: 2026/02/11 09:55:55 by yroard           ###   ########.fr       */
+/*   Updated: 2026/02/11 13:14:55 by ttas             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,7 +22,7 @@
 #include <unistd.h>
 #include <cerrno>
 #include <fcntl.h>
-#include <ctime>
+
 #include "EndPointError.hpp"
 #include "Logger.hpp"
 
@@ -32,14 +32,11 @@ namespace webserv {
 	class Socket {
 	private:
 		int m_fd;
-		std::time_t m_last_activity;
 	
 	public:
-		Socket() : m_fd(-1), m_last_activity(std::time(NULL)){}
-		explicit Socket(const int fd) : m_fd(fd),
-			m_last_activity(std::time(NULL)){}
-		Socket(const Socket& other) : m_fd(other.m_fd),
-				m_last_activity(other.m_last_activity){
+		Socket() : m_fd(-1){}
+		explicit Socket(const int fd) : m_fd(fd){}
+		Socket(const Socket& other) : m_fd(other.m_fd){
 			const_cast<Socket&>(other).m_fd = -1;
 			Logger::MessagesFilter(DEBUG,
 				 "Copy constructor: Ownership transferred for FD ",
@@ -114,9 +111,6 @@ namespace webserv {
 				"receiveMsg, bytes_read: ",
 				ConvUtils::ssizeToStr(bytes_read));
 			if (bytes_read > 0) {
-				m_last_activity = std::time(NULL);
-				Logger::MessagesFilter(DEBUG, "Hello!!!",
-					"\n");
 				std::string dataPreview(req_buf);
 				Logger::MessagesFilter(DEBUG,
 					"Raw data preview: ",
@@ -147,13 +141,6 @@ namespace webserv {
 		
 		int getSockFd()const {
 			return m_fd;
-		}
-
-		// Helper to check timeout from the Main Loop
-		bool hasTimedOut(int secondsLimit) const {
-			int secondsPassed = std::difftime(std::time(NULL),
-				m_last_activity);
-			return secondsPassed > secondsLimit;
 		}
 	};
 }

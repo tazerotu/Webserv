@@ -6,7 +6,7 @@
 /*   By: ttas <ttas@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/11 09:34:18 by yroard            #+#    #+#             */
-/*   Updated: 2026/02/11 11:10:52 by ttas             ###   ########.fr       */
+/*   Updated: 2026/02/11 13:17:25 by ttas             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,11 +27,17 @@
 #include "ServerManager.hpp"
 #include "parsing/Parsing.hpp"
 
-// Signal handler (keep your existing one)
-void handleSigabrt(int signal) { (void)signal; }
-
 using namespace webserv::serverConfig;
 using namespace webserv::serverConfig::routes;
+
+namespace webserv {
+    bool Init::stopRequested = false; 
+}
+
+void signalHandler(int signum) {
+    (void)signum;
+    webserv::Init::stopRequested = true;
+}
 
 bool arePortsDifferent(std::vector <ServerConfig*> tabServerConf) {
 	size_t index2 = 0;
@@ -444,7 +450,7 @@ int main(int argc, char**argv) {
 		return(0);	
 	}
 
-	
+	signal(SIGINT, signalHandler);
 	std::vector<ServerConfig *> tabServerConf;
 	tabServerConf = init_server_config(tabServerConf, argv[1]);
 
@@ -453,20 +459,19 @@ int main(int argc, char**argv) {
 		std::cout << ": ports must be different";
 		return 1;
 	}
-
 	try{
 		// 2. Initialize Server Engine
-		webserv::ServerManager manager(tabServerConf);
-		// manager.setupServers();
+		webserv::IIOMultiplexer* multiplexer = new webserv::SelectMultiplexer();
+		webserv::ServerManager serverManager(multiplexer, tabServerConf);
 		// 3. Start the Main Loop
 		std::cout << "MAIN LOOP" << std::endl;
-		manager.run();
+		while (!webserv::Init::stopRequested) {
+        	serverManager.run(); // is it non-blocking or check the flag inside
+    	}
 	}
 	catch (const std::exception& e) {
 		std::cerr << "Error: " << e.what() << std::endl;
 		return 1;
 	}
-	for (size_t i = 0; i < tabServerConf.size(); ++i)
-    	delete tabServerConf[i];
 	return 0;
 }

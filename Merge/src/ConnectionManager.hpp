@@ -14,13 +14,13 @@
 namespace webserv {
 	class ConnectionManager {
 	private:
-	    std::map<int, Client*> m_clients;
+		const std::vector<webserv::serverConfig::ServerConfig*> m_configs;
+		int    m_maxFd;
+		std::map<int, Client*> m_clients;
 	    // to store the actual Listener Socket objects (FD -> Socket*)
 		std::map<int, Socket*> m_listenerSockets;
 	    // logic to map Listener FD to Config ...
 		std::map<int, serverConfig::ServerConfig*> m_listenConfig;
-		const std::vector<webserv::serverConfig::ServerConfig*> m_configs;
-		int    m_maxFd;
 
 	public:
 		explicit ConnectionManager(
@@ -129,7 +129,7 @@ namespace webserv {
 	    void checkTimeouts(IIOMultiplexer* multiplexer) {
 			std::map<int, Client*>::iterator it = m_clients.begin();
 			while (it != m_clients.end()){
-	    		if (it->second->isSockTimeOut(Init::TimeOutLimit)) {
+	    		if (it->second->hasTimedOut(Init::TimeOutLimit)) {
 	    			int fd = it->first;
 	    			Logger::MessagesFilter(ERR,
 					"Client timed out, closing FD: ",

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Client.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: yroard <yroard@student.42.fr>              +#+  +:+       +#+        */
+/*   By: ttas <ttas@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/13 14:09:53 by yroard            #+#    #+#             */
-/*   Updated: 2026/02/04 16:23:58 by yroard           ###   ########.fr       */
+/*   Updated: 2026/02/11 13:14:27 by ttas             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,6 +23,7 @@
 #include "Socket.hpp"
 #include "serverConfig/ServerConfig.hpp"
 #include "http/ParsingRequest.hpp"
+#include <ctime>
 
 namespace webserv {
 	class Client {
@@ -32,11 +33,27 @@ namespace webserv {
 		// Data management
         http::ParsingRequest 	m_request;
 		bool 					m_hasFullRequest;
-
+		std::time_t 			m_last_activity;
+		Client(const Client& other) : m_socket(other.m_socket), 
+			m_config(other.m_config), m_hasFullRequest(other.m_hasFullRequest),
+			m_last_activity(other.m_last_activity){}
+		Client operator=(const Client& other){
+			if (this != &other){
+				m_socket = other.m_socket;
+				m_config = other.m_config;
+				m_hasFullRequest = other.m_hasFullRequest;
+				m_last_activity = other.m_last_activity;
+			}
+			return *this;
+		}
+		void resetTimeOut(){
+			m_last_activity = std::time(NULL);
+		}
 	public:
 	// Client takes ownership of the Socket pointer
 		Client(Socket* socket, const serverConfig::ServerConfig* config)
-			: m_socket(socket), m_config(config), m_hasFullRequest(false) {}
+			: m_socket(socket), m_config(config), m_hasFullRequest(false), 
+			m_last_activity(std::time(NULL)) {}
 			
 		~Client(){
 			delete m_socket; // Client destroys the connection when it dies
@@ -71,6 +88,7 @@ namespace webserv {
                 	// TRUE EOF (peer closed)
                 	return 0;
                 }
+				resetTimeOut();
                 // 2. Delegation: Pass bytes to the Parser
                 // The Client doesn't know about \r\n or Content-Length.
                 // It just feeds the parser.
@@ -111,9 +129,12 @@ namespace webserv {
 		bool isReceivingBody() const {
 			return m_request.getExpectedSize() > m_request.getBody().size();
 		}
-
-		bool isSockTimeOut(int secondsLimit) {
-			return m_socket->hasTimedOut(secondsLimit);
+		
+		// Helper to check timeout from the Main Loop
+		bool hasTimedOut(int secondsLimit) const {
+			int secondsPassed = std::difftime(std::time(NULL),
+				m_last_activity);
+			return secondsPassed > secondsLimit;
 		}
 	};
 }

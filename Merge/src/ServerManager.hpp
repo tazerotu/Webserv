@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ServerManager.hpp                                  :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: yroard <yroard@student.42.fr>              +#+  +:+       +#+        */
+/*   By: ttas <ttas@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/13 14:02:20 by yroard            #+#    #+#             */
-/*   Updated: 2026/02/11 09:20:57 by yroard           ###   ########.fr       */
+/*   Updated: 2026/02/11 13:14:49 by ttas             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,14 +26,13 @@
 namespace webserv {
 	class ServerManager {
 	private:
-		SelectMultiplexer* m_multiplexer;
+		IIOMultiplexer* m_multiplexer;
 		ConnectionManager* m_connectionManager;
-		bool m_isRunning;
 	public:
-		ServerManager(const std::vector<serverConfig::ServerConfig*>& configs)
-			: m_multiplexer(new SelectMultiplexer()),
-				m_connectionManager(new ConnectionManager(configs)),
-				m_isRunning(true){
+		ServerManager(IIOMultiplexer* multiplexer,
+					const std::vector<serverConfig::ServerConfig*>& configs)
+			: m_multiplexer(multiplexer), 
+			m_connectionManager(new ConnectionManager(configs)){
 		}
 		~ServerManager() {
 			delete m_multiplexer;
@@ -114,7 +113,7 @@ namespace webserv {
 
 		void run() {
 			setupServers();
-			while (m_isRunning) {
+			while (!Init::stopRequested) {
 				// 1. Wait (Blocking)
 				int maxFd = m_connectionManager->getMaxFd();
 				int activity = m_multiplexer->wait(maxFd);
@@ -150,17 +149,3 @@ namespace webserv {
 	};
 }
 #endif
-
-//     class ServerManager {
-//     private:
-//         IIOMultiplexer* m_multiplexer;
-//     public:
-//         ServerManager() : m_multiplexer(new SelectMultiplexer()) {}
-//         ~ServerManager() {
-//             delete m_multiplexer;
-//         }
-//         void run() {
-//             // Use m_multiplexer->waitForActivity() instead of select()
-//         }
-//     };
-// }
