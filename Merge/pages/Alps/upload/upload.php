@@ -2,7 +2,26 @@
 <html>
 <head>
     <title>Upload File</title>
+	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
+
+<header>
+	<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+		<div class="container-fluid">
+		<!-- Left side: Brand and Home -->
+		<div class="d-flex align-items-center">
+			<a href="/" class="nav-link text-light ms-3">Home</a>
+		</div>
+
+		<!-- Right side: Upload and Test -->
+		<div class="d-flex align-items-center ms-auto">
+			<a href="/upload/upload.php" class="nav-link text-light me-3">Upload</a>
+			<a href="/cgi-bin/test.php" class="nav-link text-light">Test</a>
+		</div>
+		</div>
+	</nav>
+	</header>
+
 <body>
     <h2>Upload a File</h2>
     .jpg, .jpeg, .png, .gif, .pdf only <br><br>
