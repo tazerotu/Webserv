@@ -236,7 +236,7 @@ void ParsingRequest::parseHeader(std::string& rawHeader) {
 			std::stringstream ss;
 			ss << getHeaderInfo("Content-Length");
 			ss >> m_expectedBodySize;
-			std::cout << "m_expectedBodySize= " << m_expectedBodySize << std::endl;
+			std::cout << "m_expectedBodySize=" << m_expectedBodySize << std::endl;
 		}
 
 		//parse only if end of the header found

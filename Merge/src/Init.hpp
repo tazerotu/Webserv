@@ -11,7 +11,7 @@ namespace webserv {
     struct Init {
         //select the level of logs to print on terminal
         static const LogLevel logLevel = DEBUG;
-        static const int TimeOutLimit = 10;
+        static const int TimeOutLimit = 25;
         static bool stopRequested;
     };
 }

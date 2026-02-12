@@ -6,7 +6,7 @@
 /*   By: ttas <ttas@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/13 14:09:53 by yroard            #+#    #+#             */
-/*   Updated: 2026/02/11 13:14:27 by ttas             ###   ########.fr       */
+/*   Updated: 2026/02/12 10:48:04 by ttas             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -131,9 +131,10 @@ namespace webserv {
 		}
 		
 		// Helper to check timeout from the Main Loop
+		// std::cout << "Last activity : " << m_last_activity << "\ntime : " << std::time(NULL) << "\ntime limit : " << secondsLimit << "\ntime passed : " << secondsPassed << std::endl;
 		bool hasTimedOut(int secondsLimit) const {
 			int secondsPassed = std::difftime(std::time(NULL),
-				m_last_activity);
+			m_last_activity);
 			return secondsPassed > secondsLimit;
 		}
 	};

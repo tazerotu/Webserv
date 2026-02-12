@@ -6,7 +6,7 @@
 /*   By: ttas <ttas@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/13 14:02:20 by yroard            #+#    #+#             */
-/*   Updated: 2026/02/11 14:00:45 by ttas             ###   ########.fr       */
+/*   Updated: 2026/02/12 09:24:50 by ttas             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -141,6 +141,7 @@ namespace webserv {
 						// Delegate business logic
 						handleClientActivity(fd);
 					}
+					m_connectionManager->checkTimeouts(m_multiplexer);
 				}
 				// 3. Delegate cleanup
 				m_connectionManager->checkTimeouts(m_multiplexer);

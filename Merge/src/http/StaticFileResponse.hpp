@@ -27,7 +27,7 @@ namespace webserv {
             	}
             	int readError = errno;
                 Logger::MessagesFilter(ERR,
-                "Error reading file content, error: ",
+                "Error reading file content, error ",
                 ConvUtils::intToStr(readError));
                 close(fd);
             	if (ret == -1) {

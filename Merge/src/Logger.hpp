@@ -20,6 +20,7 @@ namespace webserv {
         static std::string getCurrentTime() {
             std::time_t now = std::time(NULL);
             std::string timeStr = std::ctime(&now);
+			// std::string timeStr = "0";
             timeStr.erase(timeStr.find_last_not_of("\n") + 1); // Remove newline
             return timeStr;
         }
@@ -42,7 +43,7 @@ namespace webserv {
                     << contextMessage << result << std::endl;
                 return;
             }
-            std::cerr << "[" << timeStr << "]" << "<" << messLogLevel << "> "
+            std::cerr << "[" << timeStr << "]" << "<" << levelStr << "> "
                     << contextMessage << ": " << result << std::endl;
         }
 

@@ -10,7 +10,7 @@ SRC_FILES = $(shell find $(SRC_DIR) -name "*.cpp")
 OBJ_FILES = $(patsubst $(SRC_DIR)%.cpp,$(OBJ_DIR)%.o,$(SRC_FILES))
 
 # -Wall -Werror -Wextra
-CFLAGS = -std=c++98
+CFLAGS = -std=c++98 -g
 SANITIZER_FLAGS = #-fsanitize=address
 
 LIBS = 
