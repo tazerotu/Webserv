@@ -84,6 +84,7 @@
         <h2>Uploaded Files</h2>
 
         <?php
+		// while(1);
         // Handle file deletion
         if (isset($_POST['deleteFile'])) {
             $fileToDelete = basename($_POST['deleteFile']); // sanitize input
