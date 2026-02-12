@@ -2,6 +2,7 @@
 // Created by yannou on 30/01/2026.
 //
 
+#pragma
 #ifndef WEBSERV_CGIHANDLER_HPP
 #define WEBSERV_CGIHANDLER_HPP
 #include <string>
