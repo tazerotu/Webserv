@@ -7,6 +7,7 @@
 
 #include <algorithm>
 #include "IIOMultiplexer.hpp"
+#include "Init.hpp"
 
 namespace webserv {
     class SelectMultiplexer : public IIOMultiplexer {
@@ -15,6 +16,7 @@ namespace webserv {
         fd_set m_readSet;
         //fd_set m_writeSet;// Optional: Add if you handle write readiness separately
         fd_set m_masterSet;
+		Init init;
     public:
         SelectMultiplexer() {
             FD_ZERO(&m_readSet);
@@ -36,7 +38,7 @@ namespace webserv {
             // 2. Call select
             // Timeout NULL = wait indefinitely
 			timeval* test = new timeval;
-			test->tv_sec = 30;
+			test->tv_sec = init.TimeOutLimit;
 			test->tv_usec = 0;
 
 			int activity = select(max_fd + 1, &m_readSet, NULL, NULL, test);

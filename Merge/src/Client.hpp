@@ -6,7 +6,7 @@
 /*   By: ttas <ttas@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/13 14:09:53 by yroard            #+#    #+#             */
-/*   Updated: 2026/02/12 10:48:04 by ttas             ###   ########.fr       */
+/*   Updated: 2026/02/12 11:09:33 by ttas             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -135,7 +135,7 @@ namespace webserv {
 		bool hasTimedOut(int secondsLimit) const {
 			int secondsPassed = std::difftime(std::time(NULL),
 			m_last_activity);
-			return secondsPassed > secondsLimit;
+			return secondsPassed >= secondsLimit;
 		}
 	};
 }
