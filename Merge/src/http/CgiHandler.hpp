@@ -68,11 +68,11 @@ namespace webserv {
 							res.addHeader("Connection",
 								req.getHeaderInfo("Connection"));
 						res.addHeader("Content-Type", "text/html");
-						return res;
 					}
 					else 
-						res.setBody(cgiOutput);
-					}
+					res.setBody(cgiOutput);
+					return res;
+				}
 				catch (const HttpError& e) {
 					HttpError::create(HttpStatus(InternalServerError), cgi_exec_failure);
 				}
