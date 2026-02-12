@@ -70,7 +70,7 @@ namespace webserv {
 						res.addHeader("Content-Type", "text/html");
 					}
 					else 
-					res.setBody(cgiOutput);
+						res.setBody(cgiOutput);
 					return res;
 				}
 				catch (const HttpError& e) {
