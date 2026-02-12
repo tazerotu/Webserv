@@ -65,12 +65,6 @@
         <button type="submit">Send POST Request</button>
     </form>
 
-	<!-- <?php
-	// $test = 1 / 0;
-    // echo "<h3>Division by 0</h3>";
-    // echo "<pre>$test</pre>";
-	?> -->
-
     <?php if (!empty($_GET)): ?>
         <h3>$_GET Data Received:</h3>
         <pre><?php print_r($_GET); ?></pre>
