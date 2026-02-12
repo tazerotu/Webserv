@@ -6,7 +6,7 @@
 /*   By: ttas <ttas@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/11 09:34:18 by yroard            #+#    #+#             */
-/*   Updated: 2026/02/11 13:17:25 by ttas             ###   ########.fr       */
+/*   Updated: 2026/02/12 13:45:25 by ttas             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -363,80 +363,86 @@ std::vector<ServerConfig *> init_server_config(std::vector<ServerConfig*> Server
 	Server.clear();
 	std::string file = conf;
 	parse_config(&Configs, file);
-	
-	if (Configs.empty())
+	try
 	{
-		std::cout << "conf file is empty or invalid" << std::endl;
-		exit(0);
-	}
-    else
-    {
-		for (size_t i = 0; i < Configs.size(); ++i) 
+		if (Configs.empty())
 		{
-			std::cout << "========================\n";
-			std::cout << "Server Configuration " << i + 1 << ":\n";
-			printParsing(Configs[i]);
-			std::cout << "========================\n\n";
-		
-			TabRoute routesVec; // NEW vector for THIS server only
-
-			for (size_t j = 0; j < Configs[i].getRoutes().size(); ++j)
+			std::cout << "conf file is empty or invalid" << std::endl;
+			exit(0);
+		}
+		else
+		{
+			for (size_t i = 0; i < Configs.size(); ++i) 
 			{
-				std::string method_string;
-				std::vector<std::string> methods =
-					Configs[i].getRoutes()[j].getConfigMethods();
+				std::cout << "========================\n";
+				std::cout << "Server Configuration " << i + 1 << ":\n";
+				printParsing(Configs[i]);
+				std::cout << "========================\n\n";
+			
+				TabRoute routesVec; // NEW vector for THIS server only
 
-				for (size_t k = 0; k < methods.size(); ++k)
+				for (size_t j = 0; j < Configs[i].getRoutes().size(); ++j)
 				{
-					if (k > 0)
-						method_string += " ";
-					method_string += methods[k];
+					std::string method_string;
+					std::vector<std::string> methods =
+						Configs[i].getRoutes()[j].getConfigMethods();
+
+					for (size_t k = 0; k < methods.size(); ++k)
+					{
+						if (k > 0)
+							method_string += " ";
+						method_string += methods[k];
+					}
+
+					std::stringstream StoreStatus;
+					StoreStatus << static_cast<int>(
+						Configs[i].getRoutes()[j].getUpload()
+					);
+
+					routesVec.push_back(new ServerConfigRoutes(
+						ServiceConfigRouteLoc::create(
+							Configs[i].getRoutes()[j].getRouteLoc()
+						),
+						SCMethodFactory::createMethod(method_string),
+						ServiceConfigRedirection::create(
+							Configs[i].getRoutes()[j].getRedirection()
+						),
+						ServiceConfigRootPath::create(
+							Configs[i].getRoutes()[j].getRootPath()
+						),
+						ServiceConfigAutoIndex::create(
+							Configs[i].getRoutes()[j].getAutoIndex()
+						),
+						ServiceConfigDefaultFile::create(
+							Configs[i].getRoutes()[j].getDefaultFile()
+						),
+						ServiceConfigStoreStatus::create(
+							StoreStatus.str()
+						),
+						ServiceConfigCGI::create(
+							Configs[i].getRoutes()[j].getCgiPath(),
+							Configs[i].getRoutes()[j].getCgiExt()
+						)
+					));
 				}
 
-				std::stringstream StoreStatus;
-				StoreStatus << static_cast<int>(
-					Configs[i].getRoutes()[j].getUpload()
-				);
-
-				routesVec.push_back(new ServerConfigRoutes(
-					ServiceConfigRouteLoc::create(
-						Configs[i].getRoutes()[j].getRouteLoc()
-					),
-					SCMethodFactory::createMethod(method_string),
-					ServiceConfigRedirection::create(
-						Configs[i].getRoutes()[j].getRedirection()
-					),
-					ServiceConfigRootPath::create(
-						Configs[i].getRoutes()[j].getRootPath()
-					),
-					ServiceConfigAutoIndex::create(
-						Configs[i].getRoutes()[j].getAutoIndex()
-					),
-					ServiceConfigDefaultFile::create(
-						Configs[i].getRoutes()[j].getDefaultFile()
-					),
-					ServiceConfigStoreStatus::create(
-						StoreStatus.str()
-					),
-					ServiceConfigCGI::create(
-						Configs[i].getRoutes()[j].getCgiPath(),
-						Configs[i].getRoutes()[j].getCgiExt()
-					)
-				));
+				Server.push_back(new ServerConfig(
+					ServiceConfigWebsiteName::create(Configs[i].getName()),
+					ServiceConfigIPAddress::create(Configs[i].getHost()),
+					ServiceConfigPort::create(Configs[i].getPort()),
+					ServiceConfigErrorPages::create(Configs[i].getErrorPages()),
+					ServiceConfigMaxBodySize::create(
+						Configs[i].getMaxClientBodySize()),
+					routesVec ));
 			}
-
-			Server.push_back(new ServerConfig(
-				ServiceConfigWebsiteName::create(Configs[i].getName()),
-				ServiceConfigIPAddress::create(Configs[i].getHost()),
-				ServiceConfigPort::create(Configs[i].getPort()),
-				ServiceConfigErrorPages::create(Configs[i].getErrorPages()),
-				ServiceConfigMaxBodySize::create(
-					Configs[i].getMaxClientBodySize()),
-				routesVec ));
-    	}
-		printServers(Server);
+			printServers(Server);
+		}
 	}
-	
+	catch(const std::exception& e)
+	{
+		std::cerr << e.what() << '\n';
+		exit(0);
+	}	
 	return (Server);
 }
 
