@@ -41,37 +41,46 @@ namespace webserv {
                     throw HttpError::create(HttpStatus(InternalServerError),
                         cgi_interpreter_invalid);
                 }
-                std::string cgiOutput = execute(path, cgiInterpreterPath,
-                        req);
-                Response res;
-                res.setStatusCode(200);
-                size_t headerEnd = cgiOutput.find("\r\n\r\n");
-                if (headerEnd != std::string::npos) {
-                    std::string headers = cgiOutput.substr(0, headerEnd);
-                    std::string body = cgiOutput.substr(headerEnd + 4);
-                    res.setBody(body);
-                    std::map<std::string, std::string> headerMap;
-			        headerMap =
-			            ParsingRequest::parseForHeaderLineRequest(headers);
-                    std::map<std::string, std::string>::iterator it;
-                    Logger::MessagesFilter(DEBUG,
-                        "Into php file, header: ","");
-                    for (it = headerMap.begin(); it != headerMap.end(); ++it){
-                        Logger::MessagesFilter(DEBUG,
-                        "Into loop, header: ","");
-                        std::cout << it->first << ": " << it->second << std::endl;
-                    }
-                    Logger::MessagesFilter(DEBUG,
-                        "Exit loop, header","");
-                    if (!req.getHeaderInfo("Connection").empty())
-                        res.addHeader("Connection",
-                            req.getHeaderInfo("Connection"));
-                    res.addHeader("Content-Type", "text/html");
-                }
-                else 
-                    res.setBody(cgiOutput);
-            return res;
-
+				
+				try {
+					std::string cgiOutput = execute(path, cgiInterpreterPath, req);
+					Response res;
+					res.setStatusCode(200);
+					size_t headerEnd = cgiOutput.find("\r\n\r\n");
+					if (headerEnd != std::string::npos) {
+						std::string headers = cgiOutput.substr(0, headerEnd);
+						std::string body = cgiOutput.substr(headerEnd + 4);
+						res.setBody(body);
+						std::map<std::string, std::string> headerMap;
+						headerMap =
+							ParsingRequest::parseForHeaderLineRequest(headers);
+						std::map<std::string, std::string>::iterator it;
+						Logger::MessagesFilter(DEBUG,
+							"Into php file, header: ","");
+						for (it = headerMap.begin(); it != headerMap.end(); ++it){
+							Logger::MessagesFilter(DEBUG,
+							"Into loop, header: ","");
+							std::cout << it->first << ": " << it->second << std::endl;
+						}
+						Logger::MessagesFilter(DEBUG,
+							"Exit loop, header","");
+						if (!req.getHeaderInfo("Connection").empty())
+							res.addHeader("Connection",
+								req.getHeaderInfo("Connection"));
+						res.addHeader("Content-Type", "text/html");
+						return res;
+					}
+					else 
+						res.setBody(cgiOutput);
+					}
+				catch (const HttpError& e) {
+					HttpError::create(HttpStatus(InternalServerError), cgi_exec_failure);
+				}
+					
+				// = execute(path, cgiInterpreterPath, req);
+				Response resp;
+				resp.setStatusCode(500);
+				return(resp);
             }
 
             //  checks if the file exists AND has execute permissions
