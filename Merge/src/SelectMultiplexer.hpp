@@ -35,7 +35,13 @@ namespace webserv {
 
             // 2. Call select
             // Timeout NULL = wait indefinitely
-            int activity = select(max_fd + 1, &m_readSet, NULL, NULL, NULL);
+			timeval* test = new timeval;
+			test->tv_sec = 30;
+			test->tv_usec = 0;
+
+			int activity = select(max_fd + 1, &m_readSet, NULL, NULL, test);
+
+			delete test; 
 
             if (activity < 0) return -1; // Error
             if (activity == 0) return 0; // Timeout
