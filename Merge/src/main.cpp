@@ -6,7 +6,7 @@
 /*   By: ttas <ttas@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/11 09:34:18 by yroard            #+#    #+#             */
-/*   Updated: 2026/02/12 13:45:25 by ttas             ###   ########.fr       */
+/*   Updated: 2026/02/17 09:56:07 by ttas             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -178,15 +178,12 @@ static void parse_config(std::vector<Parsing> *Configs, std::string config_file)
     int braceCount = 0;
 
     while (std::getline(file, line)) {
-
-        // Remove comments (everything after '#')
         size_t comment_pos = line.find('#');
         if (comment_pos != std::string::npos) {
             line = line.substr(0, comment_pos);
         }
 
-        if (line.empty()) continue; // skip empty lines
-        // Detect start of block
+        if (line.empty()) continue;
         if (!inside) {
             if (line.find("server") != std::string::npos &&
                 line.find("{") != std::string::npos) {
@@ -198,53 +195,22 @@ static void parse_config(std::vector<Parsing> *Configs, std::string config_file)
             }
         } 
         else {
-            // Already inside block
             if (line.find("{") != std::string::npos)
                 braceCount++;
 
             if (line.find("}") != std::string::npos)
                 braceCount--;
 
-            // Stop if block ended
             if (braceCount == 0) {
                 inside = false;
                 (*Configs).push_back(Parsing(block));
-                continue; // don't include the closing brace
+                continue;
             }
 
-            // Save content inside server block
             block << line << "\n";
         }
     }
 }
-
-
-
-// int main(int argc, char** argv) {
-	// if (argc != 2) {
-	//     std::cerr << "Usage: ./webserv <config_file>" << std::endl;
-	//     return 1;
-	// }
-
-	// try {
-	//     // 1. Load Configuration
-	//     ConfigParser parser;
-	//     std::vector<ServerConfig*> configs = parser.parse(argv[1]);
-
-//         // 2. Initialize Server Engine
-//         ServerManager manager(configs);
-//         manager.setupServers();
-
-//         // 3. Start the Main Loop
-//         manager.run();
-//     }
-//     catch (const std::exception& e) {
-//         std::cerr << "Error: " << e.what() << std::endl;
-//         return 1;
-//     }
-
-//     return 0;
-// }
 
 /* hard coded server config
 {
@@ -379,7 +345,7 @@ std::vector<ServerConfig *> init_server_config(std::vector<ServerConfig*> Server
 				printParsing(Configs[i]);
 				std::cout << "========================\n\n";
 			
-				TabRoute routesVec; // NEW vector for THIS server only
+				TabRoute routesVec;
 
 				for (size_t j = 0; j < Configs[i].getRoutes().size(); ++j)
 				{
@@ -466,13 +432,11 @@ int main(int argc, char**argv) {
 		return 1;
 	}
 	try{
-		// 2. Initialize Server Engine
 		webserv::IIOMultiplexer* multiplexer = new webserv::SelectMultiplexer();
 		webserv::ServerManager serverManager(multiplexer, tabServerConf);
-		// 3. Start the Main Loop
 		std::cout << "MAIN LOOP" << std::endl;
 		while (!webserv::Init::stopRequested) {
-        	serverManager.run(); // is it non-blocking or check the flag inside
+        	serverManager.run();
     	}
 	}
 	catch (const std::exception& e) {
