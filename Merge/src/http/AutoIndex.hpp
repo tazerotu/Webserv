@@ -5,10 +5,12 @@
 #ifndef WEBSERV_AUTOINDEX_HPP
 #define WEBSERV_AUTOINDEX_HPP
 
-#include <cerrno>
 #include <cstdio>
 #include <dirent.h>
 #include <string>
+#include <iostream>
+#include <cerrno>
+#include <cstring>
 
 namespace webserv {
     namespace http {
@@ -17,7 +19,7 @@ namespace webserv {
             static std::string generateDirContent(const std::string& path) {
                 DIR *resultOpenDir = opendir(path.c_str());
                 if (!resultOpenDir){
-                    perror("open directory");
+					std::cerr << "open directory" << std::strerror(errno) << std::endl;
                     return "";
                 }
                 std::string result;

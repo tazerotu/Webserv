@@ -49,7 +49,7 @@ namespace webserv {
                 if (method == "DELETE") {
                     if (stat((path.c_str()), &buf) == -1) {
                         const int errorCode = errno;
-                        perror("stat");
+						std::cerr << "stat" << std::strerror(errno) << std::endl;
                         return ErrorPageGenerator::generate(
                             ErrorPageGenerator::mapErrnoToCode(errorCode),
                             errorPages.getValue());

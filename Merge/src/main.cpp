@@ -6,7 +6,7 @@
 /*   By: ttas <ttas@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/11 09:34:18 by yroard            #+#    #+#             */
-/*   Updated: 2026/02/17 10:39:10 by ttas             ###   ########.fr       */
+/*   Updated: 2026/02/17 10:47:21 by ttas             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -163,7 +163,7 @@ static void parse_config(std::vector<Parsing> *Configs, std::string config_file)
 {
     if (config_file.size() < 5 || config_file.substr(config_file.size() - 5, 5) != ".conf")
     {
-        perror("Invalid config file extension. Expected .conf");
+		std::cerr << "Invalid config file extension. Expected .conf" << std::strerror(errno) << std::endl;
         exit(1);
     }
 
