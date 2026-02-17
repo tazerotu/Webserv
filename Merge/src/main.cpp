@@ -6,7 +6,7 @@
 /*   By: ttas <ttas@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/11 09:34:18 by yroard            #+#    #+#             */
-/*   Updated: 2026/02/17 09:56:07 by ttas             ###   ########.fr       */
+/*   Updated: 2026/02/17 10:39:10 by ttas             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,6 +22,7 @@
 #include "Socket.hpp"
 #include "test/test.hpp"
 #include "serverConfig/IServerConfig.hpp"
+#include "serverConfig/routes/SCMethodFactory.hpp"
 #include "http/ParsingRequest.hpp"
 #include "http/Response.hpp"
 #include "ServerManager.hpp"
@@ -342,7 +343,7 @@ std::vector<ServerConfig *> init_server_config(std::vector<ServerConfig*> Server
 			{
 				std::cout << "========================\n";
 				std::cout << "Server Configuration " << i + 1 << ":\n";
-				printParsing(Configs[i]);
+				// printParsing(Configs[i]);
 				std::cout << "========================\n\n";
 			
 				TabRoute routesVec;
@@ -401,7 +402,7 @@ std::vector<ServerConfig *> init_server_config(std::vector<ServerConfig*> Server
 						Configs[i].getMaxClientBodySize()),
 					routesVec ));
 			}
-			printServers(Server);
+			// printServers(Server);
 		}
 	}
 	catch(const std::exception& e)
