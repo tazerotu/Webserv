@@ -1,3 +1,4 @@
+#pragma
 #ifndef PARSING_HPP
 # define PARSING_HPP
 
@@ -11,6 +12,11 @@
 #include <vector>
 #include "ParsingRoutes.hpp"
 
+
+/**
+ * @brief Handles the parsing or the config file for the creation of the server,
+ * Works hand in hand with ParsingRoutes 
+*/
 class Parsing
 {
 
@@ -33,11 +39,6 @@ class Parsing
         int getMaxClientBodySize() const;
         std::map<int, std::string> &getErrorPages();
 		std::vector<ParsingRoutes> getRoutes() const {return _routes;}
-        // const std::string &getIndex() const;
-        // int getAutoindex() const;
-        // const std::vector<std::string> &getAllowedMethods() const;
-        // const std::string &getCgiPath() const;
-        // const std::string &getCgiExt() const;
 
         // Setters
         void setName(const std::string &name);
@@ -46,11 +47,6 @@ class Parsing
         void setRoot(const std::string &root);
         void setErrorPage(const std::string &errorPage);
         void setMaxClientBodySize(const std::string &size);
-        // void setIndex(const std::string &index);
-        // void setAutoindex(const std::string &autoindex);
-        // void setAllowedMethods(const std::string &methods);
-        // void setCgiPath(const std::string &cgiPath);
-        // void setCgiExt(const std::string &cgiExt);
 
         void verify_validity();
 
@@ -63,11 +59,6 @@ class Parsing
         std::map<int, std::string> _error_pages;
         int         _maxClientBodySize;
 		std::vector<ParsingRoutes> _routes;
-        // std::string _index;
-        // int         _autoindex;
-        // std::vector<std::string> _allowed_methods;
-        // std::string _cgi_path;
-        // std::string _cgi_ext;
 
         // Map for assign()
         static std::map<std::string, Setter> initMap();

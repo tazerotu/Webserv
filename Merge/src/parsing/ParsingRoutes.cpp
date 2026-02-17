@@ -38,17 +38,15 @@ void ParsingRoutes::verify_route()
 	}
 	
 }
-
+// Trims whitespaces before and after the string
 static std::string trim(const std::string& s)
 {
     size_t start = 0;
     size_t end = s.size();
 
-    // Trim leading whitespace
     while (start < end && std::isspace(static_cast<unsigned char>(s[start])))
         ++start;
 
-    // Trim trailing whitespace
     while (end > start && std::isspace(static_cast<unsigned char>(s[end - 1])))
         --end;
 

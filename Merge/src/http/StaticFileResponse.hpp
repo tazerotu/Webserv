@@ -14,7 +14,6 @@ namespace webserv {
         private:
             static void ReadFileContent(std::stringstream *buffer,
                     const int fd) {
-                // Read file content
                 char buf[4096];
                 ssize_t ret;
                 while ((ret = read(fd, buf, 1024)) > 0) {

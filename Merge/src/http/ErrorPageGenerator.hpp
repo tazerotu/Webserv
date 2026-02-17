@@ -1,7 +1,7 @@
 //
 // Created by yannou on 02/02/2026.
 //
-
+#pragma
 #ifndef WEBSERV_ERRORPAGEGENERATOR_HPP
 #define WEBSERV_ERRORPAGEGENERATOR_HPP
 
@@ -27,8 +27,6 @@ namespace webserv {
                     default: return 500;
                 }
             }
-            // 1. Try to find the custom error page
-            // 2. Fallback: Generate a default simple HTML body
             static Response generate(int statusCode,
                     const std::map<int, std::string>& errorPages) {
                 Response res;

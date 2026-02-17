@@ -6,7 +6,7 @@
 /*   By: ttas <ttas@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/05 13:31:12 by ttas              #+#    #+#             */
-/*   Updated: 2026/02/03 10:48:04 by ttas             ###   ########.fr       */
+/*   Updated: 2026/02/17 09:43:12 by ttas             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,14 +40,6 @@ void Parsing::verify_validity()
         error_message("Server host is not set");
     if (_port <= 0 || _port > 65535)
         error_message("Server port is invalid");
-    // if (_root.empty())
-    //     error_message("Server root is not set");
-    // if (_index.empty())
-    //     error_message("Server index is not set");
-    // if (_autoindex != 0 && _autoindex != 1)
-    //     error_message("Autoindex must be 0 or 1");
-    // if (_allowed_methods.empty())
-    //     error_message("Allowed methods are not set");
     if (_maxClientBodySize < 0)
         error_message("Max client body size is invalid");
 }
@@ -92,18 +84,14 @@ Parsing::Parsing(std::string conf)
     file.close();
 }
 
-// static bool whitespace(char c) {return isspace((unsigned char)c)&&c!='\t';}
-
 static std::string trim(const std::string& s)
 {
     size_t start = 0;
     size_t end = s.size();
 
-    // Trim leading whitespace
     while (start < end && std::isspace(static_cast<unsigned char>(s[start])))
         ++start;
 
-    // Trim trailing whitespace
     while (end > start && std::isspace(static_cast<unsigned char>(s[end - 1])))
         --end;
 
@@ -144,20 +132,17 @@ Parsing::Parsing(std::istream& stream)
         } 
         else
 		{
-			// Already inside block
 			if (line.find("{") != std::string::npos)
 				braceCount++;
 			if (line.find("}") != std::string::npos)
 				braceCount--;
 
-			// Stop if block ended
 			if (braceCount == 0) {
 				inside = false;
 				_routes.push_back(ParsingRoutes(block));
-				continue; // don't include the closing brace
+				continue; 
 			}
 
-			// Save content inside server block
 			block << line << "\n";
 			// std::cout << block.str() << std::endl;
         }
@@ -195,13 +180,8 @@ const std::string &Parsing::getName() const { return _name; }
 const std::string &Parsing::getHost() const { return _host; }
 int Parsing::getPort() const { return _port; }
 const std::string &Parsing::getRoot() const { return _root; }
-// const std::string &Parsing::getIndex() const { return _index; }
-// int Parsing::getAutoindex() const { return _autoindex; }
 std::map<int, std::string> &Parsing::getErrorPages() { return _error_pages; }
-// const std::vector<std::string> &Parsing::getAllowedMethods() const { return _allowed_methods; }
 int Parsing::getMaxClientBodySize() const { return _maxClientBodySize; }
-// const std::string &Parsing::getCgiPath() const { return _cgi_path; }
-// const std::string &Parsing::getCgiExt() const { return _cgi_ext; }
 
 // ---------------- Setters ----------------
 
@@ -229,45 +209,15 @@ void Parsing::setRoot(const std::string &root)
         error_message("Duplicate: Server root already set to: " + _root);
     _root = root; 
 }
-// void Parsing::setIndex(const std::string &index) 
-// { 
-//     if(!_index.empty())
-//         error_message("Duplicate: Server index already set to: " + _index);
-//     _index = index; 
-// }
-// void Parsing::setAutoindex(const std::string &autoindex) 
-// { 
-//     if(_autoindex != -1)
-//         error_message("Duplicate: Server autoindex already set");
-//     _autoindex = atoi(autoindex.c_str()); 
-// }
+
 void Parsing::setErrorPage(const std::string &errorPage)
 {
 	int error_code = atoi(errorPage.substr(0, errorPage.find(' ')).c_str());
     this->_error_pages[error_code] = errorPage.substr(errorPage.find(' ') + 1);
 }
 
-// void Parsing::setAllowedMethods(const std::string &methods)
-// {
-//     _allowed_methods.clear();
-//     std::string method;
-//     for (size_t i = 0; i < methods.size(); ++i)
-//     {
-//         if (methods[i] == ' ')
-//         {
-//             if (!method.empty())
-//                 _allowed_methods.push_back(method);
-//             method.clear();
-//         }
-//         else
-//             method += methods[i];
-//     }
-//     if (!method.empty())
-//         _allowed_methods.push_back(method);
-// }
 void Parsing::setMaxClientBodySize(const std::string &size) { _maxClientBodySize = atoi(size.c_str()); }
-// void Parsing::setCgiPath(const std::string &cgiPath) { _cgi_path = cgiPath; }
-// void Parsing::setCgiExt(const std::string &cgiExt) { _cgi_ext = cgiExt; }
+
 
 // ---------------- Map Initialization ----------------
 
@@ -280,11 +230,6 @@ std::map<std::string, Parsing::Setter> Parsing::initMap()
     m["root"] = &Parsing::setRoot;
     m["error_page"] = &Parsing::setErrorPage;
     m["client_max_body"] = &Parsing::setMaxClientBodySize;
-    // m["index"] = &Parsing::setIndex;
-    // m["autoindex"] = &Parsing::setAutoindex;
-    // m["allowed_methods"] = &Parsing::setAllowedMethods;
-    // m["cgi_path"] = &Parsing::setCgiPath;
-    // m["cgi_ext"] = &Parsing::setCgiExt;
     return m;
 }
 

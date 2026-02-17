@@ -6,7 +6,7 @@
 /*   By: ttas <ttas@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/03 13:13:55 by yroard            #+#    #+#             */
-/*   Updated: 2026/02/12 13:24:20 by ttas             ###   ########.fr       */
+/*   Updated: 2026/02/17 09:48:46 by ttas             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -59,9 +59,7 @@ namespace webserv {
             const std::string& uri = req.getPath();
             const serverConfig::routes::IServerConfigRoutes* targetRoute =
                 Router::selectRoute(conf, uri);
-            // SAFETY CHECK: Handle null route
             if (!targetRoute) {
-                // Return 404 immediately if no route matches
                 return http::ErrorPageGenerator::generate(404,
                     conf.getErrorPages().getValue());
             }
@@ -86,7 +84,13 @@ namespace webserv {
                     redirMap, req, path);
             if (isCGI(targetRoute) 
                 && path.find(".php") != std::string::npos)
-                    return http::CgiHandler::processCGI(req, targetRoute, path);
+				{
+					http::Response res = http::CgiHandler::processCGI(req, targetRoute, path);
+					if (res.getStatusCode() == 500)
+						http::ErrorPageGenerator::generate(500, conf.getErrorPages().getValue());
+					else
+					return (res);
+				}
             if (isFileToUpload(targetRoute))
                 return http::FileToUpload::processFileToUpload(req, path,
                     conf.getErrorPages(),

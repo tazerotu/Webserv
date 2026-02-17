@@ -45,7 +45,7 @@ namespace webserv {
 			const char* whitespace = " \t\r\n";
 			size_t first = str.find_first_not_of(whitespace);
 			if (first == std::string::npos)
-				return ""; // String is all whitespace
+				return "";
 			size_t last = str.find_last_not_of(whitespace);
 			return str.substr(first, (last - first + 1));
 		}
@@ -84,7 +84,6 @@ namespace webserv {
 				m_body(), m_headerParsed(false), m_expectedBodySize(0) {
 		}
 
-		// Make Copy Constructor Public
 		ParsingRequest::ParsingRequest(const ParsingRequest &src) {
 			*this = src;
 		}
@@ -173,25 +172,25 @@ namespace webserv {
 			for (unsigned i = 0; i < m_body.size(); ++i) {
 				char c = m_body[i];
 				if (c == '\r')
-					std::cout << "\\r"; // Print literally "\r"
+					std::cout << "\\r";
 				else if (c == '\n')
-					std::cout << "\\n\n"; // Print literally "\n" then a real newline
+					std::cout << "\\n\n";
 				else if (std::isprint(c))
 					std::cout << c;
 				else
-					std::cout << "."; // Replace non-printables with dot
+					std::cout << ".";
 			}
 			Logger::MessagesFilter(INFO,
 	 "=========== END BODY ==========", "");
 		}
 
 		void ParsingRequest::printRequest() {
-			std::cout << "Method: " << m_method << std::endl; // e.g., "GET"
+			std::cout << "Method: " << m_method << std::endl;
 			std::cout << "Full uri: " << m_fullUri << std::endl;
 			std::cout << "Uri: " << m_uri << std::endl;
-			std::cout << "Path: " << m_path << std::endl; // e.g., "/index.html"
-			std::cout << "Query: " << m_queryString << std::endl; // e.g., "/index.html"
-			std::cout << "Version: " << m_httpVersion << std::endl; // e.g., "HTTP/1.1"
+			std::cout << "Path: " << m_path << std::endl;
+			std::cout << "Query: " << m_queryString << std::endl;
+			std::cout << "Version: " << m_httpVersion << std::endl;
 			Logger::MessagesFilter(INFO,
 							"========== START HEADER ==========", "");
 			for (std::map<std::string, std::string>::iterator itHeader =
@@ -260,17 +259,14 @@ void ParsingRequest::parseHeader(std::string& rawHeader) {
 				}
 			}
 			if (m_headerParsed && m_expectedBodySize > 0) {
-				// Calculate how much more data we need
 				size_t bytesNeeded = m_expectedBodySize - m_body.size();
 				size_t bytesAvailable = bufferStr.size();
 
-				// Take the smaller of: what we have OR what we need
 				size_t toCopy = std::min(bytesNeeded, bytesAvailable);
 				if (toCopy > 0) {
 					m_body.insert(bufferStr, 0, toCopy);
 					m_rawData.clear();
 					if (bytesAvailable > toCopy) {
-						// If we had MORE data than needed (e.g. pipelined request), keep the rest
 						m_rawData.append(bufferStr.substr(toCopy));
 					}
 				}
@@ -279,7 +275,7 @@ void ParsingRequest::parseHeader(std::string& rawHeader) {
 
 		void ParsingRequest::appendData(const std::string& chunk) {
 			m_rawData.append(chunk);
-			parse(); // Try to parse what we have so far
+			parse();
 		}
 
 		bool ParsingRequest::isComplete() {

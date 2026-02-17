@@ -35,8 +35,8 @@ namespace webserv {
                     const std::string& path) {
                 std::map<int, std::string>::const_iterator it
                                                     = redirMap.begin();
-                const int code = it->first;       // e.g., 301
-                const std::string url = it->second; // e.g., "/new-page"
+                const int code = it->first;
+                const std::string url = it->second;
                 const std::string body = buildRedirectResponse(code);
                 Response res;
                 res.setStatusCode(code);

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   HttpStatus.hpp                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: yroard <yroard@student.42.fr>              +#+  +:+       +#+        */
+/*   By: ttas <ttas@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/11 09:28:34 by yroard            #+#    #+#             */
-/*   Updated: 2025/12/11 09:39:54 by yroard           ###   ########.fr       */
+/*   Updated: 2026/02/17 09:49:10 by ttas             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,7 +18,6 @@
 
 namespace webserv {
     namespace http {
-        // Define HTTP status codes as an enum
         class HttpStatus {
         private:
             StatusCode m_status;
@@ -27,17 +26,14 @@ namespace webserv {
             explicit HttpStatus(StatusCode status) : m_status(status) {
             }
 
-            // Get the status code
             StatusCode getStatusCode() const {
                 return m_status;
             }
 
-            // Get the status code as an integer
             int getStatusCodeInt() const {
                 return static_cast<int>(m_status);
             }
 
-            // Get the reason phrase for the status code
             static std::string getReasonPhrase(int code) {
                 switch (code) {
                     // 1xx Informational

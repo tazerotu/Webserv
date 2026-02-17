@@ -107,11 +107,11 @@ namespace webserv {
                 envStr.push_back("REQUEST_METHOD=" + req.getMethod());
                 envStr.push_back("REQUEST_URI=" + req.getFullUri());
                 envStr.push_back("SCRIPT_FILENAME=" + scriptPath);
-				envStr.push_back("SCRIPT_NAME=" + req.getUri());   // Virtual path (e.g., /cgi/test.php)
+				envStr.push_back("SCRIPT_NAME=" + req.getUri());
                 envStr.push_back("QUERY_STRING=" + req.getQuery());
                 envStr.push_back("SERVER_PROTOCOL=" + req.getHttpVersion());
                 envStr.push_back("GATEWAY_INTERFACE=CGI/1.1");
-                envStr.push_back("REDIRECT_STATUS=200"); // PHP-CGI needs
+                envStr.push_back("REDIRECT_STATUS=200");
                 if (!req.getHeaderInfo("Content-Length").empty())
                     envStr.push_back("CONTENT_LENGTH=" 
 						+ req.getHeaderInfo("Content-Length"));
@@ -149,12 +149,10 @@ namespace webserv {
             static std::string execute(const std::string& scriptPath,
                     const std::string& interpreter,
                     const ParsingRequest& req) {
-                // Pipe 1: Child -> Parent (Output/Response)
                 int pipe_out[2];
                 if (pipe(pipe_out) == -1) {
                     throw HttpError::create(HttpStatus(InternalServerError), pipe_error);
                 }
-                // Pipe 2: Parent -> Child (Input/Body)
                 int pipe_in[2];
                 if (pipe(pipe_in) == -1) {
                     close(pipe_out[0]);
@@ -170,55 +168,40 @@ namespace webserv {
                 }
                 // --- CHILD PROCESS (Executes PHP) ---
                 if (pid == 0) {
-                    // 1. Redirect Output (Stdout -> pipe_out)
                     dup2(pipe_out[1], STDOUT_FILENO);
                     close(pipe_out[0]);
                     close(pipe_out[1]);
-                    // 2. Redirect Input (pipe_in -> Stdin)
                     dup2(pipe_in[0], STDIN_FILENO);
                     close(pipe_in[0]);
                     close(pipe_in[1]);
-                    // 3. Prepare Arguments
                     // argv[0] = interpreter, argv[1] = script, argv[2] = NULL
                     char *argv[] = {
                         const_cast<char*>(interpreter.c_str()),
                         const_cast<char*>(scriptPath.c_str()),
                         NULL
                     };
-                    // 3. Prepare Environment Variables (Crucial for PHP-CGI)
                     char** envP = setUpEnvParameters(req, scriptPath);
-                    // 4. Execute
                     execve(interpreter.c_str(), argv, envP);
-                    // If execve returns, it failed
                     std::cerr << "Execve failed" << std::endl;
                     freeEnv(envP);
                     exit(1);
                 }
                 // --- PARENT PROCESS (Reads Output) ---
-                // 1. Close unused ends
-                close(pipe_out[1]); // We don't write to output
-                close(pipe_in[0]);  // We don't read from input
-                // 2. Write the Request Body to the Child
-                // Assuming req.getBody() returns a Buffer or string
-                // You might need to adjust .getBufferStr() depending on your Buffer class 
-                //implementation
+                close(pipe_out[1]);
+                close(pipe_in[0]);
                 const Buffer& body = req.getBody();
                 if (!body.empty()) {
                     write(pipe_in[1], &body[0], body.size());
                 }
-                // 3. Close the write-end so Child gets EOF (or stops reading after Content-Length)
                 close(pipe_in[1]);
-                // 4. Wait for Child
                 int status;
-                waitpid(pid, &status, 0); // Wait for PHP to finish
-                // Check if Child exited correctly
+                waitpid(pid, &status, 0);
                 if (WIFEXITED(status) && WEXITSTATUS(status) != 0) {
                     // close(pipe_fd[0]);
                     close(pipe_out[0]);
                     throw HttpError::create(HttpStatus(InternalServerError),
                         cgi_exec_failure);
                 }
-                // Read the output from the pipe
                 char buffer[4096];
                 std::string cgiOutput;
                 ssize_t bytesRead;

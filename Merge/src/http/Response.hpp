@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Response.hpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: yroard <yroard@student.42.fr>              +#+  +:+       +#+        */
+/*   By: ttas <ttas@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/03 14:58:10 by yroard            #+#    #+#             */
-/*   Updated: 2026/02/11 08:53:38 by yroard           ###   ########.fr       */
+/*   Updated: 2026/02/17 09:51:17 by ttas             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,7 +51,6 @@ namespace webserv {
                 m_statusCode = statusCode;
             }
 
-            // set the Content-Length header as well
             void setBody(const std::string& body) {
                 m_body = body;
                 addHeader("Content-Length",
@@ -62,7 +61,6 @@ namespace webserv {
                 m_headers[key] = val;
             }
             
-            // Combines everything into the final HTTP string
             std::string httpString() const{
                 std::stringstream response;
                 response << "HTTP/1.1 " << m_statusCode << " "

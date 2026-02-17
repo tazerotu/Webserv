@@ -74,7 +74,7 @@ namespace webserv {
                     if (errorValue == EACCES){
                         Logger::MessagesFilter(DEBUG,
                             "errorValue == EACCES", "");
-                        return 403;// You might want to throw an exception here to return a 500 or 403 error
+                        return 403;
                     }
                     return 500;
                 }

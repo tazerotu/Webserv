@@ -6,7 +6,7 @@
 /*   By: ttas <ttas@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/11 09:28:41 by yroard            #+#    #+#             */
-/*   Updated: 2026/02/11 11:15:01 by ttas             ###   ########.fr       */
+/*   Updated: 2026/02/17 09:49:22 by ttas             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,7 +18,6 @@ namespace webserv {
     namespace http {
         class HttpStatusCodeValidator {
         public:
-            // Check if an integer is a valid status code
             static bool isValid(int code) {
                 switch (code) {
                     case 100: case 101: case 102: case 103:
@@ -33,7 +32,6 @@ namespace webserv {
                         return false;
                 }
             }
-            // Convert int to Enum safely
             static StatusCode intToEnum(int code) {
                 if (!isValid(code))
                     throw std::invalid_argument("Invalid HTTP Status Code");

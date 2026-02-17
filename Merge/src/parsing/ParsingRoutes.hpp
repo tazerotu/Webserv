@@ -1,3 +1,4 @@
+#pragma
 #ifndef PARSINGROUTES_HPP
 # define PARSINGROUTES_HPP
 
@@ -11,6 +12,10 @@
 #include <map>
 #include <vector>
 
+
+/**
+ * @brief Handles the routes for the Parsing class of the Webserv project
+ */
 class ParsingRoutes
 {
 	public:
@@ -48,23 +53,19 @@ class ParsingRoutes
 		void setCGIExt(const std::string &extention) {_cgi_ext = extention;}
 		void setRedirection(const std::string &redirection)
 		{
-			// Empty line → ignore
 			if (redirection.empty())
 				return;
 
-			// Find first space
 			std::string::size_type space = redirection.find(' ');
 			if (space == std::string::npos)
-				return; // malformed: no target
+				return;
 
-			// Split
 			std::string codeStr = redirection.substr(0, space);
 			std::string target  = redirection.substr(space + 1);
 
 			if (codeStr.empty() || target.empty())
 				return;
 
-			// Convert status code
 			char *end;
 			long code = std::strtol(codeStr.c_str(), &end, 10);
 			if (*end != '\0')
