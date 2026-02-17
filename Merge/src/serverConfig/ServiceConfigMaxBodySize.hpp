@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ServiceConfigMaxBodySize.hpp                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: yroard <yroard@student.42.fr>              +#+  +:+       +#+        */
+/*   By: ttas <ttas@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/11 09:32:47 by yroard            #+#    #+#             */
-/*   Updated: 2025/12/11 09:32:54 by yroard           ###   ########.fr       */
+/*   Updated: 2026/02/17 09:54:17 by ttas             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,7 +21,6 @@ namespace webserv {
             const unsigned m_maxBodySize;
 
         public:
-            // ServiceConfigMaxBodySize(): m_maxBodySize(0) {}
             ServiceConfigMaxBodySize(const unsigned maxBodySize)
             : m_maxBodySize(maxBodySize) {}
 

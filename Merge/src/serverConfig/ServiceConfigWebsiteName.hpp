@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ServiceConfigWebsiteName.hpp                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: yroard <yroard@student.42.fr>              +#+  +:+       +#+        */
+/*   By: ttas <ttas@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/11 09:33:10 by yroard            #+#    #+#             */
-/*   Updated: 2025/12/11 09:33:22 by yroard           ###   ########.fr       */
+/*   Updated: 2026/02/17 09:54:26 by ttas             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,7 +28,6 @@ namespace webserv {
             static bool isValidWebsiteName(const std::string &websiteName) {
                 if (websiteName.empty())
                     return false;
-                //check for valid server Name?
                 return true;
             }
 

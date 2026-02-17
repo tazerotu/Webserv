@@ -6,7 +6,7 @@
 /*   By: ttas <ttas@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/11 09:32:30 by yroard            #+#    #+#             */
-/*   Updated: 2026/02/03 10:52:42 by ttas             ###   ########.fr       */
+/*   Updated: 2026/02/17 09:53:55 by ttas             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,7 +40,6 @@ namespace webserv {
                 for (Map::const_iterator it = map.begin(); it != map.end(); ++it) {
                     if (!http::HttpStatus::IsValidStatusCode(it->first))
                         return false;
-                    //check for ErrorPage address
                 }
                 return true;
             }
@@ -51,7 +50,6 @@ namespace webserv {
                     if (!http::HttpStatus::IsValidStatusCode(it->first))
                         throw IServerConfigError::create(
                             invalid_error_page,NULL);
-                    //std::string str = "../" + it->second;
                     std::string str = it->second;
                     int fd = 0;
                     std::cout << "file opening2:" << str << std::endl;

@@ -6,7 +6,7 @@
 /*   By: ttas <ttas@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/11 09:30:46 by yroard            #+#    #+#             */
-/*   Updated: 2026/02/11 11:18:36 by ttas             ###   ########.fr       */
+/*   Updated: 2026/02/17 09:53:26 by ttas             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,27 +38,20 @@ namespace webserv {
 					: m_allowedMethod(allowedMethod){}
 
 			public:
-				// Helper to check if a specific string method is allowed
-				// You will use this in RequestValidator!
 				bool isAllowed(const std::string &methodStr) const {
 					Verb verb;
-					//std::cout << "is allowed: " << methodStr << std::endl;
 					if (methodStr == "GET") verb = GET;
 					else if (methodStr == "POST") verb = POST;
 					else if (methodStr == "DELETE") verb = DELETE;
-					else return false; // Unknown method
+					else return false;
 
-					// Check if 'verb' is in our vector
 					for (size_t i = 0; i < m_allowedMethod.size(); ++i) {
-						//std::cout << "m_allowedMethod: " << m_allowedMethod[i]
-							//<< std::endl;
 						if (m_allowedMethod[i] == verb)
 							return true;
 					}
 					return false;
 				}
 				
-				// Debug helper: returns string like "GET POST "
 				std::string getValue() const {
 					std::string result = "";
 					for (size_t i = 0; i < m_allowedMethod.size(); ++i) {
@@ -81,27 +74,21 @@ namespace webserv {
 
 			private:
 				static const Map map;
-				// (Implementation of init_map should remain in your .cpp file)
 				static Map init_map();
 
 			public:
 				static ServiceConfigMethod createMethod(
 						const std::string &rawMethods) {
 					std::vector<webserv::Verb> methodsVec;
-					// 1. Use stringstream to split by spaces
 					std::stringstream ss(rawMethods);
 					std::string token;
-					// 2. Loop through each word (e.g., "GET", "POST")
 					while (ss >> token) {
 						const Map::const_iterator it = map.find(token);
-						// If one method is invalid, throw error
 						if (it == map.end()) {
 							throw IServerConfigError::create(invalid_method, NULL);
 						}
-						// Add valid verb to vector
 						methodsVec.push_back(it->second);
 					}
-					// 3. Create object with the vector
 					return ServiceConfigMethod(methodsVec);
 				}
 

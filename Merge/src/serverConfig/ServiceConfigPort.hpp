@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ServiceConfigPort.hpp                              :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: yroard <yroard@student.42.fr>              +#+  +:+       +#+        */
+/*   By: ttas <ttas@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/11 09:33:02 by yroard            #+#    #+#             */
-/*   Updated: 2025/12/11 09:33:05 by yroard           ###   ########.fr       */
+/*   Updated: 2026/02/17 09:54:20 by ttas             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,7 +22,6 @@ namespace webserv {
             const unsigned short m_port;
 
         public:
-            // ServiceConfigPort() : m_port(0) {}
             explicit ServiceConfigPort(const unsigned short port): m_port(port) {}
             ~ServiceConfigPort() {}
             static bool isValidPort(int port) {

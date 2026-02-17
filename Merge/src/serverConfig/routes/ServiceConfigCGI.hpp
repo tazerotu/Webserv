@@ -6,7 +6,7 @@
 /*   By: ttas <ttas@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/11 09:30:32 by yroard            #+#    #+#             */
-/*   Updated: 2026/01/27 11:38:31 by ttas             ###   ########.fr       */
+/*   Updated: 2026/02/17 09:52:54 by ttas             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,7 +40,6 @@ namespace webserv {
 				static bool isExecutable(const std::string &path) {
 					if (path.empty())
 						return false;
-					// X_OK checks for execution permission
 					if (access(path.c_str(), X_OK ) == 0){
 							return true;
 					}
@@ -50,16 +49,12 @@ namespace webserv {
 				static ServiceConfigCGI create(
 						const std::string & cgiInterpreterPath,
 						const std::string &cgiExtension) {
-					// Case 1: Empty config (No CGI for this route)
 					if (cgiExtension.empty() && cgiInterpreterPath.empty()) {
 						return ServiceConfigCGI("", "");
 					}
-					// Case 2: Validation
-					// We must have both an extension AND an interpreter
 					if (cgiExtension.empty() || cgiInterpreterPath.empty()) {
 						throw IServerConfigError::create(invalid_CGI, NULL);
 					}
-					// Check if the interpreter exists and is executable
 					if (!isExecutable(cgiInterpreterPath)) {
 						throw IServerConfigError::create(
 							Invalid_CGI_interpreter, NULL);
@@ -76,7 +71,6 @@ namespace webserv {
 					return m_cgiExtension;
 				}
 				
-				// Helper to check if this object is actually active
 				bool hasCGI() const {
 					return !m_cgiInterpreterPath.empty() && !m_cgiExtension.empty();
 				}

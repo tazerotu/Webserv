@@ -6,7 +6,7 @@
 /*   By: ttas <ttas@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/11 09:30:54 by yroard            #+#    #+#             */
-/*   Updated: 2026/02/11 11:18:03 by ttas             ###   ########.fr       */
+/*   Updated: 2026/02/17 09:53:36 by ttas             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,18 +36,16 @@ namespace webserv {
                 ~ServiceConfigRedirection(){}
 
                 static bool isValidRedirection(const Map &redirection) {
-                    //check for valid code (is it present into http status?)
                     if (redirection.empty())
-                        return true; // No redirection is a valid state
+                        return true;
                     for (Map::const_iterator it = redirection.begin();
                             it != redirection.end(); ++it) {
                         const int code = it->first;
                         std::string uri = it->second;
                         if (!http::HttpStatusCodeValidator::intToEnum(it->first))
                             return false;
-                        if (code < 300 || code > 399) //codes must be within this range to make sense
+                        if (code < 300 || code > 399)
                             return false;
-                        // check for valid address (is it present into valid address?)
                         if (uri.empty())
                             return false;
                     }

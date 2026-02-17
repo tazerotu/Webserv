@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ServiceConfigAutoIndex.hpp                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: yroard <yroard@student.42.fr>              +#+  +:+       +#+        */
+/*   By: ttas <ttas@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/11 09:30:14 by yroard            #+#    #+#             */
-/*   Updated: 2025/12/11 09:30:18 by yroard           ###   ########.fr       */
+/*   Updated: 2026/02/17 09:52:39 by ttas             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,7 +23,6 @@ namespace webserv {
                 const bool m_autoIndex;
 
             public:
-                // ServiceConfigAutoIndex() : m_port(0) {}
                 explicit ServiceConfigAutoIndex(const bool autoIndex): m_autoIndex(autoIndex) {}
                 ~ServiceConfigAutoIndex() {}
                 static bool isValidAutoIndex(const int autoIndex) {
