@@ -6,7 +6,7 @@
 /*   By: ttas <ttas@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/11 09:35:08 by yroard            #+#    #+#             */
-/*   Updated: 2026/02/11 13:14:55 by ttas             ###   ########.fr       */
+/*   Updated: 2026/02/17 11:05:14 by ttas             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -69,19 +69,16 @@ namespace webserv {
 					&opt, sizeof(opt)) == -1) {
 				close(tcp_fd);
 				throw EndpointError::create(invalid_socket);
-				// or a specific error
 			}
 			return Socket(tcp_fd);
 		}
 
 		void listenSocket(Endpoint endpoint) const {
-			//first, bind
 			if (bind(m_fd, static_cast<struct sockaddr *>(
 					endpoint.getSockAddr()),sizeof(struct sockaddr))
 					== -1)
 				throw EndpointError::create(invalid_bind,
 					strerror(errno));
-			//define backlog to 10
 			if (listen(m_fd, 10) == -1)
 				throw EndpointError::create(invalid_listen,
 					strerror(errno));
@@ -122,13 +119,11 @@ namespace webserv {
 				// Connection closed by client
 				return "";
 			}
-			// bytes_read == -1. Check why.
 			*returnErrorValue = errno;
 			Logger::MessagesFilter(ERR,
 				"receiveMsg, returnErrorValue: ",
 				ConvUtils::intToStr(*returnErrorValue));
 			if (*returnErrorValue == EAGAIN) {
-				// "No more data right now".
 				return "";
 			}
 			throw webserv::EndpointError::create(

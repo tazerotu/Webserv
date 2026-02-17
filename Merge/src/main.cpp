@@ -6,7 +6,7 @@
 /*   By: ttas <ttas@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/11 09:34:18 by yroard            #+#    #+#             */
-/*   Updated: 2026/02/17 10:47:21 by ttas             ###   ########.fr       */
+/*   Updated: 2026/02/17 10:54:27 by ttas             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -163,7 +163,7 @@ static void parse_config(std::vector<Parsing> *Configs, std::string config_file)
 {
     if (config_file.size() < 5 || config_file.substr(config_file.size() - 5, 5) != ".conf")
     {
-		std::cerr << "Invalid config file extension. Expected .conf" << std::strerror(errno) << std::endl;
+		std::cerr << "Invalid config file extension. Expected .conf" << std::endl;
         exit(1);
     }
 
@@ -408,8 +408,8 @@ std::vector<ServerConfig *> init_server_config(std::vector<ServerConfig*> Server
 	catch(const std::exception& e)
 	{
 		std::cerr << e.what() << '\n';
-		exit(0);
-	}	
+		exit(1);
+	}
 	return (Server);
 }
 
@@ -420,7 +420,7 @@ int main(int argc, char**argv) {
 	if(argc != 2)
 	{
 		std::cout << "Wrong amount of arguments!" << std::endl << "correct syntax : ./webserv [path/to/file.conf]" << std::endl;
-		return(0);	
+		return 1;	
 	}
 
 	signal(SIGINT, signalHandler);

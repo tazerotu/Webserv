@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Buffer.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: yroard <yroard@student.42.fr>              +#+  +:+       +#+        */
+/*   By: ttas <ttas@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/11 09:33:50 by yroard            #+#    #+#             */
-/*   Updated: 2026/02/04 16:38:41 by yroard           ###   ########.fr       */
+/*   Updated: 2026/02/17 10:59:50 by ttas             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,14 +21,10 @@ namespace webserv {
 		std::vector<char> m_data;
 		
 	public:
-		// Default constructor
 		Buffer(){}     
-		// Constructor from string
 		explicit Buffer(const std::string& str) {
 			m_data.assign(str.begin(), str.end());
 		}
-		// Iterator Constructor (Crucial for Client.hpp)
-		// Allows: Buffer buf(str.begin(), str.end());
 		template <typename InputIterator>
 		Buffer(InputIterator first, InputIterator last) 
 			: m_data(first, last){}
@@ -40,7 +36,6 @@ namespace webserv {
 			return *this;	
 		}
 		~Buffer() {}
-		// Allow direct access to data like a vector
 		char& operator[](const size_t pos) {
 			return m_data[pos]; 
 		}
@@ -69,7 +64,6 @@ namespace webserv {
 			m_data.reserve(n); 
 		}
 
-		// Expose iterators if needed (standard pattern)
 		typedef std::vector<char>::iterator iterator;
 		typedef std::vector<char>::const_iterator const_iterator;
 		
@@ -89,12 +83,10 @@ namespace webserv {
 			return m_data.end();
 		}
 		
-		// Your custom method
 		std::string getBufferStr() const {
 			return std::string(m_data.begin(), m_data.end());
 		}
 		
-		// Helper to append data easily (Optional but useful)
 		void append(const std::string& str) {
 			m_data.insert(m_data.end(), str.begin(), str.end());
 		}

@@ -20,8 +20,7 @@ namespace webserv {
         static std::string getCurrentTime() {
             std::time_t now = std::time(NULL);
             std::string timeStr = std::ctime(&now);
-			// std::string timeStr = "0";
-            timeStr.erase(timeStr.find_last_not_of("\n") + 1); // Remove newline
+            timeStr.erase(timeStr.find_last_not_of("\n") + 1);
             return timeStr;
         }
 
@@ -57,9 +56,9 @@ namespace webserv {
                 } else if (c == '\r') {
                     filtered += "\\r";
                 } else if (c == '\n') {
-                    filtered += "\\n\n";  // Add extra newline for readability
+                    filtered += "\\n\n";
                 } else {
-                    filtered += ".";  // Replace unprintable characters with a dot
+                    filtered += ".";
                 }
             }
             return filtered;

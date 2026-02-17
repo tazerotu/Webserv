@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Endpoint.hpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: yroard <yroard@student.42.fr>              +#+  +:+       +#+        */
+/*   By: ttas <ttas@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/11 09:33:59 by yroard            #+#    #+#             */
-/*   Updated: 2025/12/11 09:34:02 by yroard           ###   ########.fr       */
+/*   Updated: 2026/02/17 11:01:53 by ttas             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,12 +50,10 @@ namespace webserv {
             hints.ai_flags = AI_PASSIVE; // Fill in my IP for me (for server bind)
             const char *node = m_addr.c_str(); // Use specific IP
             if (m_addr == "0.0.0.0" || m_addr == "::") {
-                // Common for "any" IP in server
                 node = NULL;
                 hints.ai_flags |= AI_PASSIVE; // Ensure AI_PASSIVE for NULL node
             } else {
                 hints.ai_flags &= ~AI_PASSIVE; // Clear AI_PASSIVE if specific IP
-                // is given
             }
             if ((rv = getaddrinfo(node,
                 ConvUtils::uShortToStr(port).c_str(), &hints,
@@ -64,13 +62,10 @@ namespace webserv {
                                             gai_strerror(rv));
             }
             if (servinfo == NULL) {
-                // Should not happen if rv == 0, but safety check
                 throw EndpointError::create(invalid_address_port,
                                             "getaddrinfo returned no results");
             }
-            // Copy the relevant information to our m_sockaddr_in and m_sockaddr_len
             if (servinfo->ai_family == AF_INET) {
-                // Ensure it's indeed an IPv4 result
                 std::memcpy(&m_sockaddr_in, servinfo->ai_addr, servinfo->ai_addrlen);
                 m_sockaddr_len = servinfo->ai_addrlen;
             } else {
@@ -86,7 +81,7 @@ namespace webserv {
         };
 
         static Endpoint createIpv4Addr(const std::string &addr, unsigned short port) {
-            return Endpoint(addr, port); // This constructor now uses getaddrinfo
+            return Endpoint(addr, port);
         }
 
         const char *getIpAddress() const {

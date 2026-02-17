@@ -11,16 +11,13 @@
 
 namespace webserv {
     class SelectMultiplexer : public IIOMultiplexer {
-        // std::vector<int> m_fds;
         std::vector<int> m_readyFds;
         fd_set m_readSet;
-        //fd_set m_writeSet;// Optional: Add if you handle write readiness separately
         fd_set m_masterSet;
 		Init init;
     public:
         SelectMultiplexer() {
             FD_ZERO(&m_readSet);
-            //FD_ZERO(&m_writeSet);
             FD_ZERO(&m_masterSet);
         }
         virtual ~SelectMultiplexer(){}
@@ -30,13 +27,11 @@ namespace webserv {
         void removeFd(int fd) {
             FD_CLR(fd, &m_masterSet);
         }
-        int wait(int max_fd) {// Wraps select/poll/epoll_wait
-            // 1. Reset sets
+        int wait(int max_fd) {
             m_readSet = m_masterSet;
-            m_readyFds.clear(); // Clear previous results
+            m_readyFds.clear();
 
-            // 2. Call select
-            // Timeout NULL = wait indefinitely
+			// Timeout NULL = wait indefinitely
 			timeval* timeout = new timeval;
 			timeout->tv_sec = init.TimeOutLimit;
 			timeout->tv_usec = 0;
@@ -48,7 +43,6 @@ namespace webserv {
             if (activity < 0) return -1; // Error
             if (activity == 0) return 0; // Timeout
 
-            // 3. Scan ONCE here so ServerManager doesn't have to
             for (int i = 0; i <= max_fd; ++i) {
                 if (FD_ISSET(i, &m_readSet)) {
                     m_readyFds.push_back(i);

@@ -6,7 +6,7 @@
 /*   By: ttas <ttas@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/13 14:02:20 by yroard            #+#    #+#             */
-/*   Updated: 2026/02/12 09:24:50 by ttas             ###   ########.fr       */
+/*   Updated: 2026/02/17 11:04:50 by ttas             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,7 +49,6 @@ namespace webserv {
 			"CASE B: It's a Client Socket!(Existing Connection)",
 			"");
 			Client* client = m_connectionManager->getClient(fd);
-			// 1. Receive Data (Client accumulates it internally)
 			int bytes = client->receiveData();
 			Logger::MessagesFilter(DEBUG,
 			"Receiving data, Fd Client: ",
@@ -74,8 +73,6 @@ namespace webserv {
 				m_connectionManager->removeClient(fd, m_multiplexer);
 				return;
 			}
-			// 2. Loop to handle potentially multiple requests (Pipelining)
-			// We loop as long as the request is complete
 			while (client->getRequest().isComplete()) {
 				client->setRequestAsFull();
 				http::ParsingRequest& req = client->getRequest();
@@ -84,7 +81,7 @@ namespace webserv {
 				http::Response response =
 					RequestHandler::handleRequest(req, *config);
 				std::string finalMsg = response.httpString();
-				client->sendResponse(finalMsg); // Using client's send method
+				client->sendResponse(finalMsg);
 				std::string dataPreview(finalMsg);
 				Logger::MessagesFilter(DEBUG,
 					"Response data preview: ",
@@ -99,7 +96,6 @@ namespace webserv {
 				Logger::MessagesFilter(INFO,
 					"Keep-Alive: Waiting for next request on FD: ",
 					ConvUtils::intToStr(fd));
-				// Check for leftovers
 				std::string leftovers = req.getRemainingData();
 				m_connectionManager->resetClient(fd);
 				if (!leftovers.empty()) {
@@ -114,13 +110,11 @@ namespace webserv {
 		void run() {
 			setupServers();
 			while (!Init::stopRequested) {
-				// 1. Wait (Blocking)
 				int maxFd = m_connectionManager->getMaxFd();
 				int activity = m_multiplexer->wait(maxFd);
 				if (activity < 0) {
 					Logger::MessagesFilter(DEBUG,
 					"Server Manager::run: activity < 0!", "");
-					// Check if it's just a signal interruption
 					int errValue = errno;
 					if (errValue == EINTR)
 						continue;
@@ -129,35 +123,21 @@ namespace webserv {
 									strerror(errValue));
 					continue;
 				}
-				// 2. Get Ready FDs (Clean list, no looping 0..maxFd)
 				std::vector<int> readyFds
 					= m_multiplexer->getReadyFds();
 				for (size_t i = 0; i < readyFds.size(); ++i){
 					int fd = readyFds[i];
 					if (m_connectionManager->isListener(fd)) {
-						// Delegate acceptance logic
 						acceptNewConnection(fd);
 					} else {
-						// Delegate business logic
 						handleClientActivity(fd);
 					}
 					m_connectionManager->checkTimeouts(m_multiplexer);
 				}
-				// 3. Delegate cleanup
 				m_connectionManager->checkTimeouts(m_multiplexer);
 
-				// Verify how long since last activity, if > 30s -> cut connection
 
-				/*
-					timeout test (diminuer le temps): 
-					- printf "" | nc localhost 8080 
-					- printf "GET / HTTP/1.1\r\nHost: localhost:8080\r\n\r\n" | nc localhost 8080 
-					- boucle infini en CGI /// division par 0
-
-					Code dans les fichiers .cpp au lieu des .hpp
-
-					Test de montee de charge avec `siege` avec le maximum de client (255) (succes de 99.7% minimum)
-				*/
+				
 			}
 		}
 	};

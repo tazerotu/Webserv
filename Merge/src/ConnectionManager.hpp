@@ -17,9 +17,7 @@ namespace webserv {
 		const std::vector<webserv::serverConfig::ServerConfig*> m_configs;
 		int    m_maxFd;
 		std::map<int, Client*> m_clients;
-	    // to store the actual Listener Socket objects (FD -> Socket*)
 		std::map<int, Socket*> m_listenerSockets;
-	    // logic to map Listener FD to Config ...
 		std::map<int, serverConfig::ServerConfig*> m_listenConfig;
 
 	public:
@@ -37,13 +35,9 @@ namespace webserv {
 				std::string ip = m_configs[index]->getIPAddress().getValue();
 
 				try {
-					// 1. Get the Socket object (returned by value from Server::listen)
 					Socket tempSocket = Server::listen(ip, port);
-					// 2. Move it to the heap.
 					Socket* listenerSocket = new Socket(tempSocket);
-					// 3. Get the FD from the persistent pointer
 					int fd = listenerSocket->getSockFd();
-					// 4. Add to Listener Map
 					m_listenConfig[fd] = m_configs[index];
 					m_listenerSockets[fd] = listenerSocket;
 					if (fd > m_maxFd)
@@ -63,8 +57,6 @@ namespace webserv {
 			}
 		}
 	    void addClient(int listenerFd, IIOMultiplexer* multiplexer) {
-			// 1. Retrieve the Listener Socket object associated with this FD
-			// We need the object to call the non-static method acceptSocket()
 			Logger::MessagesFilter(INFO,
 			"New connection", "");
 			if (m_listenerSockets.find(listenerFd) == m_listenerSockets.end()) {
@@ -87,7 +79,6 @@ namespace webserv {
 					ConvUtils::intToStr(clientFd));
 			}
 			catch (std::exception &e) {
-				// Handle errors (e.g., EMFILE if too many open files)
 				Logger::MessagesFilter(ERR,
 					"Failed to accept client: ",
 					e.what());
@@ -146,31 +137,24 @@ namespace webserv {
 	    	}
 	    }
 	    void closeAll(){
-	    	// 1. Clean up Clients
 	    	for (std::map<int, Client*>::iterator it = m_clients.begin();
 					it != m_clients.end(); ++it) {
 	    		close(it->first); // Close FD
 	    		delete it->second; // Delete Client Object
 					}
-	    	// 2. Clean up Listeners (Just close FDs, configs are deleted below)
 	    	for (std::map<int, webserv::serverConfig::ServerConfig*>::iterator it =
 					m_listenConfig.begin(); it != m_listenConfig.end(); ++it) {
 	    		close(it->first);
 					}
-	    	//3. Clean up Listener Sockets
 	    	for (std::map<int, Socket*>::iterator it = m_listenerSockets.begin();
 				it != m_listenerSockets.end(); ++it) {
 	    		delete it->second; // This calls ~Socket(), which closes the FD
 				}
 	    	m_listenerSockets.clear();
-	    	// 4. Clean up Configs
 	    	for (size_t i = 0; i < m_configs.size(); ++i) {
 	    		delete m_configs[i];
 	    	}
-	    } // Destructor logic goes here
-
-	    // Accessors for ServerManager to loop over
-	    //std::vector<int> getAllFds() const {	    }
+	    }
 	};
 }
 

@@ -6,7 +6,7 @@
 /*   By: ttas <ttas@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/13 14:09:53 by yroard            #+#    #+#             */
-/*   Updated: 2026/02/12 11:09:33 by ttas             ###   ########.fr       */
+/*   Updated: 2026/02/17 11:00:35 by ttas             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,8 +28,8 @@
 namespace webserv {
 	class Client {
 	private:
-		Socket* 				m_socket;	// The mechanism
-		const serverConfig::ServerConfig*     m_config;   // The rules
+		Socket* 				m_socket;
+		const serverConfig::ServerConfig*     m_config;
 		// Data management
         http::ParsingRequest 	m_request;
 		bool 					m_hasFullRequest;
@@ -59,7 +59,6 @@ namespace webserv {
 			delete m_socket; // Client destroys the connection when it dies
 		}
 
-		// Returns the FD
 		int getFd() const{
 			return m_socket->getSockFd();
 		}
@@ -75,32 +74,23 @@ namespace webserv {
 		// Reads data from socket into request parser
 		// Returns bytes read (0 = disconnected, -1 = error)
 		int receiveData(){
-			// 1. Use Socket to get bytes
 			std::string chunk;
 			int error = 0;
             try {
-				// 1. Network Responsibility: Get bytes
             	chunk = m_socket->receiveMsg(&error);
                 if (chunk.empty()) {
 	                if (error == EAGAIN || error == EWOULDBLOCK)
-	                	// No data yet, but connection alive
 	                	return 1;
-                	// TRUE EOF (peer closed)
                 	return 0;
                 }
 				resetTimeOut();
-                // 2. Delegation: Pass bytes to the Parser
-                // The Client doesn't know about \r\n or Content-Length.
-                // It just feeds the parser.
                 m_request.appendData(chunk);
-				// 3. Check State
                 if (m_hasFullRequest == true
                 	&& Init::logLevel == DEBUG) {
                 	m_request.printRequest();
                 }
 			}
 			catch (std::exception &e) {
-            	// --- ADD LOGGING HERE ---
 				Logger::MessagesFilter(ERR,
 					"Error during request parsing: ",
 					e.what());
