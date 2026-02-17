@@ -7,7 +7,6 @@
 #include "../ConvUtils.hpp"
 #include "HttpError.hpp"
 #include "Response.hpp"
-#include "AutoIndex.hpp"
 
 namespace webserv {
     namespace http {
@@ -101,27 +100,10 @@ namespace webserv {
     			std::string fullPath = path;
 				struct stat buf = {};
 				int statReturn = stat(fullPath.c_str(), &buf);
-				if (statReturn == -1) {
-					return ErrorPageGenerator::generate(403, errorPages.getValue());
-				}
-				if ((S_ISDIR(buf.st_mode)))
-				{
-					if(targetRoute->getDefaultFile().getValue().empty())
-					{
-						if(targetRoute->getAutoIndex().getValue() == 1)
-						{
-							http::Response res;
-							res.setStatusCode(200);
-							res.setBody(http::AutoIndex::generateDirContent(fullPath));
-							return res;
-						}
-						else
-						{
-							return ErrorPageGenerator::generate(403,
-								errorPages.getValue());
-						}
-					}
-				}
+				if (statReturn == -1 || (S_ISDIR(buf.st_mode) 
+						&& targetRoute->getDefaultFile().getValue().empty()))
+					return ErrorPageGenerator::generate(403,
+							errorPages.getValue());
 				if (S_ISDIR(buf.st_mode))
 					fullPath += targetRoute->getDefaultFile().getValue();
 				Logger::MessagesFilter(DEBUG,
