@@ -6,7 +6,7 @@
 /*   By: ttas <ttas@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/03 14:58:10 by yroard            #+#    #+#             */
-/*   Updated: 2026/02/17 09:51:17 by ttas             ###   ########.fr       */
+/*   Updated: 2026/02/17 09:58:14 by ttas             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,6 +45,10 @@ namespace webserv {
                     m_headers = other.m_headers;
                 }
                 return *this;
+            }
+
+			int getStatusCode(){
+                return m_statusCode;
             }
 
             void setStatusCode(const int statusCode) {

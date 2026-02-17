@@ -6,7 +6,7 @@
 /*   By: ttas <ttas@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/03 13:13:55 by yroard            #+#    #+#             */
-/*   Updated: 2026/02/17 09:48:46 by ttas             ###   ########.fr       */
+/*   Updated: 2026/02/17 10:09:01 by ttas             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -86,9 +86,11 @@ namespace webserv {
                 && path.find(".php") != std::string::npos)
 				{
 					http::Response res = http::CgiHandler::processCGI(req, targetRoute, path);
-					if (res.getStatusCode() == 500)
-						http::ErrorPageGenerator::generate(500, conf.getErrorPages().getValue());
-					else
+					if ((res.getStatusCode() >= 400 && res.getStatusCode() <= 451) || (res.getStatusCode() >= 500 && res.getStatusCode() <= 511))
+					{
+						// std::cout << "-----------Supossed to generate error page" << std::endl;
+						return http::ErrorPageGenerator::generate(res.getStatusCode(), conf.getErrorPages().getValue());
+					}
 					return (res);
 				}
             if (isFileToUpload(targetRoute))
