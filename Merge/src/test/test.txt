@@ -10,20 +10,20 @@ Test de montee de charge avec `siege` avec le maximum de client (255) (succes de
 
 pour autoindex, a voir
 if ((S_ISDIR(buf.st_mode)))
-				{
-					if(targetRoute->getDefaultFile().getValue().empty())
-					{
-						if(targetRoute->getAutoIndex().getValue() == 1)
-						{
-							http::Response res;
-							res.setStatusCode(200);
-							res.setBody(http::AutoIndex::generateDirContent(fullPath));
-							return res;
-						}
-						else
-						{
-							return ErrorPageGenerator::generate(403,
-								errorPages.getValue());
-						}
-					}
-				}
+{
+	if(targetRoute->getDefaultFile().getValue().empty())
+	{
+		if(targetRoute->getAutoIndex().getValue() == 1)
+		{
+			http::Response res;
+			res.setStatusCode(200);
+			res.setBody(http::AutoIndex::generateDirContent(fullPath));
+			return res;
+		}
+		else
+		{
+			return ErrorPageGenerator::generate(403,
+				errorPages.getValue());
+		}
+	}
+}
