@@ -1,7 +1,6 @@
 list erreur Webserv :
 - send error not verified
 - update page erreur (yann n'a pas pris toutes la pages)
-- send envoie a tous les fd, essayer de preciser quel fd doit recevoir
 - access to upload file does not give index page -> give error 403 Forbidden
 - access to uploaded files give error 403 Forbidden
 - access to cgi-bin does not give index page -> error 403 Forbidden
