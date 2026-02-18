@@ -12,10 +12,10 @@ void ParsingRoutes::verify_route()
 	{
 		error_message("Route has no name");
 	}
-    // if(_defaultFile.empty())
-	// {
-    // 	error_message("default page of route " + _routeLoc + " is not set");
-	// }
+    if(_defaultFile.empty())
+	{
+    	error_message("default page of route " + _routeLoc + " is not set");
+	}
 	if(_rootPath.empty())
 	{
 		error_message("Route " + _routeLoc + " has no root");
