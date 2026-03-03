@@ -1,0 +1,16 @@
+index:
+- brief description
+
+more details :
+- house floor plan (carousel)
+- location (with map if possible)
+- 
+
+contact (fake):
+- email
+- phone
+
+
+second page:
+- cookies
+- or random text to showcase multiple pages
