@@ -1,1 +1,24 @@
-Hello World
+pour cookies + sessions : 
+
+	CGI Handler -> 
+		- remplacer 
+			for (it = headerMap.begin(); it != headerMap.end(); ++it){
+				Logger::messagesFilter(DEBUG,
+				"Into loop, header: ","");
+				std::cout << it->first << ": " << it->second << std::endl;
+			}
+		
+		par 
+			for (it = headerMap.begin(); it != headerMap.end(); ++it){
+				Logger::messagesFilter(DEBUG,
+				"Into loop, header: ","");
+	            res.addHeader(it->first, it->second);
+	        }
+
+		- Ajouter à la fin de 
+			static char** setUpEnvParameters(const http::ParsingRequest& req,
+            	        const std::string& scriptPath)
+
+		    ->	if (!req.getHeaderInfo("Cookie").empty())
+   					envStr.push_back("HTTP_COOKIE=" 
+      					+ req.getHeaderInfo("Cookie"));
