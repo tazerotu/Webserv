@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Client.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: yroard <yroard@student.42.fr>              +#+  +:+       +#+        */
+/*   By: marvin <marvin@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/13 14:09:53 by yroard            #+#    #+#             */
-/*   Updated: 2026/02/19 16:27:55 by yroard           ###   ########.fr       */
+/*   Updated: 2026/03/06 20:49:39 by marvin           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -61,7 +61,8 @@ namespace webserv {
 	public:
 		Client(Socket* socket, const serverConfig::ServerConfig* config)
 			: m_socket(socket), m_config(config), m_hasFullRequest(false), 
-			m_last_activity(std::time(NULL)) {}
+			m_last_activity(std::time(NULL)), m_writeBuffer(""), 
+			m_closeConnection(false) {}
 			
 		~Client(){
 			delete m_socket;
