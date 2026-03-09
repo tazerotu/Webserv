@@ -26,7 +26,7 @@
 		<!-- Right side: Upload and Test -->
 		<div class="d-flex align-items-center ms-auto">
 			<a href="/upload/upload.php" class="nav-link text-light me-3">Upload</a>
-			<a href="/cgi-bin/test.php" class="nav-link text-light">Test</a>
+			<a href="/cgi-bin" class="nav-link text-light">Test</a>
 		</div>
 		</div>
 	</nav>
@@ -35,9 +35,14 @@
 <body>
 
 <?php
-	$test = 1 / 0;
+try {
+    $test = 1 / 0;
     echo "<h3>Division by 0</h3>";
     echo "<pre>$test</pre>";
+	} catch (DivisionByZeroError $e) {
+		echo "<h3>Error caught</h3>";
+		echo "<pre>" . $e->getMessage() . "</pre>";
+}
 ?>
 
 </body>

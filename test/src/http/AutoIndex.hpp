@@ -6,7 +6,7 @@
 /*   By: ttas <ttas@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/18 11:16:14 by yroard            #+#    #+#             */
-/*   Updated: 2026/03/03 14:50:15 by ttas             ###   ########.fr       */
+/*   Updated: 2026/03/09 09:56:15 by ttas             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,6 +43,20 @@ namespace webserv {
                         break;
                     result += "<a href =";
                     result += '"';
+					if(path[path.size()-1] != '/')
+					{
+						std::string path2 = path.substr(path.find_last_of('/'), path.size());
+						result += path2;
+						result += "/";
+					}
+					else
+					{
+						std::string test = path;
+						test.erase(test.size()-1);
+						std::string path2 = test.substr(test.find_last_of('/'), test.size() - 1);
+						result += path2;
+						result += "/";
+					}
                     result += std::string(de->d_name);
                     result += '"';
                     result += ">";

@@ -27,7 +27,7 @@
 		<!-- Right side: Upload and Test -->
 		<div class="d-flex align-items-center ms-auto">
 			<a href="/upload/upload.php" class="nav-link text-light me-3">Upload</a>
-			<a href="/cgi-bin/test.php" class="nav-link text-light">Test</a>
+			<a href="/cgi-bin" class="nav-link text-light">Test</a>
 		</div>
 		</div>
 	</nav>

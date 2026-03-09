@@ -75,7 +75,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                 <!-- Right side -->
                 <div class="d-flex align-items-center ms-auto">
-                    <a href="/cgi.php" class="nav-link text-light">Test</a>
+                    <a href="/cgi-bin" class="nav-link text-light">Test</a>
                 </div>
             </div>
         </nav>
