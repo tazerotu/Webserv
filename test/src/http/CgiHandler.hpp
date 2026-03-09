@@ -65,6 +65,7 @@ namespace webserv {
 						for (it = headerMap.begin(); it != headerMap.end(); ++it){
 							Logger::messagesFilter(DEBUG,
 							"Into loop, header: ","");
+							std::cout << it->first << ": " << it->second << std::endl;
 							res.addHeader(it->first, it->second);
 						}
 						Logger::messagesFilter(DEBUG,

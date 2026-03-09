@@ -11,7 +11,7 @@
 //WARNING, ERR) and handle timeout (in seconds) with bool stopRequested
 namespace webserv {
     struct Init {
-        static const LogLevel   logLevel = ERR;
+        static const LogLevel   logLevel = DEBUG;
         static const int        timeOutLimit = 30;
         static bool             stopRequested;
     };

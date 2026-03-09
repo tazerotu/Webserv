@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ServerManager.hpp                                  :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: yroard <yroard@student.42.fr>              +#+  +:+       +#+        */
+/*   By: ttas <ttas@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/13 14:02:20 by yroard            #+#    #+#             */
-/*   Updated: 2026/02/19 17:44:36 by yroard           ###   ########.fr       */
+/*   Updated: 2026/03/09 13:31:20 by ttas             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -137,6 +137,7 @@ namespace webserv {
 				// iterate: ideally, m_multiplexer should allow dynamic updates.
 				int maxFd = m_connectionManager->getMaxFd();
 				int activity = m_multiplexer->wait(maxFd);
+				m_connectionManager->checkTimeouts(m_multiplexer);
 				if (activity < 0) {
 					Logger::messagesFilter(DEBUG,
 						"Server Manager::run: activity < 0!", "");
@@ -166,7 +167,9 @@ namespace webserv {
 					Client* client = m_connectionManager->getClient(fd);
 					if (client) {
 						if (isSendFailedFatally(client))
+						{
 							m_connectionManager->removeClient(fd, m_multiplexer);
+						}
 						else if (!client->hasPendingData()) {
 							m_multiplexer->stopListeningWriting(fd);
 							if (client->readyToClose()) {
@@ -175,7 +178,7 @@ namespace webserv {
 							}
 						}
 					}
-					m_connectionManager->checkTimeouts(m_multiplexer);	
+					m_connectionManager->checkTimeouts(m_multiplexer);
 				}
 			}
 		}
